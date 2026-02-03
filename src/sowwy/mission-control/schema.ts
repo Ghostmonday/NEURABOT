@@ -17,7 +17,7 @@ import { Type, Static } from "@sinclair/typebox";
 // ============================================================================
 
 export const TaskCategory = {
-zzDEV: "DEV",
+  DEV: "DEV",
   LEGAL: "LEGAL",
   EMAIL: "EMAIL",
   ADMIN: "ADMIN",
