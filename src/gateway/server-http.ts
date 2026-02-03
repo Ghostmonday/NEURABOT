@@ -30,6 +30,15 @@ import {
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
 import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
+import {
+  applyCorsHeaders,
+  applySecurityHeaders,
+  type CorsConfig,
+  type SecurityHeadersConfig,
+} from "./security-middleware.js";
+import { GatewayRateLimiter } from "./rate-limiter.js";
+import { formatSafeError, sendSafeError } from "./error-handler.js";
+import { resolveGatewayClientIp } from "./net.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
@@ -233,6 +242,11 @@ export function createGatewayHttpServer(opts: {
         void handleRequest(req, res);
       });
 
+  // Initialize security components
+  let rateLimiter: GatewayRateLimiter | null = null;
+  let corsConfig: CorsConfig | null = null;
+  let securityHeadersConfig: SecurityHeadersConfig | null = null;
+
   async function handleRequest(req: IncomingMessage, res: ServerResponse) {
     // Don't interfere with WebSocket upgrades; ws handles the 'upgrade' event.
     if (String(req.headers.upgrade ?? "").toLowerCase() === "websocket") {
@@ -242,6 +256,69 @@ export function createGatewayHttpServer(opts: {
     try {
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
+      const securityConfig = configSnapshot.gateway?.security;
+
+      // Initialize security components from config (lazy init)
+      if (!rateLimiter && securityConfig?.rateLimit?.enabled) {
+        rateLimiter = new GatewayRateLimiter({
+          windowMs: securityConfig.rateLimit.windowMs,
+          maxRequests: securityConfig.rateLimit.maxRequests,
+          blockDurationMs: securityConfig.rateLimit.blockDurationMs,
+          whitelist: securityConfig.rateLimit.whitelist,
+        });
+      }
+
+      if (!corsConfig && securityConfig?.cors?.enabled) {
+        corsConfig = {
+          allowedOrigins: securityConfig.cors.allowedOrigins ?? [],
+          allowCredentials: securityConfig.cors.allowCredentials,
+        };
+      }
+
+      if (!securityHeadersConfig) {
+        securityHeadersConfig = {
+          hsts: securityConfig?.headers?.hsts ?? !!opts.tlsOptions,
+          contentSecurityPolicy: securityConfig?.headers?.contentSecurityPolicy,
+        };
+      }
+
+      // Apply security headers to all responses
+      applySecurityHeaders(res, securityHeadersConfig);
+
+      // Apply CORS protection
+      if (corsConfig) {
+        if (!applyCorsHeaders(req, res, corsConfig)) {
+          return; // Request rejected or preflight handled
+        }
+      }
+
+      // Check rate limiting
+      if (rateLimiter) {
+        const clientIp = resolveGatewayClientIp({
+          remoteAddr: req.socket?.remoteAddress,
+          forwardedFor: req.headers["x-forwarded-for"],
+          realIp: req.headers["x-real-ip"],
+          trustedProxies,
+        }) ?? "unknown";
+
+        const rateLimitCheck = rateLimiter.check(clientIp);
+        if (!rateLimitCheck.allowed) {
+          res.statusCode = 429;
+          res.setHeader("Content-Type", "application/json; charset=utf-8");
+          if (rateLimitCheck.retryAfter) {
+            res.setHeader("Retry-After", String(rateLimitCheck.retryAfter));
+          }
+          res.end(
+            JSON.stringify({
+              error: "Rate limit exceeded",
+              code: "RATE_LIMIT_EXCEEDED",
+              retryAfter: rateLimitCheck.retryAfter,
+            }),
+          );
+          return;
+        }
+      }
+
       if (await handleHooksRequest(req, res)) {
         return;
       }
@@ -310,12 +387,17 @@ export function createGatewayHttpServer(opts: {
       res.statusCode = 404;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Not Found");
-    } catch {
-      res.statusCode = 500;
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      res.end("Internal Server Error");
+    } catch (err) {
+      // Use safe error handler to prevent information leakage
+      const safeError = formatSafeError(err);
+      sendSafeError(res, 500, safeError);
     }
   }
+
+  // Cleanup rate limiter on server close
+  httpServer.on("close", () => {
+    rateLimiter?.destroy();
+  });
 
   return httpServer;
 }

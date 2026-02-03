@@ -44,6 +44,7 @@ OpenClaw also powers the OpenClaw assistant.
 
 - **New install from zero:** [Getting Started](/start/getting-started)
 - **Guided setup (recommended):** [Wizard](/start/wizard) (`openclaw onboard`)
+- **Sowwy (Mission Control + Identity):** [Sowwy Quick Start](/SOWWY_QUICKSTART) — 5‑minute setup with MiniMax M2.1
 - **Open the dashboard (local Gateway):** http://127.0.0.1:18789/ (or http://localhost:18789/)
 
 If the Gateway is running on the same computer, that link opens the browser Control UI
@@ -186,6 +187,7 @@ Example:
 
 - Start here:
   - [Docs hubs (all pages linked)](/start/hubs)
+  - [Sowwy Quick Start](/SOWWY_QUICKSTART) — Mission Control, Identity, MiniMax
   - [Help](/help) ← _common fixes + troubleshooting_
   - [Configuration](/gateway/configuration)
   - [Configuration examples](/gateway/configuration-examples)

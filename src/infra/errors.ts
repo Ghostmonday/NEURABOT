@@ -38,3 +38,49 @@ export function formatUncaughtError(err: unknown): string {
   }
   return formatErrorMessage(err);
 }
+
+/**
+ * Wrap error with context
+ */
+export function wrapError(error: unknown, context: string): Error {
+  if (error instanceof Error) {
+    error.message = `${context}: ${error.message}`;
+    return error;
+  }
+  return new Error(`${context}: ${String(error)}`);
+}
+
+/**
+ * Safe async execution with fallback
+ */
+export async function safeAsync<T>(
+  fn: () => Promise<T>,
+  fallback: T,
+  context?: string,
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (context) {
+      console.error(`${context}:`, err);
+    }
+    return fallback;
+  }
+}
+
+/**
+ * Safe async execution that returns result or error
+ */
+export async function safeAsyncResult<T>(
+  fn: () => Promise<T>,
+): Promise<{ ok: true; value: T } | { ok: false; error: Error }> {
+  try {
+    const value = await fn();
+    return { ok: true, value };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err : new Error(String(err)),
+    };
+  }
+}

@@ -271,6 +271,17 @@ openclaw onboard --non-interactive \
   --gateway-bind loopback
 ```
 
+MiniMax example:
+
+```bash
+openclaw onboard --non-interactive \
+  --mode local \
+  --auth-choice minimax-api \
+  --minimax-api-key "$MINIMAX_API_KEY" \
+  --gateway-port 18789 \
+  --gateway-bind loopback
+```
+
 Add agent (non‑interactive) example:
 
 ```bash

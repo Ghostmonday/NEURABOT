@@ -54,6 +54,7 @@ import { loadGatewayModelCatalog } from "./server-model-catalog.js";
 import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
 import { loadGatewayPlugins } from "./server-plugins.js";
 import { createGatewayReloadHandlers } from "./server-reload-handlers.js";
+import { bootstrapSowwy } from "./server-sowwy.js";
 import { resolveGatewayRuntimeConfig } from "./server-runtime-config.js";
 import { createGatewayRuntimeState } from "./server-runtime-state.js";
 import { resolveSessionKeyForRun } from "./server-session-key.js";
@@ -218,7 +219,10 @@ export async function startGatewayServer(
   initSubagentRegistry();
   const defaultAgentId = resolveDefaultAgentId(cfgAtStart);
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(cfgAtStart, defaultAgentId);
-  const baseMethods = listGatewayMethods();
+  const sowwyBootstrap = await bootstrapSowwy();
+  const baseMethods = Array.from(
+    new Set([...listGatewayMethods(), ...sowwyBootstrap.sowwyMethodNames])
+  );
   const { pluginRegistry, gatewayMethods: baseGatewayMethods } = loadGatewayPlugins({
     cfg: cfgAtStart,
     workspaceDir: defaultWorkspaceDir,
@@ -438,6 +442,7 @@ export async function startGatewayServer(
     logWsControl,
     extraHandlers: {
       ...pluginRegistry.gatewayHandlers,
+      ...sowwyBootstrap.sowwyHandlers,
       ...execApprovalHandlers,
     },
     broadcast,
@@ -488,6 +493,10 @@ export async function startGatewayServer(
     log,
     isNixMode,
   });
+  if (sowwyBootstrap.scheduler) {
+    void sowwyBootstrap.scheduler.start();
+    log.info("sowwy: task scheduler started");
+  }
   scheduleGatewayUpdateCheck({ cfg: cfgAtStart, log, isNixMode });
   const tailscaleCleanup = await startGatewayTailscaleExposure({
     tailscaleMode,

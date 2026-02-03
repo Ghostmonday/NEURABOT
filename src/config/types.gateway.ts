@@ -207,6 +207,49 @@ export type GatewayNodesConfig = {
   denyCommands?: string[];
 };
 
+export type GatewaySecurityConfig = {
+  /** CORS configuration */
+  cors?: {
+    /** Enable CORS protection */
+    enabled?: boolean;
+    /** Allowed origins (use "*" for all, not recommended for production) */
+    allowedOrigins?: string[];
+    /** Allow credentials in CORS requests */
+    allowCredentials?: boolean;
+  };
+  /** Rate limiting configuration */
+  rateLimit?: {
+    /** Enable rate limiting */
+    enabled?: boolean;
+    /** Time window in milliseconds (default: 60000 = 1 minute) */
+    windowMs?: number;
+    /** Maximum requests per window (default: 100) */
+    maxRequests?: number;
+    /** Block duration in milliseconds after exceeding limit (default: 300000 = 5 minutes) */
+    blockDurationMs?: number;
+    /** IP addresses to whitelist (bypass rate limiting) */
+    whitelist?: string[];
+  };
+  /** Security headers configuration */
+  headers?: {
+    /** Enable HSTS header (only when TLS is enabled) */
+    hsts?: boolean;
+    /** Content Security Policy string */
+    contentSecurityPolicy?: string;
+  };
+  /** Secrets client configuration (for home security server) */
+  secrets?: {
+    /** Enable secrets client */
+    enabled?: boolean;
+    /** Vault URL (e.g., "http://100.x.x.x:8200" via Tailscale) */
+    vaultUrl?: string;
+    /** Vault authentication token */
+    authToken?: string;
+    /** Request timeout in milliseconds (default: 5000) */
+    timeoutMs?: number;
+  };
+};
+
 export type GatewayConfig = {
   /** Single multiplexed port for Gateway WS + HTTP (default: 18789). */
   port?: number;
@@ -235,6 +278,8 @@ export type GatewayConfig = {
   tls?: GatewayTlsConfig;
   http?: GatewayHttpConfig;
   nodes?: GatewayNodesConfig;
+  /** Security configuration */
+  security?: GatewaySecurityConfig;
   /**
    * IPs of trusted reverse proxies (e.g. Traefik, nginx). When a connection
    * arrives from one of these IPs, the Gateway trusts `x-forwarded-for` (or

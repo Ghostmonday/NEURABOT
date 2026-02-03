@@ -852,6 +852,7 @@
             "group": "Start Here",
             "pages": [
               "index",
+              "start/start-here",
               "start/getting-started",
               "start/wizard",
               "start/setup",
@@ -861,6 +862,17 @@
               "start/hubs",
               "start/onboarding",
               "start/lore"
+            ]
+          },
+          {
+            "group": "Sowwy",
+            "pages": [
+              "SOWWY_QUICKSTART",
+              "SOWWY_ARCHITECTURE",
+              "SOWWY_VPS_SECURITY",
+              "SOWWY_SYSTEMD_HARDENING",
+              "SOWWY_SECRETS_VAULT",
+              "OPENCLAW_INTEGRATION"
             ]
           },
           {
