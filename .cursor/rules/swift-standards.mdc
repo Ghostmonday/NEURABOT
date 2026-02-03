@@ -1,0 +1,29 @@
+---
+description: Swift coding standards for iOS/macOS apps
+globs: **/*.swift
+alwaysApply: false
+---
+
+# Swift Standards
+
+## State Management
+
+- **Prefer Observation**: Prefer the `Observation` framework (`@Observable`, `@Bindable`) over `ObservableObject`/`@StateObject`
+- **Migration**: Don't introduce new `ObservableObject` unless required for compatibility, and migrate existing usages when touching related code
+
+## Formatting & Linting
+
+- **SwiftFormat**: Use swiftformat with config `.swiftformat`
+- **SwiftLint**: Use swiftlint with config `.swiftlint.yml`
+- **Run checks**: `pnpm format:swift` and `pnpm lint:swift`
+
+## Build & Testing
+
+- **iOS Build**: `pnpm ios:build` (uses xcodegen + xcodebuild)
+- **macOS**: Rebuilds must be run directly on the Mac (do not rebuild over SSH)
+- **Device checks**: Before testing, verify connected real devices (iOS/Android) before reaching for simulators/emulators
+
+## Version Management
+
+- **iOS**: `apps/ios/Sources/Info.plist` + `apps/ios/Tests/Info.plist` (CFBundleShortVersionString/CFBundleVersion)
+- **macOS**: `apps/macos/Sources/OpenClaw/Resources/Info.plist` (CFBundleShortVersionString/CFBundleVersion)

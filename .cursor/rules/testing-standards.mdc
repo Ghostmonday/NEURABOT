@@ -1,0 +1,37 @@
+---
+description: Testing guidelines and best practices
+globs: **/*.test.ts
+alwaysApply: false
+---
+
+# Testing Standards
+
+## Framework & Configuration
+
+- **Framework**: Vitest with V8 coverage thresholds (70% lines/branches/functions/statements)
+- **Naming**: Match source names with `*.test.ts`; e2e in `*.e2e.test.ts`
+- **Workers**: Do not set test workers above 16
+
+## Test Organization
+
+- **Colocation**: Tests are colocated `*.test.ts` files next to source
+- **E2E tests**: Use `*.e2e.test.ts` naming for end-to-end tests
+- **Pure test additions/fixes**: Generally do **not** need a changelog entry unless they alter user-facing behavior
+
+## Running Tests
+
+- **Unit tests**: `pnpm test` (vitest)
+- **Coverage**: `pnpm test:coverage`
+- **Live tests**: `CLAWDBOT_LIVE_TEST=1 pnpm test:live` (OpenClaw-only) or `LIVE=1 pnpm test:live` (includes provider live tests)
+- **Docker tests**: `pnpm test:docker:live-models`, `pnpm test:docker:live-gateway`, `pnpm test:docker:onboard`
+
+## Mobile Testing
+
+- **Device preference**: Before using a simulator, check for connected real devices (iOS + Android) and prefer them when available
+- **Restart apps**: "restart iOS/Android apps" means rebuild (recompile/install) and relaunch, not just kill/launch
+
+## Test Coverage
+
+- **Thresholds**: 70% for lines, functions, branches, and statements
+- **Include**: `src/**/*.ts`
+- **Exclude**: `src/**/*.test.ts`

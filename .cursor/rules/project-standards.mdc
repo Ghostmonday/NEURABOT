@@ -1,0 +1,80 @@
+---
+description: Core project standards and conventions for OpenClaw/clawdbot
+alwaysApply: true
+---
+
+# OpenClaw Project Standards
+
+## Language & Code Style
+
+- **TypeScript (ESM)**: Prefer strict typing; avoid `any`
+- **Formatting/Linting**: Use oxlint and oxfmt; run `pnpm check` before commits
+- **File Size**: Keep files under ~700 LOC; guideline only (not hard guardrail)
+- **Comments**: Add brief code comments for tricky or non-obvious logic
+- **Naming**: Use **OpenClaw** for product/app/docs headings; use `openclaw` for CLI command, package/binary, paths, and config keys
+
+## Project Structure
+
+- **Source code**: `src/` (CLI wiring in `src/cli`, commands in `src/commands`, web provider in `src/provider-web.ts`, infra in `src/infra`, media pipeline in `src/media`)
+- **Tests**: Colocated `*.test.ts` files
+- **Docs**: `docs/` (images, queue, Pi config). Built output lives in `dist/`
+- **Plugins/extensions**: Live under `extensions/*` (workspace packages). Keep plugin-only deps in the extension `package.json`; do not add them to the root `package.json` unless core uses them
+- **Plugins**: Install runs `npm install --omit=dev` in plugin dir; runtime deps must live in `dependencies`. Avoid `workspace:*` in `dependencies` (npm install breaks); put `openclaw` in `devDependencies` or `peerDependencies` instead
+
+## Build & Development
+
+- **Runtime**: Node **22+** (keep Node + Bun paths working)
+- **Package Manager**: pnpm (workspace structure)
+- **Install deps**: `pnpm install`
+- **Pre-commit hooks**: `prek install` (runs same checks as CI)
+- **Type-check/build**: `pnpm build`
+- **Lint/format**: `pnpm check`
+- **Tests**: `pnpm test` (vitest); coverage: `pnpm test:coverage`
+
+## Testing Guidelines
+
+- **Framework**: Vitest with V8 coverage thresholds (70% lines/branches/functions/statements)
+- **Naming**: Match source names with `*.test.ts`; e2e in `*.e2e.test.ts`
+- **Workers**: Do not set test workers above 16
+- **Mobile**: Before using a simulator, check for connected real devices (iOS + Android) and prefer them when available
+
+## Commit & PR Guidelines
+
+- **Commits**: Use `scripts/committer "<msg>" <file...>`; avoid manual `git add`/`git commit` so staging stays scoped
+- **Messages**: Follow concise, action-oriented commit messages (e.g., `CLI: add verbose flag to send`)
+- **Changelog**: Keep latest released version at top (no `Unreleased`); after publishing, bump version and start a new top section
+- **PRs**: Should summarize scope, note testing performed, and mention any user-facing changes or new flags
+- **Merge strategy**: Prefer **rebase** when commits are clean; **squash** when history is messy
+
+## Security & Configuration
+
+- **Never commit**: Real phone numbers, videos, or live configuration values. Use obviously fake placeholders in docs, tests, and examples
+- **Web provider creds**: Stored at `~/.openclaw/credentials/`
+- **Pi sessions**: Live under `~/.openclaw/sessions/` by default
+
+## Multi-Agent Safety
+
+- **Do NOT**: Create/apply/drop `git stash` entries unless explicitly requested
+- **Do NOT**: Create/remove/modify `git worktree` checkouts unless explicitly requested
+- **Do NOT**: Switch branches / check out a different branch unless explicitly requested
+- **When committing**: Scope to your changes only
+- **When pushing**: May `git pull --rebase` to integrate latest changes (never discard other agents' work)
+
+## Lint/Format Churn
+
+- If staged+unstaged diffs are formatting-only, auto-resolve without asking
+- If commit/push already requested, auto-stage and include formatting-only follow-ups in the same commit
+- Only ask when changes are semantic (logic/data/behavior)
+
+## Dependencies
+
+- Any dependency with `pnpm.patchedDependencies` must use an exact version (no `^`/`~`)
+- Patching dependencies (pnpm patches, overrides, or vendored changes) requires explicit approval; do not do this by default
+- Never update the Carbon dependency
+- Never edit `node_modules` (global/Homebrew/npm/git installs too). Updates overwrite
+
+## Version Management
+
+- **Do NOT** change version numbers without operator's explicit consent
+- **Always ask** permission before running any npm publish/release step
+- Version locations: `package.json` (CLI), `apps/android/app/build.gradle.kts`, `apps/ios/Sources/Info.plist`, `apps/macos/Sources/OpenClaw/Resources/Info.plist`

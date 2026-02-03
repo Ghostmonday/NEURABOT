@@ -1,0 +1,54 @@
+---
+description: TypeScript coding standards and patterns
+globs: **/*.ts
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+## Type Safety
+
+- **Strict typing**: Prefer strict typing; avoid `any`
+- **Type assertions**: Avoid unsafe type assertions; use proper type guards
+- **No `any`**: `typescript/no-explicit-any` is set to error in oxlint config
+
+## Code Organization
+
+- **File size**: Keep files under ~700 LOC; guideline only (not hard guardrail)
+- **Extract helpers**: Instead of "V2" copies, extract helpers
+- **Patterns**: Use existing patterns for CLI options and dependency injection via `createDefaultDeps`
+
+## Error Handling
+
+```typescript
+// ✅ GOOD: Proper error handling with context
+try {
+  await fetchData();
+} catch (error) {
+  logger.error('Failed to fetch data', { error });
+  throw new DataFetchError('Unable to retrieve data', { cause: error });
+}
+
+// ❌ BAD: Silent failures or empty catch blocks
+try {
+  await fetchData();
+} catch (e) {}
+```
+
+## CLI Progress & Status
+
+- **Progress**: Use `src/cli/progress.ts` (`osc-progress` + `@clack/prompts` spinner); don't hand-roll spinners/bars
+- **Status output**: Keep tables + ANSI-safe wrapping (`src/terminal/table.ts`); `status --all` = read-only/pasteable, `status --deep` = probes
+
+## Tool Schema Guardrails
+
+- **Avoid `Type.Union`**: Avoid `Type.Union` in tool input schemas; no `anyOf`/`oneOf`/`allOf`
+- **Use enums**: Use `stringEnum`/`optionalStringEnum` (Type.Unsafe enum) for string lists
+- **Optional types**: Use `Type.Optional(...)` instead of `... | null`
+- **Top-level schema**: Keep top-level tool schema as `type: "object"` with `properties`
+- **Format property**: Avoid raw `format` property names in tool schemas; some validators treat `format` as a reserved keyword
+
+## Comments
+
+- Add brief code comments for tricky or non-obvious logic
+- Keep comments concise and focused on "why" not "what"
