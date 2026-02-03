@@ -289,9 +289,9 @@ process.env.SOWWY_POSTGRES_DB = "sowwy";
 | [`docs/SOWWY_VPS_SECURITY.md`](docs/SOWWY_VPS_SECURITY.md) | VPS hardening |
 | [`docs/SOWWY_MEMORY_RESEARCH.md`](docs/SOWWY_MEMORY_RESEARCH.md) | Memory strategy |
 | [`docs/OPENCLAW_INTEGRATION.md`](docs/OPENCLAW_INTEGRATION.md) | OpenClaw patterns |
-| [`workspace/AGENTS.md`](workspace/AGENTS.md) | Agent instructions |
-| [`workspace/SOUL.md`](workspace/SOUL.md) | Persona definition |
-| [`workspace/USER.md`](workspace/USER.md) | User context template |
+| [`docs/workspace/AGENTS.md`](workspace/AGENTS.md) | Agent instructions |
+| [`docs/workspace/SOUL.md`](workspace/SOUL.md) | Persona definition |
+| [`docs/workspace/USER.md`](workspace/USER.md) | User context template |
 
 ---
 

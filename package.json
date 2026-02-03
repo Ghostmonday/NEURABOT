@@ -1,10 +1,18 @@
 {
   "name": "openclaw",
   "version": "2026.2.1",
-  "description": "WhatsApp gateway CLI (Baileys web) with Pi RPC agent",
-  "keywords": [],
+  "description": "NEURABOT - Autonomous AI Orchestration Platform with Sowwy (Super Output Workforce Intelligence Entity). Extends OpenClaw with identity learning, persona-based task routing, mission control, and zero-trust security.",
+  "keywords": ["ai", "assistant", "autonomous", "sowwy", "neurabot", "openclaw"],
   "license": "MIT",
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ghostmonday/NEURABOT.git"
+  },
+  "homepage": "https://github.com/Ghostmonday/NEURABOT#readme",
+  "bugs": {
+    "url": "https://github.com/Ghostmonday/NEURABOT/issues"
+  },
   "bin": {
     "openclaw": "openclaw.mjs"
   },
