@@ -145,13 +145,28 @@ export async function resolveBrowserOpenCommand(): Promise<BrowserOpenCommand> {
 
   if (platform === "darwin") {
     const hasOpen = await detectBinary("open");
-    return hasOpen ? { argv: ["open"], command: "open" } : { argv: null, reason: "missing-open" };
+    if (!hasOpen) {
+      return { argv: null, reason: "missing-open" };
+    }
+    const browserEnv = process.env.OPENCLAW_BROWSER?.trim() || process.env.BROWSER?.trim();
+    if (browserEnv) {
+      return { argv: ["open", "-a", browserEnv], command: "open" };
+    }
+    return { argv: ["open"], command: "open" };
   }
 
   if (platform === "linux") {
     const wsl = await isWSL();
     if (!hasDisplay && !wsl) {
       return { argv: null, reason: "no-display" };
+    }
+    // Prefer explicit browser (e.g. firefox) over xdg-open when set.
+    const browserEnv = process.env.OPENCLAW_BROWSER?.trim() || process.env.BROWSER?.trim();
+    if (browserEnv) {
+      const parts = browserEnv.split(/\s+/).filter(Boolean);
+      if (parts.length > 0) {
+        return { argv: parts, command: parts[0] };
+      }
     }
     if (wsl) {
       const hasWslview = await detectBinary("wslview");
