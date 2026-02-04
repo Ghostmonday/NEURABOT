@@ -1,8 +1,8 @@
 /**
  * Secrets Client
- * 
+ *
  * Client for fetching secrets from home security server (HashiCorp Vault).
- * 
+ *
  * This allows the VPS to never store raw API keys - all secrets are
  * fetched on-demand from the secure home server over Tailscale VPN.
  */
@@ -21,7 +21,7 @@ export type SecretsClientConfig = {
 
 /**
  * Secrets Client
- * 
+ *
  * Fetches secrets from HashiCorp Vault running on home security server.
  */
 export class SecretsClient {
@@ -33,7 +33,7 @@ export class SecretsClient {
 
   /**
    * Get secret value from Vault
-   * 
+   *
    * @param path - Secret path (e.g., "secret/data/minimax/api_key")
    * @returns Secret value
    * @throws Error if secret not found or request fails
@@ -63,7 +63,7 @@ export class SecretsClient {
     } catch (err) {
       clearTimeout(timeout);
       if (err instanceof Error && err.name === "AbortError") {
-        throw new Error(`Vault request timeout after ${this.timeoutMs}ms`);
+        throw new Error(`Vault request timeout after ${this.timeoutMs}ms`, { cause: err });
       }
       throw err;
     }
@@ -71,20 +71,16 @@ export class SecretsClient {
 
   /**
    * Proxy API call through home server
-   * 
+   *
    * This allows API calls to external services without the VPS ever
    * seeing the raw API keys. The home server proxies the request.
-   * 
+   *
    * @param service - Service name (e.g., "minimax")
    * @param endpoint - API endpoint path
    * @param body - Request body
    * @returns API response
    */
-  async proxyApiCall(
-    service: string,
-    endpoint: string,
-    body: unknown,
-  ): Promise<unknown> {
+  async proxyApiCall(service: string, endpoint: string, body: unknown): Promise<unknown> {
     const url = `${this.config.vaultUrl}/proxy/${service}${endpoint}`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs * 2);
@@ -110,7 +106,7 @@ export class SecretsClient {
     } catch (err) {
       clearTimeout(timeout);
       if (err instanceof Error && err.name === "AbortError") {
-        throw new Error(`Proxy request timeout after ${this.timeoutMs * 2}ms`);
+        throw new Error(`Proxy request timeout after ${this.timeoutMs * 2}ms`, { cause: err });
       }
       throw err;
     }
@@ -118,7 +114,7 @@ export class SecretsClient {
 
   /**
    * Test connection to Vault
-   * 
+   *
    * @returns True if connection successful
    */
   async testConnection(): Promise<boolean> {

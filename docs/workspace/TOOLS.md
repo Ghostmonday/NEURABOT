@@ -5,6 +5,7 @@
 ## Critical Safety Rules
 
 **Before ANY git operation:**
+
 1. Run `git status` and check for:
    - `.env` files
    - `*.key`, `*.pem` files
@@ -16,6 +17,7 @@
 ## Project-Specific Conventions
 
 ### This Repo Structure
+
 ```
 clawdbot/
 ├── src/sowwy/          # Sowwy core (mission-control, identity, personas)
@@ -25,6 +27,7 @@ clawdbot/
 ```
 
 ### Key Commands
+
 ```bash
 # Development
 pnpm build              # Build TypeScript
@@ -36,23 +39,27 @@ pnpm test               # Run tests
 ```
 
 ### Environment Variables
+
 - `MINIMAX_API_KEY` - Required (set via onboarding)
 - `SOWWY_POSTGRES_HOST` - Optional (defaults to in-memory if not set)
 - `SOWWY_IDENTITY_PATH` - Default: `~/.openclaw/sowwy-identity`
 
 ## File Naming
+
 - Files: `kebab-case.ts`
 - Classes: `PascalCase`
 - Functions: `camelCase`
 - Constants: `UPPER_SNAKE_CASE`
 
 ## Code Style
+
 - TypeScript with strict mode
 - Use Zod for validation
 - Prefer async/await over promises
 - Error handling: throw with context
 
 ## Testing
+
 ```bash
 pnpm test           # Unit tests
 pnpm test:e2e      # End-to-end

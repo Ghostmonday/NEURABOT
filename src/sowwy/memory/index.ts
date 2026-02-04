@@ -1,6 +1,6 @@
 /**
  * Sowwy Memory System
- * 
+ *
  * Three-tier memory architecture:
  * - Short-Term: In-memory session context
  * - Working Memory: Daily logs (memory/YYYY-MM-DD.md)

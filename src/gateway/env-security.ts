@@ -1,6 +1,6 @@
 /**
  * Environment Security Validation
- * 
+ *
  * Validates security-critical environment variables at startup
  * to catch misconfigurations before they become vulnerabilities.
  */
@@ -15,13 +15,13 @@ export type SecurityWarnings = {
 
 /**
  * Validate security-critical environment variables
- * 
+ *
  * Checks for:
  * - Weak tokens (too short)
  * - Password mode usage (less secure than token)
  * - Missing TLS in production
  * - Exposed secrets in environment
- * 
+ *
  * @returns Warnings and errors found
  */
 export function validateSecurityEnv(): SecurityWarnings {
@@ -29,8 +29,7 @@ export function validateSecurityEnv(): SecurityWarnings {
   const errors: string[] = [];
 
   // Check gateway token strength
-  const token =
-    process.env.OPENCLAW_GATEWAY_TOKEN ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
+  const token = process.env.OPENCLAW_GATEWAY_TOKEN ?? process.env.CLAWDBOT_GATEWAY_TOKEN;
   if (token && token.length < 32) {
     warnings.push(
       `OPENCLAW_GATEWAY_TOKEN is too short (${token.length} chars, minimum 32 recommended)`,
@@ -38,9 +37,7 @@ export function validateSecurityEnv(): SecurityWarnings {
   }
 
   // Check for password mode (less secure)
-  const password =
-    process.env.OPENCLAW_GATEWAY_PASSWORD ??
-    process.env.CLAWDBOT_GATEWAY_PASSWORD;
+  const password = process.env.OPENCLAW_GATEWAY_PASSWORD ?? process.env.CLAWDBOT_GATEWAY_PASSWORD;
   if (password) {
     warnings.push(
       "Password authentication mode is less secure than token mode. Consider migrating to token-based auth.",
@@ -60,22 +57,16 @@ export function validateSecurityEnv(): SecurityWarnings {
 
   // Check for common secret exposure patterns
   const envKeys = Object.keys(process.env);
-  const suspiciousPatterns = [
-    /password/i,
-    /secret/i,
-    /key/i,
-    /token/i,
-    /credential/i,
-  ];
+  const suspiciousPatterns = [/password/i, /secret/i, /key/i, /token/i, /credential/i];
 
   for (const key of envKeys) {
     const value = process.env[key];
-    if (!value || value.length < 8) continue;
+    if (!value || value.length < 8) {
+      continue;
+    }
 
     // Check if key suggests sensitive data but value looks exposed
-    const isSuspicious = suspiciousPatterns.some((pattern) =>
-      pattern.test(key),
-    );
+    const isSuspicious = suspiciousPatterns.some((pattern) => pattern.test(key));
     if (isSuspicious && value.includes(" ") && value.length > 50) {
       warnings.push(
         `Environment variable ${key} may contain sensitive data. Ensure it's not logged or exposed.`,
@@ -88,7 +79,7 @@ export function validateSecurityEnv(): SecurityWarnings {
 
 /**
  * Validate and log security warnings/errors
- * 
+ *
  * @throws Error if critical security issues found
  */
 export function validateAndLogSecurityEnv(): void {
@@ -106,8 +97,6 @@ export function validateAndLogSecurityEnv(): void {
     for (const error of errors) {
       console.error(`  ❌ ${error}`);
     }
-    throw new Error(
-      `Security validation failed. Fix the errors above before starting the server.`,
-    );
+    throw new Error(`Security validation failed. Fix the errors above before starting the server.`);
   }
 }

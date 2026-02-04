@@ -15,6 +15,7 @@ Comprehensive Hostinger API integration for Sowwy - manages domains, VPS, billin
 ## Features
 
 ### Domain Management
+
 - **WHOIS Lookup**: Query domain registration information
 - **Availability Check**: Check if domains are available for registration
 - **Portfolio Management**: List and manage owned domains
@@ -25,6 +26,7 @@ Comprehensive Hostinger API integration for Sowwy - manages domains, VPS, billin
 - **Domain Locking**: Enable/disable transfer locks
 
 ### VPS Management
+
 - **Virtual Machines**: List, create, manage VPS instances
 - **Docker Management**: Container orchestration via VPS Docker
 - **Firewall Management**: Configure firewall rules
@@ -35,6 +37,7 @@ Comprehensive Hostinger API integration for Sowwy - manages domains, VPS, billin
 - **Password Management**: Reset panel and root passwords
 
 ### Hosting Management
+
 - **Website Management**: List and manage hosting accounts
 - **Orders**: Track hosting orders
 - **Datacenter Selection**: Choose optimal datacenter location
@@ -42,12 +45,14 @@ Comprehensive Hostinger API integration for Sowwy - manages domains, VPS, billin
 - **Ownership Verification**: Verify domain ownership
 
 ### Billing & Subscriptions
+
 - **Catalog**: View available services and pricing
 - **Payment Methods**: Manage payment options
 - **Subscriptions**: Track and manage recurring services
 - **Auto-Renewal**: Enable/disable automatic renewals
 
 ### DNS & Reach
+
 - **Zone Management**: Full DNS zone control
 - **DNS Snapshots**: Backup and restore DNS configurations
 - **Contacts Management**: Manage contact information
@@ -62,6 +67,7 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 ```
 
 ### Creating API Token
+
 1. Log in to Hostinger Panel (hpanel.hostinger.com)
 2. Go to Account > Profile > API
 3. Create a new API token with required permissions
@@ -70,12 +76,14 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 ## Commands
 
 ### Domain Commands
+
 - `hostinger.domains.list` - List all owned domains
 - `hostinger.domains.check` - Check domain availability
 - `hostinger.domains.whois` - Get WHOIS information
 - `hostinger.domains.purchase` - Purchase available domain (requires approval)
 
 ### DNS Commands
+
 - `hostinger.dns.list` - List DNS zones
 - `hostinger.dns.records` - Get DNS records for domain
 - `hostinger.dns.add` - Add DNS record
@@ -85,6 +93,7 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 - `hostinger.dns.restore` - Restore DNS from snapshot
 
 ### VPS Commands
+
 - `hostinger.vps.list` - List all virtual machines
 - `hostinger.vps.create` - Create new VPS (requires approval)
 - `hostinger.vps.start` - Start virtual machine
@@ -95,6 +104,7 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 - `hostinger.vps.restore` - Restore VM from backup
 
 ### Docker Commands
+
 - `hostinger.docker.list` - List Docker projects
 - `hostinger.docker.containers` - List containers in project
 - `hostinger.docker.start` - Start container
@@ -103,11 +113,13 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 - `hostinger.docker.logs` - Get container logs
 
 ### Firewall Commands
+
 - `hostinger.firewall.list` - List firewall rules
 - `hostinger.firewall.add` - Add firewall rule
 - `hostinger.firewall.remove` - Remove firewall rule
 
 ### Billing Commands
+
 - `hostinger.billing.catalog` - Get service catalog with pricing
 - `hostinger.billing.methods` - List payment methods
 - `hostinger.billing.subscriptions` - List active subscriptions
@@ -115,25 +127,30 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 - `hostinger.billing.renewal.enable` - Enable auto-renewal
 
 ### Hosting Commands
+
 - `hostinger.hosting.list` - List hosting accounts
 - `hostinger.hosting.websites` - List websites
 
 ## Approval Gates
 
 ### Requires Immediate Approval (Human Required)
+
 - `hostinger.domains.purchase` - Domain purchases involve financial transactions
 - `hostinger.vps.create` - New VPS provisioning costs money
 - `hostinger.billing.renewal.disable` - Disabling renewals risks service loss
 
 ### Requires ChiefOfStaff Review
+
 - `hostinger.vps.stop` - Stopping production VMs
 - `hostinger.vps.restart` - Restarting production systems
 
 ### Requires LegalOps Review
+
 - `hostinger.domains.transfer` - Domain transfers involve legal ownership changes
 - Any bulk operations affecting multiple domains
 
 ### Low Risk (Auto-Approved)
+
 - `hostinger.domains.list` - Read-only listing
 - `hostinger.domains.whois` - WHOIS lookup is informational
 - `hostinger.dns.list` - DNS zone listing
@@ -145,11 +162,13 @@ HOSTINGER_API_BASE_URL=https://developers.hostinger.com
 This extension can contribute to Sowwy's identity model:
 
 ### Captures Domain Ownership Identity
+
 - **Domain Portfolio**: Shows technical/web presence preferences
 - **VPS Configuration**: Indicates infrastructure maturity level
 - **Billing Patterns**: Reveals budget priorities and spending habits
 
 ### DNS Management Patterns
+
 - Records managed show technical sophistication
 - Snapshot habits indicate caution/risk tolerance
 
@@ -159,24 +178,24 @@ This extension can contribute to Sowwy's identity model:
 // Check domain availability
 const availability = await sowwy.execute({
   command: "hostinger.domains.check",
-  args: { domain: "example.com" }
+  args: { domain: "example.com" },
 });
 
 // List all VPS instances
 const vpsList = await sowwy.execute({
-  command: "hostinger.vps.list"
+  command: "hostinger.vps.list",
 });
 
 // Get VM metrics
 const metrics = await sowwy.execute({
   command: "hostinger.vps.status",
-  args: { virtualMachineId: "vm-12345" }
+  args: { virtualMachineId: "vm-12345" },
 });
 
 // Create DNS snapshot before changes
 const snapshot = await sowwy.execute({
   command: "hostinger.dns.snapshot",
-  args: { domain: "example.com" }
+  args: { domain: "example.com" },
 });
 ```
 

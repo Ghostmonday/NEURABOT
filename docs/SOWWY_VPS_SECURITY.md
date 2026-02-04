@@ -9,6 +9,7 @@ This guide covers everything you need to secure your Sowwy instance on a remote 
 ## 🎯 Security Philosophy
 
 Sowwy implements **Zero Trust** security:
+
 - **Default-deny**: Everything blocked unless explicitly allowed
 - **Least privilege**: Minimal permissions for each component
 - **Human-in-the-loop**: Critical actions require approval
@@ -19,6 +20,7 @@ Sowwy implements **Zero Trust** security:
 ## 🔐 Secrets Management (Critical)
 
 ### The Golden Rule
+
 **NEVER commit `.env` files or credentials to version control.**
 
 ```bash
@@ -50,12 +52,12 @@ echo "your-secret" | docker secret create sowwy_minimax_key -
 
 ### Secrets That Must Be Protected
 
-| Secret | Protection Level | Rotation Frequency |
-|--------|-----------------|-------------------|
-| `MINIMAX_API_KEY` | Critical | If leaked |
-| `SOWWY_POSTGRES_PASSWORD` | Critical | Monthly |
-| `SOWWY_JWT_SECRET` | Critical | Weekly |
-| `HOSTINGER_API_TOKEN` | Critical | If leaked |
+| Secret                    | Protection Level | Rotation Frequency |
+| ------------------------- | ---------------- | ------------------ |
+| `MINIMAX_API_KEY`         | Critical         | If leaked          |
+| `SOWWY_POSTGRES_PASSWORD` | Critical         | Monthly            |
+| `SOWWY_JWT_SECRET`        | Critical         | Weekly             |
+| `HOSTINGER_API_TOKEN`     | Critical         | If leaked          |
 
 ---
 
@@ -264,7 +266,7 @@ sudo nano /etc/nginx/sites-available/sowwy
 server {
     listen 80;
     server_name sowwy.yourdomain.com;
-    
+
     # SSL redirect
     return 301 https://$server_name$request_uri;
 }
@@ -272,7 +274,7 @@ server {
 server {
     listen 443 ssl;
     server_name sowwy.yourdomain.com;
-    
+
     ssl_certificate /etc/letsencrypt/live/sowwy.yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/sowwy.yourdomain.com/privkey.pem;
     ssl_session_timeout 1d;
@@ -281,7 +283,7 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
     ssl_prefer_server_ciphers off;
-    
+
     location / {
         # Proxy to internal Sowwy gateway
         proxy_pass http://127.0.0.1:18789;
@@ -293,11 +295,11 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
-        
+
         # Rate limiting
         limit_req zone=one burst=20 nodelay;
     }
-    
+
     # Rate limiting zone
     limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
 }
@@ -433,13 +435,13 @@ curl -X POST http://localhost:18789/sowwy/pause \
 
 Critical operations require approval:
 
-| Operation | Default Action | Override |
-|-----------|---------------|----------|
-| `email.send` | Require approval | Only for whitelisted recipients |
-| `browser.navigate` | Require approval | Always required |
-| `financial.transaction` | Require approval | Never auto-approved |
-| `persona.override` | Require approval | LegalOps can override |
-| `hostinger.vps.create` | Require approval | ChiefOfStaff can approve |
+| Operation               | Default Action   | Override                        |
+| ----------------------- | ---------------- | ------------------------------- |
+| `email.send`            | Require approval | Only for whitelisted recipients |
+| `browser.navigate`      | Require approval | Always required                 |
+| `financial.transaction` | Require approval | Never auto-approved             |
+| `persona.override`      | Require approval | LegalOps can override           |
+| `hostinger.vps.create`  | Require approval | ChiefOfStaff can approve        |
 
 ### Rate Limiting
 
@@ -525,6 +527,7 @@ Once configured, Sowwy's security requires **zero micromanagement**:
 4. **Kill switch**: Instant disable if issues arise
 
 The system is designed so that even if MiniMax gets "ideas," it:
+
 - Cannot access the internet directly (internal network only)
 - Cannot exfiltrate data (all traffic goes through approved channels)
 - Cannot escalate privileges (least privilege enforced)

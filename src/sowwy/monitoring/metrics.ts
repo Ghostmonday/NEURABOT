@@ -1,6 +1,6 @@
 /**
  * Sowwy Monitoring - Prometheus Metrics Foundation
- * 
+ *
  * Metrics for:
  * - Task throughput
  * - SMT utilization
@@ -23,32 +23,32 @@ export interface SowwyMetrics {
   tasksByStatus: Record<string, number>;
   tasksCompletedPerHour: number;
   taskQueueDepth: number;
-  
+
   // SMT metrics
   smtUtilization: number;
   smtRemaining: number;
   smtPaused: boolean;
-  
+
   // Identity metrics
   identityFragments: number;
   identityByCategory: Record<string, number>;
   identityExtractionRate: number;
-  
+
   // Persona metrics
   personaExecutionTime: Record<string, number>;
-  
+
   // Channel metrics
   channelMessageRates: Record<string, number>;
-  
+
   // Health metrics
   healthCheckStatus: Record<string, boolean>;
-  
+
   // Circuit breaker metrics
   circuitBreakerStates: Record<string, string>;
-  
+
   // Error metrics
   errorRateByOperation: Record<string, number>;
-  
+
   // Security metrics
   authFailures: number;
   pairingRequests: number;
@@ -68,17 +68,17 @@ export interface MetricsCollector {
   incrementAuthFailure(): void;
   incrementPairingRequest(): void;
   incrementApprovalDenial(): void;
-  
+
   // Set gauges
   setTaskQueueDepth(depth: number): void;
   setSMTUtilization(utilization: number): void;
   setHealthStatus(component: string, healthy: boolean): void;
   setCircuitBreakerState(name: string, state: string): void;
-  
+
   // Record timings
   recordPersonaExecution(persona: string, durationMs: number): void;
   recordTaskExecution(durationMs: number): void;
-  
+
   // Get all metrics
   getMetrics(): SowwyMetrics;
 }
@@ -133,7 +133,7 @@ export const DEFAULT_HEALTH_CHECKS = [
 export const ALERT_THRESHOLDS = {
   postgresDown: "critical",
   lancedbUnavailable: "warning",
-  smtUtilizationHigh: 0.90,
+  smtUtilizationHigh: 0.9,
   taskQueueDepthHigh: 100,
   oldestReadyTaskAgeMs: 86400000, // 24 hours
   identityExtractionRateZero: true,

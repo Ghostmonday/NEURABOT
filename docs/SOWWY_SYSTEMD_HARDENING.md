@@ -78,6 +78,7 @@ systemctl --user show openclaw-gateway.service | grep -i protect
 ```
 
 Should show:
+
 ```
 ProtectSystem=strict
 ProtectHome=true

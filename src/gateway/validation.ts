@@ -1,31 +1,26 @@
 /**
  * Gateway Input Validation
- * 
+ *
  * Provides TypeBox-based validation and string sanitization utilities
  * to prevent injection attacks and malformed input.
  */
 
-import { Value } from "@sinclair/typebox/value";
 import type { TSchema } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 
 /**
  * Validation result
  */
-export type ValidationResult<T> =
-  | { ok: true; value: T }
-  | { ok: false; errors: string[] };
+export type ValidationResult<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
 /**
  * Validate request body against TypeBox schema
- * 
+ *
  * @param body - Request body to validate
  * @param schema - TypeBox schema
  * @returns Validation result with typed value or error messages
  */
-export function validateBody<T>(
-  body: unknown,
-  schema: TSchema,
-): ValidationResult<T> {
+export function validateBody<T>(body: unknown, schema: TSchema): ValidationResult<T> {
   const errors = [...Value.Errors(schema, body)];
 
   if (errors.length > 0) {
@@ -40,12 +35,12 @@ export function validateBody<T>(
 
 /**
  * Sanitize string input to prevent injection attacks
- * 
+ *
  * Removes potentially dangerous characters and patterns:
  * - HTML angle brackets
  * - javascript: protocol
  * - Leading/trailing whitespace
- * 
+ *
  * @param input - String to sanitize
  * @returns Sanitized string
  */
@@ -58,7 +53,7 @@ export function sanitizeString(input: string): string {
 
 /**
  * Validate and sanitize string input
- * 
+ *
  * @param input - String to validate and sanitize
  * @param maxLength - Maximum allowed length
  * @returns Sanitized string or null if invalid
@@ -80,7 +75,7 @@ export function validateAndSanitizeString(
 
 /**
  * Validate IP address format
- * 
+ *
  * @param ip - IP address string
  * @returns True if valid IP address
  */

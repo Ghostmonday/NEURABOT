@@ -1,14 +1,14 @@
 /**
  * Sowwy ChiefOfStaff Persona Skill - Foundation
- * 
+ *
  * ⚠️ PERSONA PURPOSE:
  * - Handles EMAIL and ADMIN category tasks
  * - Email management, scheduling, coordination
  * - Administrative tasks, team coordination
  */
 
-import type { Task } from "../mission-control/schema.js";
 import type { PersonaExecutor, ExecutorResult } from "../extensions/integration.js";
+import type { Task } from "../mission-control/schema.js";
 
 // ============================================================================
 // ChiefOfStaff Persona Skill
@@ -16,44 +16,50 @@ import type { PersonaExecutor, ExecutorResult } from "../extensions/integration.
 
 export const chiefOfStaffPersonaSkill: PersonaExecutor = {
   persona: "ChiefOfStaff",
-  
+
   canHandle(task: Task): boolean {
     return task.category === "EMAIL" || task.category === "ADMIN";
   },
-  
+
   async execute(
     task: Task,
     context: {
       identityContext: string;
       smt: { recordUsage(op: string): void };
-      audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> };
-    }
+      audit: {
+        log(entry: {
+          taskId: string;
+          action: string;
+          details: Record<string, unknown>;
+          performedBy: string;
+        }): Promise<void>;
+      };
+    },
   ): Promise<ExecutorResult> {
     const { identityContext, smt, audit } = context;
-    
+
     smt.recordUsage("persona.chiefofstaff.execute");
-    
+
     try {
       const title = task.title.toLowerCase();
-      
+
       if (title.includes("email") || title.includes("compose") || title.includes("reply")) {
         return await handleEmailTask(task, identityContext, audit);
       }
-      
+
       if (title.includes("schedule") || title.includes("meeting") || title.includes("calendar")) {
         return await handleSchedulingTask(task, identityContext, audit);
       }
-      
+
       if (title.includes("coordinate") || title.includes("organize") || title.includes("plan")) {
         return await handleCoordinationTask(task, identityContext, audit);
       }
-      
+
       if (title.includes("summarize") || title.includes("summary") || title.includes("digest")) {
         return await handleSummaryTask(task, identityContext, audit);
       }
-      
+
       return await handleGenericAdminTask(task, identityContext, audit);
-      
     } catch (error) {
       return {
         success: false,
@@ -73,7 +79,14 @@ export const chiefOfStaffPersonaSkill: PersonaExecutor = {
 async function handleEmailTask(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -81,7 +94,7 @@ async function handleEmailTask(
     details: { title: task.title, identityContext },
     performedBy: "ChiefOfStaff",
   });
-  
+
   return {
     success: true,
     outcome: "EMAIL_COMPLETED",
@@ -93,7 +106,14 @@ async function handleEmailTask(
 async function handleSchedulingTask(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -101,7 +121,7 @@ async function handleSchedulingTask(
     details: { title: task.title, identityContext },
     performedBy: "ChiefOfStaff",
   });
-  
+
   return {
     success: true,
     outcome: "SCHEDULING_COMPLETED",
@@ -113,7 +133,14 @@ async function handleSchedulingTask(
 async function handleCoordinationTask(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -121,7 +148,7 @@ async function handleCoordinationTask(
     details: { title: task.title, identityContext },
     performedBy: "ChiefOfStaff",
   });
-  
+
   return {
     success: true,
     outcome: "COORDINATION_COMPLETED",
@@ -133,7 +160,14 @@ async function handleCoordinationTask(
 async function handleSummaryTask(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -141,7 +175,7 @@ async function handleSummaryTask(
     details: { title: task.title, identityContext },
     performedBy: "ChiefOfStaff",
   });
-  
+
   return {
     success: true,
     outcome: "SUMMARY_COMPLETED",
@@ -153,7 +187,14 @@ async function handleSummaryTask(
 async function handleGenericAdminTask(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -161,7 +202,7 @@ async function handleGenericAdminTask(
     details: { title: task.title, identityContext },
     performedBy: "ChiefOfStaff",
   });
-  
+
   return {
     success: true,
     outcome: "COMPLETED",

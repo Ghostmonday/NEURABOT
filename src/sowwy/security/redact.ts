@@ -1,10 +1,10 @@
 /**
  * Sowwy Security - Secret Redaction
- * 
+ *
  * Prevents API keys, tokens, and credentials from appearing in logs, errors, or debug output.
- * 
+ *
  * ⚠️ CRITICAL: This must be applied to ALL logging, error messages, and debug output.
- * 
+ *
  * Patterns:
  * - MiniMax API keys: sk-cp-*
  * - Hostinger tokens: various formats
@@ -19,34 +19,34 @@
 const SECRET_PATTERNS = [
   // MiniMax API keys
   /sk-cp-[A-Za-z0-9_-]{40,}/g,
-  
+
   // Generic API keys (sk-, pk-, etc.)
   /\b(sk|pk|ak|tk)-[A-Za-z0-9_-]{20,}/gi,
-  
+
   // Hostinger tokens (various formats)
   /\bhostinger[_-]?token[=:]\s*[A-Za-z0-9_-]{20,}/gi,
-  
+
   // PostgreSQL connection strings
   /postgres:\/\/[^:]+:[^@]+@/gi,
   /password[=:]\s*['"]?[^'"\s]{8,}['"]?/gi,
-  
+
   // Environment variable patterns
   /MINIMAX_API_KEY[=:]\s*[^\s]+/gi,
   /HOSTINGER_API_TOKEN[=:]\s*[^\s]+/gi,
   /POSTGRES_PASSWORD[=:]\s*[^\s]+/gi,
   /API_KEY[=:]\s*[^\s]+/gi,
   /SECRET[=:]\s*[^\s]+/gi,
-  
+
   // JSON fields
   /"apiKey"\s*:\s*"[^"]{10,}"/gi,
   /"token"\s*:\s*"[^"]{10,}"/gi,
   /"password"\s*:\s*"[^"]{8,}"/gi,
   /"secret"\s*:\s*"[^"]{8,}"/gi,
   /"authToken"\s*:\s*"[^"]{10,}"/gi,
-  
+
   // Bearer tokens
   /Bearer\s+[A-Za-z0-9_-]{20,}/gi,
-  
+
   // SSH keys (partial)
   /-----BEGIN\s+(?:RSA|EC|OPENSSH)\s+PRIVATE\s+KEY-----[\s\S]{50,}-----END/gi,
 ];
@@ -62,9 +62,9 @@ export function redactString(text: string): string {
   if (!text || typeof text !== "string") {
     return text;
   }
-  
+
   let redacted = text;
-  
+
   for (const pattern of SECRET_PATTERNS) {
     redacted = redacted.replace(pattern, (match) => {
       // Keep first 4 chars and last 4 chars for debugging, redact middle
@@ -76,7 +76,7 @@ export function redactString(text: string): string {
       return "[REDACTED]";
     });
   }
-  
+
   return redacted;
 }
 
@@ -87,32 +87,44 @@ export function redactObject(obj: unknown): unknown {
   if (obj === null || obj === undefined) {
     return obj;
   }
-  
+
   if (typeof obj === "string") {
     return redactString(obj);
   }
-  
+
   if (typeof obj !== "object") {
     return obj;
   }
-  
+
   if (Array.isArray(obj)) {
-    return obj.map(item => redactObject(item));
+    return obj.map((item) => redactObject(item));
   }
-  
+
   const redacted: Record<string, unknown> = {};
   const sensitiveKeys = [
-    "apiKey", "api_key", "token", "password", "secret", 
-    "authToken", "auth_token", "accessToken", "access_token",
-    "refreshToken", "refresh_token", "privateKey", "private_key",
-    "minimax_api_key", "hostinger_api_token", "postgres_password",
+    "apiKey",
+    "api_key",
+    "token",
+    "password",
+    "secret",
+    "authToken",
+    "auth_token",
+    "accessToken",
+    "access_token",
+    "refreshToken",
+    "refresh_token",
+    "privateKey",
+    "private_key",
+    "minimax_api_key",
+    "hostinger_api_token",
+    "postgres_password",
   ];
-  
+
   for (const [key, value] of Object.entries(obj)) {
     const lowerKey = key.toLowerCase();
-    
+
     // If key suggests sensitive data, redact regardless of value
-    if (sensitiveKeys.some(sk => lowerKey.includes(sk))) {
+    if (sensitiveKeys.some((sk) => lowerKey.includes(sk))) {
       if (typeof value === "string" && value.length > 8) {
         redacted[key] = "[REDACTED]";
       } else {
@@ -122,7 +134,7 @@ export function redactObject(obj: unknown): unknown {
       redacted[key] = redactObject(value);
     }
   }
-  
+
   return redacted;
 }
 
@@ -139,11 +151,11 @@ export function redactError(error: unknown): unknown {
     }
     return redacted;
   }
-  
+
   if (typeof error === "string") {
     return redactString(error);
   }
-  
+
   return redactObject(error);
 }
 
@@ -162,9 +174,12 @@ export function safeStringify(obj: unknown, space?: number): string {
 /**
  * Create a redacted logger wrapper
  */
-export function createRedactedLogger(
-  baseLogger: { info: (msg: string, ...args: unknown[]) => void; error: (msg: string, ...args: unknown[]) => void; warn: (msg: string, ...args: unknown[]) => void; debug: (msg: string, ...args: unknown[]) => void }
-) {
+export function createRedactedLogger(baseLogger: {
+  info: (msg: string, ...args: unknown[]) => void;
+  error: (msg: string, ...args: unknown[]) => void;
+  warn: (msg: string, ...args: unknown[]) => void;
+  debug: (msg: string, ...args: unknown[]) => void;
+}) {
   return {
     info: (msg: string, ...args: unknown[]) => {
       baseLogger.info(redactString(msg), ...args.map(redactObject));

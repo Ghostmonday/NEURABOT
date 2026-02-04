@@ -4,18 +4,19 @@
 
 ### OpenClaw Core Components
 
-| Component | Description | Sowwy Integration |
-|-----------|-------------|------------------|
-| **Gateway** | Central RPC API at `ws://127.0.0.1:18789` | Sowwy registers `tasks.*`, `sowwy.*`, `identity.*` RPC methods |
-| **Model Providers** | Configured via `models.providers.*` | MiniMax M2.1 already configured via `minimax-portal-auth` |
-| **Extensions** | Plugin system at `extensions/*` | Sowwy extends via core code, not extension |
-| **Skills** | Skill system at `skills/*` | 4 personas created: Dev, LegalOps, CoS, RnD |
-| **Agents** | Pi Agent runtime | Used for persona execution |
-| **Channels** | WhatsApp, Telegram, etc. | Used for approval notifications |
+| Component           | Description                               | Sowwy Integration                                              |
+| ------------------- | ----------------------------------------- | -------------------------------------------------------------- |
+| **Gateway**         | Central RPC API at `ws://127.0.0.1:18789` | Sowwy registers `tasks.*`, `sowwy.*`, `identity.*` RPC methods |
+| **Model Providers** | Configured via `models.providers.*`       | MiniMax M2.1 already configured via `minimax-portal-auth`      |
+| **Extensions**      | Plugin system at `extensions/*`           | Sowwy extends via core code, not extension                     |
+| **Skills**          | Skill system at `skills/*`                | 4 personas created: Dev, LegalOps, CoS, RnD                    |
+| **Agents**          | Pi Agent runtime                          | Used for persona execution                                     |
+| **Channels**        | WhatsApp, Telegram, etc.                  | Used for approval notifications                                |
 
 ### RPC Methods
 
 **OpenClaw Built-in Methods:**
+
 ```json
 {
   "status": {},
@@ -34,6 +35,7 @@
 ```
 
 **Sowwy Methods (to be registered):**
+
 ```json
 {
   "tasks.list": { "filter": {} },
@@ -71,6 +73,7 @@ pnpm openclaw models list | grep minimax
 **Model Reference:** `minimax-portal/MiniMax-M2.1`
 
 **API Configuration:**
+
 - Global endpoint: `https://api.minimax.io/anthropic`
 - CN endpoint: `https://api.minimaxi.com/anthropic`
 - API format: `anthropic-messages`
@@ -93,6 +96,7 @@ extensions/
 ### Sowwy vs Extension Approach
 
 **Sowwy uses core code approach:**
+
 ```
 src/sowwy/
 ├── mission-control/  # Task OS
@@ -105,6 +109,7 @@ src/sowwy/
 ```
 
 **Why not an extension?**
+
 - Requires deep integration with core
 - Needs access to internal stores (PostgreSQL, LanceDB)
 - Scheduler needs to run continuously
@@ -114,12 +119,12 @@ src/sowwy/
 
 OpenClaw skills are at `skills/*`. Sowwy personas are:
 
-| Persona | Skill | Category |
-|---------|-------|----------|
-| Senior Dev | `persona-dev` | DEV |
-| LegalOps | `persona-legal` | LEGAL |
-| Chief of Staff | `persona-cos` | ADMIN |
-| R&D | `persona-rnd` | RND |
+| Persona        | Skill           | Category |
+| -------------- | --------------- | -------- |
+| Senior Dev     | `persona-dev`   | DEV      |
+| LegalOps       | `persona-legal` | LEGAL    |
+| Chief of Staff | `persona-cos`   | ADMIN    |
+| R&D            | `persona-rnd`   | RND      |
 
 ### Skill Format
 
@@ -147,10 +152,10 @@ You are Amir's Senior Developer...
 
 ```yaml
 # gateway.yaml
-bind: 127.0.0.1          # Loopback only - security
+bind: 127.0.0.1 # Loopback only - security
 port: 18789
 token: ${OPENCLAW_GATEWAY_TOKEN}
-dmPolicy: pairing        # Only paired devices
+dmPolicy: pairing # Only paired devices
 
 # Sowwy configuration
 sowwy:
@@ -162,13 +167,14 @@ sowwy:
     provider: lancedb
     path: ./data/identity
   smt:
-    windowMs: 18000000     # 5 hours
+    windowMs: 18000000 # 5 hours
     maxPrompts: 500
 ```
 
 ### Security Hardening
 
 Per OpenClaw docs, Gateway should:
+
 - Bind to `127.0.0.1` only (not public)
 - Require token authentication
 - Enforce pairing for DM access
@@ -176,6 +182,7 @@ Per OpenClaw docs, Gateway should:
 ## What Works vs What Needs Work
 
 ### ✅ Already Working
+
 1. MiniMax M2.1 OAuth configuration
 2. PostgreSQL in docker-compose
 3. Task schema and validation
@@ -187,6 +194,7 @@ Per OpenClaw docs, Gateway should:
 9. Extension stubs for Proton, Twilio, DeskIn
 
 ### ⚠️ Needs Integration
+
 1. Sowwy RPC methods need to be registered with Gateway
 2. PostgreSQL store implementation (pg-store.ts)
 3. LanceDB store implementation (lancedb-store.ts)
@@ -195,6 +203,7 @@ Per OpenClaw docs, Gateway should:
 6. Health check endpoints
 
 ### ❌ Not Implemented Yet
+
 1. Extension implementations (Proton, Twilio, DeskIn)
 2. WebChat identity panel
 3. Full monitoring dashboard
@@ -208,13 +217,13 @@ The Sowwy RPC methods need to be integrated with the Gateway's RPC registry. Thi
 
 ```typescript
 // In gateway startup
-import { registerSowwyRPCMethods } from './sowwy/gateway/rpc-methods.js';
+import { registerSowwyRPCMethods } from "./sowwy/gateway/rpc-methods.js";
 
 const context = {
   stores: sowwyStores,
   identityStore: identityStore,
   smt: smtThrottler,
-  userId: 'system',
+  userId: "system",
 };
 
 const sowwyMethods = registerSowwyRPCMethods(context);
@@ -233,16 +242,12 @@ gateway.registerMethods(sowwyMethods);
 ### 3. Connect Scheduler
 
 ```typescript
-const scheduler = new TaskScheduler(
-  pgStore,
-  lancedbStore,
-  smtThrottler
-);
+const scheduler = new TaskScheduler(pgStore, lancedbStore, smtThrottler);
 
-scheduler.registerPersona('Dev', devExecutor);
-scheduler.registerPersona('LegalOps', legalExecutor);
-scheduler.registerPersona('ChiefOfStaff', cosExecutor);
-scheduler.registerPersona('RnD', rndExecutor);
+scheduler.registerPersona("Dev", devExecutor);
+scheduler.registerPersona("LegalOps", legalExecutor);
+scheduler.registerPersona("ChiefOfStaff", cosExecutor);
+scheduler.registerPersona("RnD", rndExecutor);
 
 scheduler.start();
 ```

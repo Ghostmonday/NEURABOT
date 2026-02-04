@@ -1,9 +1,9 @@
 /**
  * Sowwy Memory - LanceDB Vector Store
- * 
+ *
  * Stores vector embeddings for semantic memory search.
  * Integrates with PostgreSQL store for full memory management.
- * 
+ *
  * ⚠️ PERFORMANCE:
  * - Vector similarity search (cosine)
  * - Embeddings cached per content hash
@@ -86,13 +86,13 @@ export class LanceDBMemoryStore {
           memory_id: "",
           category: "preference",
           content: "",
-          embedding: Array.from({ length: this.vectorDim }).fill(0),
+          embedding: Array.from<number, number>({ length: this.vectorDim }, () => 0),
           created_at: 0,
         },
       ];
       this.table = await this.db.createTable(
         LanceDBMemoryStore.TABLE_NAME,
-        schema,
+        schema as unknown as Record<string, unknown>[],
       );
       // Remove schema row
       await this.table.delete('id = "__schema__"');
@@ -110,8 +110,7 @@ export class LanceDBMemoryStore {
   ): Promise<void> {
     await this.ensureInitialized();
 
-    const finalEmbedding =
-      embedding ?? (await this.embeddingProvider.embed(content));
+    const finalEmbedding = embedding ?? (await this.embeddingProvider.embed(content));
 
     const entry: MemoryEmbedding = {
       id: randomUUID(),
@@ -122,7 +121,7 @@ export class LanceDBMemoryStore {
       created_at: Date.now(),
     };
 
-    await this.table!.add([entry]);
+    await this.table!.add([entry as unknown as Record<string, unknown>]);
   }
 
   /**
@@ -140,9 +139,7 @@ export class LanceDBMemoryStore {
 
     const embeddings = await Promise.all(
       entries.map(async (entry) => {
-        const embedding =
-          entry.embedding ??
-          (await this.embeddingProvider.embed(entry.content));
+        const embedding = entry.embedding ?? (await this.embeddingProvider.embed(entry.content));
 
         return {
           id: randomUUID(),
@@ -234,7 +231,7 @@ export class LanceDBMemoryStore {
    */
   async close(): Promise<void> {
     if (this.db) {
-      await this.db.close();
+      this.db.close();
       this.db = null;
       this.table = null;
       this.initPromise = null;

@@ -8,42 +8,42 @@
 
 ### Core Schemas & Interfaces
 
-| File | Status | Description |
-|------|--------|-------------|
-| [`src/sowwy/mission-control/schema.ts`](src/sowwy/mission-control/schema.ts) | ✅ Complete | Task, Category, Persona, Status enums with TypeBox |
-| [`src/sowwy/mission-control/store.ts`](src/sowwy/mission-control/store.ts) | ✅ Complete | TaskStore interface with all CRUD + audit |
-| [`src/sowwy/mission-control/pg-store.ts`](src/sowwy/mission-control/pg-store.ts) | ✅ Complete | Full PostgreSQL implementation with transactions |
+| File                                                                               | Status      | Description                                           |
+| ---------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------- |
+| [`src/sowwy/mission-control/schema.ts`](src/sowwy/mission-control/schema.ts)       | ✅ Complete | Task, Category, Persona, Status enums with TypeBox    |
+| [`src/sowwy/mission-control/store.ts`](src/sowwy/mission-control/store.ts)         | ✅ Complete | TaskStore interface with all CRUD + audit             |
+| [`src/sowwy/mission-control/pg-store.ts`](src/sowwy/mission-control/pg-store.ts)   | ✅ Complete | Full PostgreSQL implementation with transactions      |
 | [`src/sowwy/mission-control/scheduler.ts`](src/sowwy/mission-control/scheduler.ts) | ✅ Complete | TaskScheduler with priority queuing + stuck detection |
 
 ### Identity Model
 
-| File | Status | Description |
-|------|--------|-------------|
-| [`src/sowwy/identity/fragments.ts`](src/sowwy/identity/fragments.ts) | ✅ Complete | 8 LOCKED categories: goal, constraint, preference, belief, risk, capability, relationship, historical_fact |
-| [`src/sowwy/identity/store.ts`](src/sowwy/identity/store.ts) | ✅ Complete | IdentityStore interface with search + similarity |
-| [`src/sowwy/identity/lancedb-store.ts`](src/sowwy/identity/lancedb-store.ts) | ✅ Complete | Full LanceDB implementation with vector search |
+| File                                                                         | Status      | Description                                                                                                |
+| ---------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
+| [`src/sowwy/identity/fragments.ts`](src/sowwy/identity/fragments.ts)         | ✅ Complete | 8 LOCKED categories: goal, constraint, preference, belief, risk, capability, relationship, historical_fact |
+| [`src/sowwy/identity/store.ts`](src/sowwy/identity/store.ts)                 | ✅ Complete | IdentityStore interface with search + similarity                                                           |
+| [`src/sowwy/identity/lancedb-store.ts`](src/sowwy/identity/lancedb-store.ts) | ✅ Complete | Full LanceDB implementation with vector search                                                             |
 
 ### Personas
 
-| File | Status | Description |
-|------|--------|-------------|
+| File                                                               | Status      | Description                                             |
+| ------------------------------------------------------------------ | ----------- | ------------------------------------------------------- |
 | [`src/sowwy/personas/priority.ts`](src/sowwy/personas/priority.ts) | ✅ Complete | Priority constants: LegalOps > ChiefOfStaff > Dev > RnD |
-| [`src/sowwy/personas/router.ts`](src/sowwy/personas/router.ts) | ✅ Complete | PersonaRouter with arbitration logic |
+| [`src/sowwy/personas/router.ts`](src/sowwy/personas/router.ts)     | ✅ Complete | PersonaRouter with arbitration logic                    |
 
 ### Security & SMT
 
-| File | Status | Description |
-|------|--------|-------------|
-| [`src/sowwy/security/policy.ts`](src/sowwy/security/policy.ts) | ✅ Complete | Zero-trust model, approval gates, threat model |
-| [`src/sowwy/security/redact.ts`](src/sowwy/security/redact.ts) | ✅ Complete | Secrets redaction for logs |
-| [`src/sowwy/smt/throttler.ts`](src/sowwy/smt/throttler.ts) | ✅ Complete | SMT with protection scope (identity/audit never throttled) |
+| File                                                           | Status      | Description                                                |
+| -------------------------------------------------------------- | ----------- | ---------------------------------------------------------- |
+| [`src/sowwy/security/policy.ts`](src/sowwy/security/policy.ts) | ✅ Complete | Zero-trust model, approval gates, threat model             |
+| [`src/sowwy/security/redact.ts`](src/sowwy/security/redact.ts) | ✅ Complete | Secrets redaction for logs                                 |
+| [`src/sowwy/smt/throttler.ts`](src/sowwy/smt/throttler.ts)     | ✅ Complete | SMT with protection scope (identity/audit never throttled) |
 
 ### Gateway Integration
 
-| File | Status | Description |
-|------|--------|-------------|
-| [`src/sowwy/gateway/rpc-methods.ts`](src/sowwy/gateway/rpc-methods.ts) | ✅ Complete | Task RPC, Identity RPC, System Control methods |
-| [`src/sowwy/extensions/integration.ts`](src/sowwy/extensions/integration.ts) | ⚠️ Needs Integration | Extension registration + approval gates |
+| File                                                                         | Status               | Description                                    |
+| ---------------------------------------------------------------------------- | -------------------- | ---------------------------------------------- |
+| [`src/sowwy/gateway/rpc-methods.ts`](src/sowwy/gateway/rpc-methods.ts)       | ✅ Complete          | Task RPC, Identity RPC, System Control methods |
+| [`src/sowwy/extensions/integration.ts`](src/sowwy/extensions/integration.ts) | ⚠️ Needs Integration | Extension registration + approval gates        |
 
 ---
 
@@ -69,30 +69,30 @@ export async function registerSowwyRPCMethods(
   scheduler: TaskScheduler,
   taskStore: PostgresTaskStore,
   identityStore: LanceDBIdentityStore,
-  smt: SMTThrottler
+  smt: SMTThrottler,
 ): Promise<void> {
   // IMPLEMENTATION_HERE
-  
+
   // Register task methods
   gateway.registerMethod("tasks.list", async (filter) => {
     return taskStore.list(filter);
   });
-  
+
   gateway.registerMethod("tasks.create", async (input) => {
     return taskStore.create(input);
   });
-  
+
   // Register identity methods
   gateway.registerMethod("identity.search", async (query, options) => {
     return identityStore.search(query, options);
   });
-  
+
   // Register system control
   gateway.registerMethod("sowwy.pause", async (reason) => {
     smt.pause();
     return { success: true, reason };
   });
-  
+
   gateway.registerMethod("sowwy.resume", async () => {
     smt.resume();
     return { success: true };
@@ -117,26 +117,26 @@ import { ApprovalGateRegistry } from "../security/policy.js";
 
 export async function registerSowwyExtensions(
   ctx: ExtensionContext,
-  approvalGates: ApprovalGateRegistry
+  approvalGates: ApprovalGateRegistry,
 ): Promise<void> {
   // IMPLEMENTATION_HERE
-  
+
   // Register Hostinger extension
   ctx.registerExtension("hostinger", async (api) => {
     const client = new HostingerClient({
       apiToken: api.getConfig("HOSTINGER_API_TOKEN"),
     });
-    
+
     api.registerTool("hostinger.domains.list", async () => {
       return client.getDomainPortfolio();
     });
-    
+
     // Approval gates for destructive operations
     api.registerApprovalGate("hostinger.vps.stop", async (args) => {
       // Check if VM is running, require approval
     });
   });
-  
+
   // Register other extensions...
 }
 ```
@@ -164,30 +164,29 @@ export interface SowwyConfig {
   extensions: Record<string, unknown>;
 }
 
-export async function createSowwy(
-  config: SowwyConfig,
-  gateway: Gateway
-): Promise<void> {
+export async function createSowwy(config: SowwyConfig, gateway: Gateway): Promise<void> {
   // IMPLEMENTATION_HERE
-  
+
   // 1. Initialize PostgreSQL
   const { tasks, audit, decisions } = await createPostgresStores(config.postgres);
-  
+
   // 2. Initialize LanceDB
   const identity = await createLanceDBIdentityStore(config.lancedb);
-  
+
   // 3. Initialize SMT
   const smt = new SMTThrottler(config.smt);
-  
+
   // 4. Initialize Scheduler
   const scheduler = new TaskScheduler(tasks, identity, smt);
-  
+
   // 5. Register RPC methods
   await registerSowwyRPCMethods(gateway, scheduler, tasks, identity, smt);
-  
+
   // 6. Register extensions
-  await registerSowwyExtensions(gateway, { /* config */ });
-  
+  await registerSowwyExtensions(gateway, {
+    /* config */
+  });
+
   // 7. Start scheduler
   await scheduler.start();
 }
@@ -282,16 +281,16 @@ process.env.SOWWY_POSTGRES_DB = "sowwy";
 
 ## Files Created for You
 
-| File | Purpose |
-|------|---------|
-| [`docs/SOWWY_QUICKSTART.md`](docs/SOWWY_QUICKSTART.md) | Setup guide |
-| [`docs/SOWWY_ARCHITECTURE.md`](docs/SOWWY_ARCHITECTURE.md) | Architecture overview |
-| [`docs/SOWWY_VPS_SECURITY.md`](docs/SOWWY_VPS_SECURITY.md) | VPS hardening |
-| [`docs/SOWWY_MEMORY_RESEARCH.md`](docs/SOWWY_MEMORY_RESEARCH.md) | Memory strategy |
-| [`docs/OPENCLAW_INTEGRATION.md`](docs/OPENCLAW_INTEGRATION.md) | OpenClaw patterns |
-| [`docs/workspace/AGENTS.md`](workspace/AGENTS.md) | Agent instructions |
-| [`docs/workspace/SOUL.md`](workspace/SOUL.md) | Persona definition |
-| [`docs/workspace/USER.md`](workspace/USER.md) | User context template |
+| File                                                             | Purpose               |
+| ---------------------------------------------------------------- | --------------------- |
+| [`docs/SOWWY_QUICKSTART.md`](docs/SOWWY_QUICKSTART.md)           | Setup guide           |
+| [`docs/SOWWY_ARCHITECTURE.md`](docs/SOWWY_ARCHITECTURE.md)       | Architecture overview |
+| [`docs/SOWWY_VPS_SECURITY.md`](docs/SOWWY_VPS_SECURITY.md)       | VPS hardening         |
+| [`docs/SOWWY_MEMORY_RESEARCH.md`](docs/SOWWY_MEMORY_RESEARCH.md) | Memory strategy       |
+| [`docs/OPENCLAW_INTEGRATION.md`](docs/OPENCLAW_INTEGRATION.md)   | OpenClaw patterns     |
+| [`docs/workspace/AGENTS.md`](workspace/AGENTS.md)                | Agent instructions    |
+| [`docs/workspace/SOUL.md`](workspace/SOUL.md)                    | Persona definition    |
+| [`docs/workspace/USER.md`](workspace/USER.md)                    | User context template |
 
 ---
 

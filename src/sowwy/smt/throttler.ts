@@ -1,25 +1,25 @@
 /**
  * Sowwy SMT (System Management Throttler)
- * 
+ *
  * ⚠️ SAFETY CRITICAL: This throttler prevents runaway execution.
- * 
+ *
  * PROTECTION SCOPE (what SMT THROTTLES):
  * - Task admission (new tasks wait)
  * - Persona execution (LLM calls)
  * - External API calls (Twilio, Proton, etc.)
- * 
+ *
  * PROTECTION SCOPE (what SMT DOES NOT THROTTLE):
  * - Identity extraction (must always learn - never gate learning)
  * - Audit logging (must always record - never gate observability)
  * - Kill switch (must always work - never gate safety)
  * - Health checks (must always respond - never gate monitoring)
- * 
+ *
  * ⚠️ PERFORMANCE:
  * - This class is accessed frequently
  * - Keep operations O(1) or O(log n)
  * - No async operations in canProceed()
  * - Atomic state updates only
- * 
+ *
  * ⚠️ WHY THIS DISTINCTION MATTERS:
  * Under load, safety systems must never be gated.
  * If you're tempted to throttle identity/audit/kill, STOP.
@@ -37,10 +37,10 @@
  * - Consider business hours when tuning
  */
 export interface SMTConfig {
-  windowMs: number;           // Time window in milliseconds (default: 5 hours)
-  maxPrompts: number;         // Max operations per window (default: 500)
-  targetUtilization: number;  // Target utilization (default: 0.80)
-  reservePercent: number;     // Reserve for priority categories (default: 0.20)
+  windowMs: number; // Time window in milliseconds (default: 5 hours)
+  maxPrompts: number; // Max operations per window (default: 500)
+  targetUtilization: number; // Target utilization (default: 0.80)
+  reservePercent: number; // Reserve for priority categories (default: 0.20)
 }
 
 // ============================================================================
@@ -49,9 +49,9 @@ export interface SMTConfig {
 
 export const DEFAULT_SMT_CONFIG: SMTConfig = {
   windowMs: 5 * 60 * 60 * 1000, // 5 hours
-  maxPrompts: 500,              // Minimax Enterprise
-  targetUtilization: 0.80,     // 70-85% target
-  reservePercent: 0.20,         // 20% reserve
+  maxPrompts: 500, // Minimax Enterprise
+  targetUtilization: 0.8, // 70-85% target
+  reservePercent: 0.2, // 20% reserve
 };
 
 // ============================================================================
@@ -59,11 +59,11 @@ export const DEFAULT_SMT_CONFIG: SMTConfig = {
 // ============================================================================
 
 export const UNTHROTTLED_OPERATIONS = new Set([
-  "identity.extract",    // Must always learn
-  "audit.append",        // Must always record
-  "health.check",        // Must always respond
-  "sowwy.pause",         // Kill switch
-  "sowwy.status",        // Status check
+  "identity.extract", // Must always learn
+  "audit.append", // Must always record
+  "health.check", // Must always respond
+  "sowwy.pause", // Kill switch
+  "sowwy.status", // Status check
 ]);
 
 // ============================================================================
@@ -84,7 +84,7 @@ export interface SMTState {
 export class SMTThrottler {
   private config: SMTConfig;
   private state: SMTState;
-  
+
   constructor(config: Partial<SMTConfig> = {}) {
     this.config = { ...DEFAULT_SMT_CONFIG, ...config };
     this.state = {
@@ -94,7 +94,7 @@ export class SMTThrottler {
       burstMode: false,
     };
   }
-  
+
   /**
    * Check if an operation can proceed
    */
@@ -103,19 +103,19 @@ export class SMTThrottler {
     if (UNTHROTTLED_OPERATIONS.has(operation)) {
       return true;
     }
-    
+
     // Check pause state
     if (this.state.isPaused) {
       return false;
     }
-    
+
     // Check window reset
     this.checkWindowReset();
-    
+
     const limit = this.getEffectiveLimit(category);
     return this.state.usedInWindow < limit;
   }
-  
+
   /**
    * Record an operation as used
    */
@@ -123,11 +123,11 @@ export class SMTThrottler {
     if (UNTHROTTLED_OPERATIONS.has(operation)) {
       return;
     }
-    
+
     this.checkWindowReset();
     this.state.usedInWindow++;
   }
-  
+
   /**
    * Get current utilization percentage
    */
@@ -135,7 +135,7 @@ export class SMTThrottler {
     const limit = this.config.maxPrompts * this.config.targetUtilization;
     return this.state.usedInWindow / limit;
   }
-  
+
   /**
    * Get remaining operations in current window
    */
@@ -143,42 +143,42 @@ export class SMTThrottler {
     const limit = this.config.maxPrompts * this.config.targetUtilization;
     return Math.max(0, limit - this.state.usedInWindow);
   }
-  
+
   /**
    * Enable burst mode for crisis situations
    */
   enableBurstMode(): void {
     this.state.burstMode = true;
   }
-  
+
   /**
    * Disable burst mode
    */
   disableBurstMode(): void {
     this.state.burstMode = false;
   }
-  
+
   /**
    * Global pause (kill switch active)
    */
   pause(): void {
     this.state.isPaused = true;
   }
-  
+
   /**
    * Resume from pause
    */
   resume(): void {
     this.state.isPaused = false;
   }
-  
+
   /**
    * Check if throttler is paused
    */
   isPaused(): boolean {
     return this.state.isPaused;
   }
-  
+
   /**
    * Reset the throttling window
    */
@@ -186,9 +186,9 @@ export class SMTThrottler {
     this.state.usedInWindow = 0;
     this.state.windowStart = Date.now();
   }
-  
+
   // Private methods
-  
+
   private checkWindowReset(): void {
     const elapsed = Date.now() - this.state.windowStart;
     if (elapsed >= this.config.windowMs) {
@@ -196,18 +196,18 @@ export class SMTThrottler {
       this.state.windowStart = Date.now();
     }
   }
-  
+
   private getEffectiveLimit(category?: string): number {
     // Burst mode ignores limits
     if (this.state.burstMode) {
       return this.config.maxPrompts;
     }
-    
+
     // Reserve check for priority categories (LEGAL, EMAIL)
     if (category === "LEGAL" || category === "EMAIL") {
       return Math.floor(this.config.maxPrompts * (1 - this.config.reservePercent * 0.5));
     }
-    
+
     return Math.floor(this.config.maxPrompts * this.config.targetUtilization);
   }
 }
@@ -230,6 +230,6 @@ export function getMetrics(throttler: SMTThrottler): SMTMetrics {
     remaining: throttler.getRemaining(),
     isPaused: throttler.isPaused(),
     burstMode: false, // Would need to track this
-    windowEnd: Date.now() + (5 * 60 * 60 * 1000), // Would need actual window end
+    windowEnd: Date.now() + 5 * 60 * 60 * 1000, // Would need actual window end
   };
 }

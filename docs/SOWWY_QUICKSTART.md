@@ -25,6 +25,7 @@ openclaw onboard
 ```
 
 **During onboarding:**
+
 1. Choose **QuickStart** (recommended for first run)
 2. When asked about model/auth, select **MiniMax M2.1** (config auto-written)
 3. Accept defaults for everything else
@@ -103,11 +104,13 @@ The gateway will start on `ws://127.0.0.1:18789`
 ## Step 5: Test Sowwy
 
 Open the Control UI in your browser:
+
 ```
 http://127.0.0.1:18790
 ```
 
 Or test via CLI:
+
 ```bash
 # List tasks
 openclaw rpc sowwy.tasks.list
@@ -169,6 +172,7 @@ For initial testing, you can run without PostgreSQL. Sowwy will use in-memory st
 ## Troubleshooting
 
 ### Gateway won't start
+
 ```bash
 # Check if port is in use
 lsof -i :18789
@@ -178,6 +182,7 @@ kill $(lsof -t -i :18789)
 ```
 
 ### MiniMax auth failed
+
 ```bash
 # Re-run onboarding to re-authenticate
 openclaw onboard --reset auth
@@ -187,6 +192,7 @@ export MINIMAX_API_KEY="sk-cp-..."
 ```
 
 ### PostgreSQL connection refused
+
 ```bash
 # Check if Docker is running
 docker ps | grep sowwy
@@ -199,6 +205,7 @@ docker restart sowwy-postgres
 ```
 
 ### Health check failing
+
 ```bash
 # Deep health check
 openclaw status --deep
@@ -222,13 +229,13 @@ Once working locally:
 
 ## Files Reference
 
-| File | Purpose |
-|------|---------|
-| `~/.openclaw/openclaw.json` | Main OpenClaw config |
-| `~/.openclaw/.env` | Environment variables |
-| `~/.openclaw/sowwy-identity/` | LanceDB identity store |
-| `/home/amir/Documents/clawdbot/src/sowwy/` | Sowwy source code |
-| `/home/amir/Documents/clawdbot/skills/` | Persona skills |
+| File                                       | Purpose                |
+| ------------------------------------------ | ---------------------- |
+| `~/.openclaw/openclaw.json`                | Main OpenClaw config   |
+| `~/.openclaw/.env`                         | Environment variables  |
+| `~/.openclaw/sowwy-identity/`              | LanceDB identity store |
+| `/home/amir/Documents/clawdbot/src/sowwy/` | Sowwy source code      |
+| `/home/amir/Documents/clawdbot/skills/`    | Persona skills         |
 
 ---
 

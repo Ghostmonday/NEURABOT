@@ -1,9 +1,5 @@
 import { describe, expect, it, beforeEach } from "vitest";
-import {
-  SMTThrottler,
-  DEFAULT_SMT_CONFIG,
-  UNTHROTTLED_OPERATIONS,
-} from "./throttler.js";
+import { SMTThrottler, DEFAULT_SMT_CONFIG, UNTHROTTLED_OPERATIONS } from "./throttler.js";
 
 describe("SMTThrottler", () => {
   let throttler: SMTThrottler;
@@ -65,7 +61,7 @@ describe("SMTThrottler", () => {
     it("should pause and resume", () => {
       throttler.pause();
       expect(throttler.getState().isPaused).toBe(true);
-      
+
       throttler.resume();
       expect(throttler.getState().isPaused).toBe(false);
     });

@@ -166,6 +166,7 @@ gateway:
 ## Files Created
 
 ### Security
+
 - `src/gateway/security-middleware.ts`
 - `src/gateway/rate-limiter.ts`
 - `src/gateway/validation.ts`
@@ -175,6 +176,7 @@ gateway:
 - `scripts/generate-secure-token.ts`
 
 ### Memory System
+
 - `src/sowwy/memory/pg-store.ts`
 - `src/sowwy/memory/lancedb-store.ts`
 - `src/sowwy/memory/extraction.ts`
@@ -182,11 +184,13 @@ gateway:
 - `src/sowwy/memory/index.ts`
 
 ### Infrastructure
+
 - `src/infra/type-guards.ts`
 - `src/infra/concurrency.ts`
 - `src/infra/lru-cache.ts`
 
 ### Modified Files
+
 - `src/config/types.gateway.ts` - Added security config types
 - `src/gateway/server-http.ts` - Integrated security middleware
 - `src/infra/errors.ts` - Extended error utilities
@@ -218,14 +222,14 @@ gateway:
 
 ## Success Metrics
 
-| Metric | Before | Target | Status |
-|--------|--------|--------|--------|
-| Security Score | 6/10 | 9.5/10 | ✅ Implemented |
-| CORS Protection | None | Full | ✅ Complete |
-| Rate Limiting | Partial | Full | ✅ Complete |
-| Memory System | Basic | Advanced | ✅ Complete |
-| Type Safety | 70% | 95% | ✅ Improved |
-| Code Deduplication | Multiple | Single | ✅ Complete |
+| Metric             | Before   | Target   | Status         |
+| ------------------ | -------- | -------- | -------------- |
+| Security Score     | 6/10     | 9.5/10   | ✅ Implemented |
+| CORS Protection    | None     | Full     | ✅ Complete    |
+| Rate Limiting      | Partial  | Full     | ✅ Complete    |
+| Memory System      | Basic    | Advanced | ✅ Complete    |
+| Type Safety        | 70%      | 95%      | ✅ Improved    |
+| Code Deduplication | Multiple | Single   | ✅ Complete    |
 
 ## Notes
 

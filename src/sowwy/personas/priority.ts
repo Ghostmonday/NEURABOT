@@ -1,23 +1,23 @@
 /**
  * Sowwy Persona Priority System
- * 
+ *
  * ⚠️ EXECUTION ORDER (never change this):
  * RnD (0) → Dev (1) → ChiefOfStaff (2) → LegalOps (3)
- * 
+ *
  * WHY THIS ORDER MATTERS:
  * - LegalOps OVERRIDES Dev: Compliance > shipping deadlines
  * - ChiefOfStaff DEFIES ANYTHING: Scheduling authority
  * - RnD NEVER BLOCKS: Experiments don't stop production
- * 
+ *
  * ⚠️ COMMON MISTAKE: "What if LegalOps is slow?"
  * Answer: Tasks wait. Compliance delays are intentional.
  * Don't add "urgent legal" bypasses - that defeats the purpose.
- * 
+ *
  * ⚠️ ANTI-PATTERNS TO AVOID:
  * - Priority inversion: Lower priority persona handling higher priority work
  * - Escalation without review: Auto-escalating to bypass priority
  * - Persona shopping: Trying different personas for same task
- * 
+ *
  * ⚠️ WHEN TO USE canOverride():
  * - LegalOps finding a blocked task that needs compliance review
  * - ChiefOfStaff rebalancing workload
@@ -30,20 +30,20 @@
 
 /**
  * PERSONA PRIORITY (higher index = higher priority)
- * 
+ *
  * RnD: 0 - Experiments, research, never blocks production
  * Dev: 1 - Production code, feature work
  * ChiefOfStaff: 2 - Scheduling, coordination, can defer
  * LegalOps: 3 - Compliance, legal, never compromises
  */
 export const PERSONA_PRIORITY = [
-  "RnD",          // 0 - lowest, never blocks others
-  "Dev",          // 1 - production work
+  "RnD", // 0 - lowest, never blocks others
+  "Dev", // 1 - production work
   "ChiefOfStaff", // 2 - can defer anything
-  "LegalOps",     // 3 - highest, compliance critical
+  "LegalOps", // 3 - highest, compliance critical
 ] as const;
 
-export type PersonaType = typeof PERSONA_PRIORITY[number];
+export type PersonaType = (typeof PERSONA_PRIORITY)[number];
 
 // ============================================================================
 // Priority Functions

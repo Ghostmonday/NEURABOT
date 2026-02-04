@@ -14,6 +14,7 @@ import { handleA2uiHttpRequest } from "../canvas-host/a2ui.js";
 import { loadConfig } from "../config/config.js";
 import { handleSlackHttpRequest } from "../slack/http/index.js";
 import { handleControlUiAvatarRequest, handleControlUiHttpRequest } from "./control-ui.js";
+import { formatSafeError, sendSafeError } from "./error-handler.js";
 import { applyHookMappings } from "./hooks-mapping.js";
 import {
   extractHookToken,
@@ -27,18 +28,17 @@ import {
   resolveHookChannel,
   resolveHookDeliver,
 } from "./hooks.js";
+import { resolveGatewayClientIp } from "./net.js";
 import { handleOpenAiHttpRequest } from "./openai-http.js";
 import { handleOpenResponsesHttpRequest } from "./openresponses-http.js";
-import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
+import { GatewayRateLimiter } from "./rate-limiter.js";
 import {
   applyCorsHeaders,
   applySecurityHeaders,
   type CorsConfig,
   type SecurityHeadersConfig,
 } from "./security-middleware.js";
-import { GatewayRateLimiter } from "./rate-limiter.js";
-import { formatSafeError, sendSafeError } from "./error-handler.js";
-import { resolveGatewayClientIp } from "./net.js";
+import { handleToolsInvokeHttpRequest } from "./tools-invoke-http.js";
 
 type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
@@ -294,12 +294,15 @@ export function createGatewayHttpServer(opts: {
 
       // Check rate limiting
       if (rateLimiter) {
-        const clientIp = resolveGatewayClientIp({
-          remoteAddr: req.socket?.remoteAddress,
-          forwardedFor: req.headers["x-forwarded-for"],
-          realIp: req.headers["x-real-ip"],
-          trustedProxies,
-        }) ?? "unknown";
+        const forwardedFor = req.headers["x-forwarded-for"];
+        const realIp = req.headers["x-real-ip"];
+        const clientIp =
+          resolveGatewayClientIp({
+            remoteAddr: req.socket?.remoteAddress,
+            forwardedFor: Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor,
+            realIp: Array.isArray(realIp) ? realIp[0] : realIp,
+            trustedProxies,
+          }) ?? "unknown";
 
         const rateLimitCheck = rateLimiter.check(clientIp);
         if (!rateLimitCheck.allowed) {

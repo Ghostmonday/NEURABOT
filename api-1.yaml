@@ -4683,7 +4683,8 @@ components:
                   description: Domain name (example). Contains verification types as properties.
                   properties:
                     VERIFICATION_TYPE:
-                      description: Verification type ("NAMESERVERS" or "TXT"). Only verification types
+                      description:
+                        Verification type ("NAMESERVERS" or "TXT"). Only verification types
                         that exist for this domain will be present.
                       properties:
                         records:

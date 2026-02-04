@@ -1,10 +1,10 @@
 /**
  * Sowwy Memory - Consolidation Service
- * 
+ *
  * Consolidates daily memory logs into long-term memory.
  * Merges similar fragments, removes outdated information, and prioritizes
  * high-confidence entries.
- * 
+ *
  * ⚠️ CONSOLIDATION RULES:
  * - Merge similar fragments
  * - Remove outdated information
@@ -12,13 +12,13 @@
  * - Keep only actionable insights
  */
 
+import type { LanceDBMemoryStore } from "./lancedb-store.js";
 import type {
   IdentityCategory,
   PostgresMemoryStore,
   PreferenceEntry,
   MemoryEntry,
 } from "./pg-store.js";
-import type { LanceDBMemoryStore } from "./lancedb-store.js";
 
 // ============================================================================
 // Types
@@ -59,7 +59,9 @@ export class MemoryConsolidationService {
     const groups = this.groupSimilarPreferences(preferences);
 
     for (const group of groups) {
-      if (group.length < minFrequency) continue;
+      if (group.length < minFrequency) {
+        continue;
+      }
 
       // Merge group into single preference
       const merged = this.mergePreferences(group);
@@ -93,17 +95,16 @@ export class MemoryConsolidationService {
     const cutoffDate = new Date(now.getTime() - maxAgeDays * 24 * 60 * 60 * 1000);
 
     const validMemories = memories.filter(
-      (m) =>
-        m.confidence >= minConfidence &&
-        m.created_at >= cutoffDate &&
-        !m.verified, // Don't consolidate verified entries
+      (m) => m.confidence >= minConfidence && m.created_at >= cutoffDate && !m.verified, // Don't consolidate verified entries
     );
 
     // Group similar memories
     const groups = this.groupSimilarMemories(validMemories);
 
     for (const group of groups) {
-      if (group.length < 2) continue;
+      if (group.length < 2) {
+        continue;
+      }
 
       // Merge group
       const merged = this.mergeMemories(group);
@@ -122,21 +123,23 @@ export class MemoryConsolidationService {
   /**
    * Group similar preferences together
    */
-  private groupSimilarPreferences(
-    preferences: PreferenceEntry[],
-  ): PreferenceEntry[][] {
+  private groupSimilarPreferences(preferences: PreferenceEntry[]): PreferenceEntry[][] {
     const groups: PreferenceEntry[][] = [];
     const used = new Set<string>();
 
     for (const pref of preferences) {
-      if (used.has(pref.id)) continue;
+      if (used.has(pref.id)) {
+        continue;
+      }
 
       const group = [pref];
       used.add(pref.id);
 
       // Find similar preferences
       for (const other of preferences) {
-        if (used.has(other.id)) continue;
+        if (used.has(other.id)) {
+          continue;
+        }
         if (this.areSimilarPreferences(pref, other)) {
           group.push(other);
           used.add(other.id);
@@ -152,12 +155,11 @@ export class MemoryConsolidationService {
   /**
    * Check if two preferences are similar
    */
-  private areSimilarPreferences(
-    a: PreferenceEntry,
-    b: PreferenceEntry,
-  ): boolean {
+  private areSimilarPreferences(a: PreferenceEntry, b: PreferenceEntry): boolean {
     // Same category required
-    if (a.category !== b.category) return false;
+    if (a.category !== b.category) {
+      return false;
+    }
 
     // Check text similarity (simple approach)
     const aWords = a.preference.toLowerCase().split(/\s+/);
@@ -182,13 +184,10 @@ export class MemoryConsolidationService {
     for (const pref of group) {
       textCounts.set(pref.preference, (textCounts.get(pref.preference) ?? 0) + 1);
     }
-    const mostFrequent = Array.from(textCounts.entries()).sort(
-      (a, b) => b[1] - a[1],
-    )[0][0];
+    const mostFrequent = Array.from(textCounts.entries()).toSorted((a, b) => b[1] - a[1])[0][0];
 
     // Average strength
-    const avgStrength =
-      group.reduce((sum, p) => sum + p.strength, 0) / group.length;
+    const avgStrength = group.reduce((sum, p) => sum + p.strength, 0) / group.length;
 
     // Combine evidence
     const evidence: Array<{ source: string; timestamp: Date }> = [];
@@ -212,14 +211,18 @@ export class MemoryConsolidationService {
     const used = new Set<string>();
 
     for (const memory of memories) {
-      if (used.has(memory.id)) continue;
+      if (used.has(memory.id)) {
+        continue;
+      }
 
       const group = [memory];
       used.add(memory.id);
 
       // Find similar memories (simple text similarity)
       for (const other of memories) {
-        if (used.has(other.id)) continue;
+        if (used.has(other.id)) {
+          continue;
+        }
         if (this.areSimilarMemories(memory, other)) {
           group.push(other);
           used.add(other.id);
@@ -236,7 +239,9 @@ export class MemoryConsolidationService {
    * Check if two memories are similar
    */
   private areSimilarMemories(a: MemoryEntry, b: MemoryEntry): boolean {
-    if (a.category !== b.category) return false;
+    if (a.category !== b.category) {
+      return false;
+    }
 
     // Simple text similarity
     const aWords = a.content.toLowerCase().split(/\s+/);
@@ -256,13 +261,10 @@ export class MemoryConsolidationService {
     confidence: number;
   } {
     // Use longest content (most detailed)
-    const longest = group.reduce((a, b) =>
-      a.content.length > b.content.length ? a : b,
-    );
+    const longest = group.reduce((a, b) => (a.content.length > b.content.length ? a : b));
 
     // Average confidence
-    const avgConfidence =
-      group.reduce((sum, m) => sum + m.confidence, 0) / group.length;
+    const avgConfidence = group.reduce((sum, m) => sum + m.confidence, 0) / group.length;
 
     return {
       category: group[0].category,

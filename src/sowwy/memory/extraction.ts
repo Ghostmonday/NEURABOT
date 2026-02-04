@@ -1,18 +1,15 @@
 /**
  * Sowwy Memory - Extraction Pipeline
- * 
+ *
  * Extracts preferences, decisions, and identity fragments from conversations.
  * Uses rule-based patterns and LLM-based extraction for comprehensive coverage.
- * 
+ *
  * ⚠️ WRITE ACCESS:
  * Only this pipeline may write to memory stores (enforced by stores).
  */
 
-import type {
-  IdentityCategory,
-  PostgresMemoryStore,
-} from "./pg-store.js";
 import type { LanceDBMemoryStore } from "./lancedb-store.js";
+import type { IdentityCategory, PostgresMemoryStore } from "./pg-store.js";
 
 // ============================================================================
 // Types
@@ -80,7 +77,11 @@ export class MemoryExtractionPipeline {
     }
 
     for (const decision of decisions) {
-      await this.pgStore.createDecision(decision);
+      await this.pgStore.createDecision({
+        decision: decision.decision,
+        context: decision.context ?? undefined,
+        confidence: decision.confidence ?? undefined,
+      });
     }
 
     // Store memory entries with embeddings
@@ -93,11 +94,7 @@ export class MemoryExtractionPipeline {
       });
 
       // Generate and store embedding
-      await this.lanceStore.addEmbedding(
-        memoryId,
-        memory.category,
-        memory.content,
-      );
+      await this.lanceStore.addEmbedding(memoryId, memory.category, memory.content);
     }
 
     return { preferences, decisions, memories };
@@ -106,10 +103,7 @@ export class MemoryExtractionPipeline {
   /**
    * Extract preferences from messages using pattern matching
    */
-  private extractPreferences(
-    messages: Message[],
-    source: string,
-  ): ExtractedPreference[] {
+  private extractPreferences(messages: Message[], source: string): ExtractedPreference[] {
     const preferences: ExtractedPreference[] = [];
     const patterns = [
       {
@@ -145,13 +139,17 @@ export class MemoryExtractionPipeline {
     ];
 
     for (const message of messages) {
-      if (message.role !== "user") continue;
+      if (message.role !== "user") {
+        continue;
+      }
 
       for (const pattern of patterns) {
         const matches = [...message.content.matchAll(pattern.regex)];
         for (const match of matches) {
           const preference = match[1]?.trim();
-          if (!preference || preference.length < 3) continue;
+          if (!preference || preference.length < 3) {
+            continue;
+          }
 
           preferences.push({
             category: pattern.category,
@@ -192,13 +190,17 @@ export class MemoryExtractionPipeline {
     ];
 
     for (const message of messages) {
-      if (message.role !== "user") continue;
+      if (message.role !== "user") {
+        continue;
+      }
 
       for (const pattern of patterns) {
         const matches = [...message.content.matchAll(pattern.regex)];
         for (const match of matches) {
           const decision = match[1]?.trim();
-          if (!decision || decision.length < 3) continue;
+          if (!decision || decision.length < 3) {
+            continue;
+          }
 
           // Try to extract context from surrounding messages
           const context = this.extractContext(messages, message);
@@ -218,10 +220,7 @@ export class MemoryExtractionPipeline {
   /**
    * Extract general memory fragments
    */
-  private extractMemories(
-    messages: Message[],
-    source: string,
-  ): ExtractedMemory[] {
+  private extractMemories(messages: Message[], source: string): ExtractedMemory[] {
     const memories: ExtractedMemory[] = [];
 
     // Look for factual statements
@@ -244,13 +243,17 @@ export class MemoryExtractionPipeline {
     ];
 
     for (const message of messages) {
-      if (message.role !== "user") continue;
+      if (message.role !== "user") {
+        continue;
+      }
 
       for (const pattern of factPatterns) {
         const matches = [...message.content.matchAll(pattern.regex)];
         for (const match of matches) {
           const content = match[1]?.trim();
-          if (!content || content.length < 5) continue;
+          if (!content || content.length < 5) {
+            continue;
+          }
 
           memories.push({
             category: pattern.category,
@@ -270,15 +273,16 @@ export class MemoryExtractionPipeline {
    */
   private extractContext(messages: Message[], currentMessage: Message): string | null {
     const currentIndex = messages.indexOf(currentMessage);
-    if (currentIndex === -1) return null;
+    if (currentIndex === -1) {
+      return null;
+    }
 
     // Get previous 2 messages for context
-    const contextMessages = messages.slice(
-      Math.max(0, currentIndex - 2),
-      currentIndex,
-    );
+    const contextMessages = messages.slice(Math.max(0, currentIndex - 2), currentIndex);
 
-    if (contextMessages.length === 0) return null;
+    if (contextMessages.length === 0) {
+      return null;
+    }
 
     return contextMessages
       .map((m) => m.content)

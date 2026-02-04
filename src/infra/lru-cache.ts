@@ -1,6 +1,6 @@
 /**
  * LRU Cache Implementation
- * 
+ *
  * Least Recently Used cache with size limits.
  * Used for session tracking, query result caching, and other bounded caches.
  */

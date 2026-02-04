@@ -1,8 +1,8 @@
 /**
  * Gateway Security Middleware
- * 
+ *
  * Implements security headers and CORS protection for all HTTP responses.
- * 
+ *
  * ⚠️ CRITICAL: These headers must be applied to ALL HTTP responses to prevent
  * common web vulnerabilities (XSS, clickjacking, MIME sniffing, etc.)
  */
@@ -31,7 +31,7 @@ export type CorsConfig = {
 
 /**
  * Apply security headers to HTTP response
- * 
+ *
  * These headers protect against:
  * - XSS attacks (X-XSS-Protection, CSP)
  * - Clickjacking (X-Frame-Options)
@@ -39,10 +39,7 @@ export type CorsConfig = {
  * - Referrer leakage (Referrer-Policy)
  * - Protocol downgrade (HSTS)
  */
-export function applySecurityHeaders(
-  res: ServerResponse,
-  config?: SecurityHeadersConfig,
-): void {
+export function applySecurityHeaders(res: ServerResponse, config?: SecurityHeadersConfig): void {
   // Prevent MIME type sniffing
   res.setHeader("X-Content-Type-Options", "nosniff");
 
@@ -61,16 +58,13 @@ export function applySecurityHeaders(
 
   // HSTS - only when TLS is enabled
   if (config?.hsts) {
-    res.setHeader(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains; preload",
-    );
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   }
 }
 
 /**
  * Apply CORS headers to HTTP response
- * 
+ *
  * Returns false if request should be rejected (origin not allowed or preflight handled),
  * true if request should continue processing.
  */
@@ -87,9 +81,7 @@ export function applyCorsHeaders(
   }
 
   // Check if origin is allowed
-  const isAllowed =
-    config.allowedOrigins.includes(origin) ||
-    config.allowedOrigins.includes("*");
+  const isAllowed = config.allowedOrigins.includes(origin) || config.allowedOrigins.includes("*");
 
   if (!isAllowed) {
     res.statusCode = 403;
@@ -101,10 +93,7 @@ export function applyCorsHeaders(
   // Set CORS headers
   res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Authorization, Content-Type, X-OpenClaw-Token",
-  );
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, X-OpenClaw-Token");
 
   if (config.allowCredentials) {
     res.setHeader("Access-Control-Allow-Credentials", "true");

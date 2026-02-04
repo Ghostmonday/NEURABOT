@@ -1,23 +1,37 @@
 /**
  * Sowwy In-Memory Task Store - Fallback for Testing
- * 
+ *
  * ⚠️ USE CASES:
  * - Unit testing without PostgreSQL
  * - Development without Docker
  * - Quick integration tests
- * 
+ *
  * ⚠️ LIMITATIONS:
  * - Not persistent (data lost on restart)
  * - Not shared across instances
  * - No transaction support
- * 
+ *
  * ⚠️ PRODUCTION:
  * - Use PostgreSQL store (pg-store.ts) in production
  * - This is ONLY for testing/development
  */
 
-import { Task, TaskCreateInput, TaskUpdateInput, TaskFilter, TaskStatus } from "./schema.js";
-import { TaskStore, AuditStore, DecisionStore, SowwyStores, AuditLogEntry, DecisionLogEntry } from "./store.js";
+import {
+  Task,
+  TaskCreateInput,
+  TaskUpdateInput,
+  TaskFilter,
+  TaskStatus,
+  calculatePriority,
+} from "./schema.js";
+import {
+  TaskStore,
+  AuditStore,
+  DecisionStore,
+  SowwyStores,
+  AuditLogEntry,
+  DecisionLogEntry,
+} from "./store.js";
 
 // ============================================================================
 // In-Memory Task Store
@@ -43,15 +57,18 @@ export class InMemoryTaskStore implements TaskStore {
       risk: input.risk ?? 1,
       stressCost: input.stressCost ?? 1,
       slaHours: input.slaHours,
-      approved: input.approved ?? false,
+      approved: false,
       approvedBy: undefined,
       createdBy: input.createdBy ?? "unknown",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      blockedBy: input.blockedBy,
       requiresApproval: input.requiresApproval ?? false,
+      retryCount: 0,
+      maxRetries: input.maxRetries ?? 3,
+      dependencies: input.dependencies ?? [],
+      contextLinks: input.contextLinks ?? {},
     };
-    
+
     this.tasks.set(task.taskId, task);
     this.invalidateCache();
     return task;
@@ -63,13 +80,13 @@ export class InMemoryTaskStore implements TaskStore {
 
   async update(taskId: string, input: TaskUpdateInput): Promise<Task | null> {
     const task = this.tasks.get(taskId);
-    if (!task) return null;
+    if (!task) {
+      return null;
+    }
 
     const updated: Task = {
       ...task,
-      ...Object.fromEntries(
-        Object.entries(input).filter(([_, v]) => v !== undefined)
-      ),
+      ...Object.fromEntries(Object.entries(input).filter(([_, v]) => v !== undefined)),
       updatedAt: new Date().toISOString(),
     };
 
@@ -80,20 +97,33 @@ export class InMemoryTaskStore implements TaskStore {
 
   async delete(taskId: string): Promise<boolean> {
     const deleted = this.tasks.delete(taskId);
-    if (deleted) this.invalidateCache();
+    if (deleted) {
+      this.invalidateCache();
+    }
     return deleted;
   }
 
   async list(filter?: TaskFilter): Promise<Task[]> {
     let tasks = Array.from(this.tasks.values());
-    
+
     if (filter) {
-      if (filter.status) tasks = tasks.filter(t => t.status === filter.status);
-      if (filter.category) tasks = tasks.filter(t => t.category === filter.category);
-      if (filter.personaOwner) tasks = tasks.filter(t => t.personaOwner === filter.personaOwner);
-      if (filter.priorityMin) tasks = tasks.filter(t => t.urgency * t.importance >= filter.priorityMin!);
+      if (filter.status) {
+        tasks = tasks.filter((t) => t.status === filter.status);
+      }
+      if (filter.category) {
+        tasks = tasks.filter((t) => t.category === filter.category);
+      }
+      if (filter.personaOwner) {
+        tasks = tasks.filter((t) => t.personaOwner === filter.personaOwner);
+      }
+      if (filter.priorityMin !== undefined) {
+        tasks = tasks.filter((t) => t.urgency * t.importance >= filter.priorityMin!);
+      }
+      if (filter.requiresApproval !== undefined) {
+        tasks = tasks.filter((t) => t.requiresApproval === filter.requiresApproval);
+      }
     }
-    
+
     return tasks;
   }
 
@@ -103,15 +133,15 @@ export class InMemoryTaskStore implements TaskStore {
   }
 
   async getByStatus(status: string): Promise<Task[]> {
-    return Array.from(this.tasks.values()).filter(t => t.status === status);
+    return Array.from(this.tasks.values()).filter((t) => t.status === status);
   }
 
   async getByCategory(category: string): Promise<Task[]> {
-    return Array.from(this.tasks.values()).filter(t => t.category === category);
+    return Array.from(this.tasks.values()).filter((t) => t.category === category);
   }
 
   async getByPersona(persona: string): Promise<Task[]> {
-    return Array.from(this.tasks.values()).filter(t => t.personaOwner === persona);
+    return Array.from(this.tasks.values()).filter((t) => t.personaOwner === persona);
   }
 
   async getHighestPriorityReady(): Promise<Task | null> {
@@ -119,10 +149,25 @@ export class InMemoryTaskStore implements TaskStore {
     return this.nextReadyCache[0] ?? null;
   }
 
+  async getHighestPriorityBacklog(): Promise<Task | null> {
+    const backlog = Array.from(this.tasks.values()).filter((t) => t.status === "BACKLOG");
+    if (backlog.length === 0) {
+      return null;
+    }
+    backlog.sort((a, b) => {
+      const priorityDelta = calculatePriority(b) - calculatePriority(a);
+      if (priorityDelta !== 0) {
+        return priorityDelta;
+      }
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+    return backlog[0];
+  }
+
   async getStuckTasks(olderThanMs: number): Promise<Task[]> {
     const cutoff = Date.now() - olderThanMs;
     return Array.from(this.tasks.values()).filter(
-      t => t.status === "READY" && new Date(t.createdAt).getTime() < cutoff
+      (t) => t.status === "READY" && new Date(t.createdAt).getTime() < cutoff,
     );
   }
 
@@ -151,13 +196,13 @@ export class InMemoryTaskStore implements TaskStore {
 
   private refreshCache(): void {
     const ready = Array.from(this.tasks.values())
-      .filter(t => t.status === "READY" && !t.blockedBy)
+      .filter((t) => t.status === "READY")
       .sort((a, b) => {
         const priorityA = a.urgency * a.importance;
         const priorityB = b.urgency * b.importance;
         return priorityB - priorityA; // Higher priority first
       });
-    
+
     this.nextReadyCache = ready;
     this.lastUpdate = Date.now();
   }
@@ -181,7 +226,7 @@ export class InMemoryAuditStore implements AuditStore {
   }
 
   async getByTaskId(taskId: string): Promise<AuditLogEntry[]> {
-    return this.entries.filter(e => e.taskId === taskId);
+    return this.entries.filter((e) => e.taskId === taskId);
   }
 
   async getRecent(limit: number): Promise<AuditLogEntry[]> {
@@ -207,7 +252,7 @@ export class InMemoryDecisionStore implements DecisionStore {
   }
 
   async getByTaskId(taskId: string): Promise<DecisionLogEntry[]> {
-    return this.entries.filter(e => e.taskId === taskId);
+    return this.entries.filter((e) => e.taskId === taskId);
   }
 
   async getRecent(limit: number): Promise<DecisionLogEntry[]> {
@@ -223,6 +268,6 @@ export function createInMemoryStores(): SowwyStores {
   const tasks = new InMemoryTaskStore();
   const audit = new InMemoryAuditStore();
   const decisions = new InMemoryDecisionStore();
-  
+
   return { tasks, audit, decisions };
 }

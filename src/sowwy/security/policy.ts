@@ -1,6 +1,6 @@
 /**
  * Sowwy Security Model - Zero Trust Foundation
- * 
+ *
  * Principles:
  * - Default-deny, least privilege, explicit approvals
  * - Gateway is the only ingress; all other services are internal-only
@@ -15,7 +15,7 @@
 export const SECURITY_POLICY = {
   // Default deny for external sends
   externalSendDefaultDeny: true,
-  
+
   // Require approval for these actions
   requireApproval: [
     "email.send",
@@ -25,15 +25,9 @@ export const SECURITY_POLICY = {
     "financial.transaction",
     "persona.override",
   ],
-  
+
   // Always allow (safety systems)
-  alwaysAllow: [
-    "identity.extract",
-    "audit.append",
-    "health.check",
-    "sowwy.pause",
-    "sowwy.status",
-  ],
+  alwaysAllow: ["identity.extract", "audit.append", "health.check", "sowwy.pause", "sowwy.status"],
 } as const;
 
 // ============================================================================
@@ -43,11 +37,7 @@ export const SECURITY_POLICY = {
 export const THREAT_MODEL = {
   untrustedInbound: {
     description: "Untrusted inbound messages from public channels",
-    mitigations: [
-      "Input sanitization",
-      "Content filtering",
-      "Rate limiting per channel",
-    ],
+    mitigations: ["Input sanitization", "Content filtering", "Rate limiting per channel"],
   },
   promptInjection: {
     description: "Prompt injection / tool misuse attempts",
@@ -59,19 +49,11 @@ export const THREAT_MODEL = {
   },
   credentialLeakage: {
     description: "Credential leakage via env, logs, or backups",
-    mitigations: [
-      "Secrets isolation",
-      "Structured logging without secrets",
-      "Encrypted backups",
-    ],
+    mitigations: ["Secrets isolation", "Structured logging without secrets", "Encrypted backups"],
   },
   gatewayAccess: {
     description: "Unauthorized gateway access",
-    mitigations: [
-      "Token authentication",
-      "Device pairing only",
-      "Loopback binding",
-    ],
+    mitigations: ["Token authentication", "Device pairing only", "Loopback binding"],
   } as const,
 };
 
@@ -121,10 +103,5 @@ export const SANDBOX_POLICY = {
   toolAllowlist: {
     // Per persona tool restrictions
   },
-  highRiskTools: [
-    "browser.*",
-    "system.run",
-    "file.write",
-    "gateway.*",
-  ],
+  highRiskTools: ["browser.*", "system.run", "file.write", "gateway.*"],
 } as const;

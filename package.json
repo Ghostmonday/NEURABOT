@@ -2,16 +2,23 @@
   "name": "openclaw",
   "version": "2026.2.1",
   "description": "NEURABOT - Autonomous AI Orchestration Platform with Sowwy (Super Output Workforce Intelligence Entity). Extends OpenClaw with identity learning, persona-based task routing, mission control, and zero-trust security.",
-  "keywords": ["ai", "assistant", "autonomous", "sowwy", "neurabot", "openclaw"],
+  "keywords": [
+    "ai",
+    "assistant",
+    "autonomous",
+    "neurabot",
+    "openclaw",
+    "sowwy"
+  ],
+  "homepage": "https://github.com/Ghostmonday/NEURABOT#readme",
+  "bugs": {
+    "url": "https://github.com/Ghostmonday/NEURABOT/issues"
+  },
   "license": "MIT",
   "author": "",
   "repository": {
     "type": "git",
     "url": "https://github.com/Ghostmonday/NEURABOT.git"
-  },
-  "homepage": "https://github.com/Ghostmonday/NEURABOT#readme",
-  "bugs": {
-    "url": "https://github.com/Ghostmonday/NEURABOT/issues"
   },
   "bin": {
     "openclaw": "openclaw.mjs"
@@ -113,6 +120,7 @@
     "@grammyjs/runner": "^2.0.3",
     "@grammyjs/transformer-throttler": "^1.2.1",
     "@homebridge/ciao": "^1.3.4",
+    "@lancedb/lancedb": "^0.23.0",
     "@line/bot-sdk": "^10.6.0",
     "@lydell/node-pty": "1.2.0-beta.3",
     "@mariozechner/pi-agent-core": "0.51.1",

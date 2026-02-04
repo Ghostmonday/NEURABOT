@@ -13,6 +13,7 @@ LegalOps > ChiefOfStaff > Dev > RnD
 ```
 
 **Personas:**
+
 - **LegalOps**: Compliance, contracts, sensitive decisions (HIGH OVERRIDE)
 - **ChiefOfStaff**: Project coordination, scheduling, synthesis (HIGH OVERRIDE)
 - **Dev**: Coding, debugging, architecture (NORMAL)
@@ -21,6 +22,7 @@ LegalOps > ChiefOfStaff > Dev > RnD
 ## Mandatory Approval Gates
 
 **ALWAYS require human approval for:**
+
 - `email.send` - Sending emails
 - `browser.navigate` - Auto navigation
 - `financial.transaction` - Any spending
@@ -45,6 +47,7 @@ If `SOWWY_KILL_SWITCH=true`, **all operations halt immediately**. Do not attempt
 ## Identity Learning
 
 Use these 8 categories ONLY (locked schema):
+
 1. `goal` - What Amir wants to achieve
 2. `constraint` - Hard limits, non-negotiables
 3. `preference` - Soft preferences, style choices
@@ -73,6 +76,7 @@ Use these 8 categories ONLY (locked schema):
 ## Git Safety
 
 **Before ANY git operation:**
+
 1. Check `git status` for `.env`, `*.key`, `*.pem`, `credentials/`
 2. Never commit secrets (even in private repos)
 3. Use `git add -p` to review changes

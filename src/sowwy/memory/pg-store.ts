@@ -1,16 +1,16 @@
 /**
  * Sowwy Memory - PostgreSQL Store
- * 
+ *
  * Stores long-term memory entries, preferences, and decisions in PostgreSQL.
  * Uses pgvector extension for semantic search capabilities.
- * 
+ *
  * ⚠️ DATA CONSISTENCY:
  * - All operations use transactions for atomicity
  * - Memory entries linked to identity categories
  * - Audit trail for all memory updates
  */
 
-import { Pool, type PoolClient } from "pg";
+import { Pool } from "pg";
 import { redactError } from "../security/redact.js";
 
 // ============================================================================
@@ -102,10 +102,7 @@ export class PostgresMemoryStore {
 
     // Initialize schema
     this.initializeSchema().catch((err) => {
-      console.error(
-        "[PostgresMemoryStore] Schema initialization failed:",
-        redactError(err),
-      );
+      console.error("[PostgresMemoryStore] Schema initialization failed:", redactError(err));
     });
   }
 
@@ -116,19 +113,21 @@ export class PostgresMemoryStore {
     const client = await this.pool.connect();
     try {
       // Enable pgvector extension if available
-      await client.query(`
+      await client
+        .query(`
         CREATE EXTENSION IF NOT EXISTS vector;
-      `).catch(() => {
-        // Extension may not be available, continue without it
-        console.warn("[PostgresMemoryStore] pgvector extension not available");
-      });
+      `)
+        .catch(() => {
+          // Extension may not be available, continue without it
+          console.warn("[PostgresMemoryStore] pgvector extension not available");
+        });
 
       // Memory entries table
       await client.query(`
         CREATE TABLE IF NOT EXISTS memory_entries (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           category TEXT NOT NULL CHECK (category IN (
-            'goal', 'constraint', 'preference', 'belief', 
+            'goal', 'constraint', 'preference', 'belief',
             'risk', 'capability', 'relationship', 'historical_fact'
           )),
           content TEXT NOT NULL,
@@ -146,7 +145,7 @@ export class PostgresMemoryStore {
         CREATE TABLE IF NOT EXISTS preferences (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           category TEXT NOT NULL CHECK (category IN (
-            'goal', 'constraint', 'preference', 'belief', 
+            'goal', 'constraint', 'preference', 'belief',
             'risk', 'capability', 'relationship', 'historical_fact'
           )),
           preference TEXT NOT NULL,
@@ -177,13 +176,15 @@ export class PostgresMemoryStore {
       `);
 
       // Create vector index if pgvector is available
-      await client.query(`
-        CREATE INDEX IF NOT EXISTS idx_memory_embedding ON memory_entries 
+      await client
+        .query(`
+        CREATE INDEX IF NOT EXISTS idx_memory_embedding ON memory_entries
         USING ivfflat (embedding vector_cosine_ops)
         WITH (lists = 100);
-      `).catch(() => {
-        // Vector index creation may fail if extension not available
-      });
+      `)
+        .catch(() => {
+          // Vector index creation may fail if extension not available
+        });
     } finally {
       client.release();
     }
@@ -239,7 +240,7 @@ export class PostgresMemoryStore {
     try {
       const result = await client.query(
         `
-        SELECT id, category, content, 
+        SELECT id, category, content,
                embedding::text::float[] as embedding,
                confidence, source, created_at, updated_at, verified
         FROM memory_entries
@@ -267,7 +268,7 @@ export class PostgresMemoryStore {
     const client = await this.pool.connect();
     try {
       let query = `
-        SELECT id, category, content, 
+        SELECT id, category, content,
                embedding::text::float[] as embedding,
                confidence, source, created_at, updated_at, verified,
                1 - (embedding <=> $1::vector) as similarity
@@ -287,7 +288,7 @@ export class PostgresMemoryStore {
       }
 
       const result = await client.query(query, params);
-      return result.rows.map(this.rowToMemoryEntry);
+      return result.rows.map((row) => this.rowToMemoryEntry(row));
     } catch (err) {
       // Fallback if vector search not available
       console.warn("[PostgresMemoryStore] Vector search failed:", err);
@@ -317,12 +318,7 @@ export class PostgresMemoryStore {
           evidence = EXCLUDED.evidence
         RETURNING id;
       `,
-        [
-          pref.category,
-          pref.preference,
-          pref.strength ?? 0.5,
-          JSON.stringify(pref.evidence ?? []),
-        ],
+        [pref.category, pref.preference, pref.strength ?? 0.5, JSON.stringify(pref.evidence ?? [])],
       );
       return result.rows[0].id;
     } finally {
@@ -333,10 +329,7 @@ export class PostgresMemoryStore {
   /**
    * Get preferences by category
    */
-  async getPreferences(
-    category: IdentityCategory,
-    limit: number = 50,
-  ): Promise<PreferenceEntry[]> {
+  async getPreferences(category: IdentityCategory, limit: number = 50): Promise<PreferenceEntry[]> {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
@@ -450,10 +443,7 @@ export class PostgresMemoryStore {
       category: row.category as IdentityCategory,
       content: row.content,
       embedding,
-      confidence:
-        typeof row.confidence === "string"
-          ? parseFloat(row.confidence)
-          : row.confidence,
+      confidence: typeof row.confidence === "string" ? parseFloat(row.confidence) : row.confidence,
       source: row.source,
       created_at: row.created_at,
       updated_at: row.updated_at,

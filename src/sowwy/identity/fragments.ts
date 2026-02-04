@@ -1,15 +1,15 @@
 /**
  * Sowwy Identity Model - Fragment Schema Foundation
- * 
+ *
  * ⚠️ IDENTITY INTEGRITY CRITICAL:
  * - 8 categories are LOCKED - do not add more
  * - Fewer buckets = higher signal = better retrieval
  * - More categories = fragmentation = worse context
- * 
+ *
  * ⚠️ WRITE ACCESS RULE (NON-NEGOTIABLE):
  * Only the Identity Extraction Pipeline may write identity fragments.
  * Personas, skills, agents, and tools are READ-ONLY.
- * 
+ *
  * WHY THIS MATTERS:
  * - Self-hallucinated identity: If personas could write, they would
  *   gradually create an identity that makes their job easier, not accurate.
@@ -17,11 +17,11 @@
  *   a completely different "you" in a year.
  * - Feedback loops: Personas optimizing for success might prefer
  *   fragments that make their tasks easier.
- * 
+ *
  * ENFORCEMENT:
  * - Runtime check: throw if write attempted from wrong module
  * - No exceptions, no "just this once", no emergencies that justify it
- * 
+ *
  * ⚠️ CATEGORY DEFINITIONS (don't loosen these):
  * - goal: What you want to achieve (outcomes)
  * - constraint: Hard limits, non-negotiables (boundaries)
@@ -47,17 +47,17 @@
  * - dislikes → constraint or risk
  */
 export const IdentityCategory = {
-  goal: "goal",           // What you want to achieve
+  goal: "goal", // What you want to achieve
   constraint: "constraint", // Hard limits, non-negotiables
   preference: "preference", // Soft preferences, style choices
-  belief: "belief",       // Values, stances, worldview
-  risk: "risk",           // Known risks, fears, concerns
+  belief: "belief", // Values, stances, worldview
+  risk: "risk", // Known risks, fears, concerns
   capability: "capability", // Skills, strengths, resources
   relationship: "relationship", // People, organizations, dynamics
   historical_fact: "historical_fact", // Past events, experiences
 } as const;
 
-export type IdentityCategory = typeof IdentityCategory[keyof typeof IdentityCategory];
+export type IdentityCategory = (typeof IdentityCategory)[keyof typeof IdentityCategory];
 
 // ============================================================================
 // Fragment Source Enum
@@ -69,7 +69,7 @@ export const FragmentSource = {
   correction: "correction",
 } as const;
 
-export type FragmentSource = typeof FragmentSource[keyof typeof FragmentSource];
+export type FragmentSource = (typeof FragmentSource)[keyof typeof FragmentSource];
 
 // ============================================================================
 // Identity Fragment Schema
@@ -78,9 +78,9 @@ export type FragmentSource = typeof FragmentSource[keyof typeof FragmentSource];
 export const IdentityFragmentSchema = {
   id: { type: "string", format: "uuid" },
   // LOCKED: 8 categories only - do not expand
-  category: { 
-    type: "string", 
-    enum: Object.values(IdentityCategory) 
+  category: {
+    type: "string",
+    enum: Object.values(IdentityCategory),
   },
   content: { type: "string", minLength: 10, maxLength: 5000 },
   context: { type: "string", maxLength: 2000 },
@@ -122,12 +122,12 @@ export interface IdentityFragment {
  * CRITICAL INVARIANT:
  * Only the Identity Extraction Pipeline may write identity fragments.
  * Personas, skills, agents, and tools are READ-ONLY.
- * 
+ *
  * This prevents:
  * - Self-hallucinated identity
  * - Slow corruption of who you are
  * - Feedback loops that drift from truth
- * 
+ *
  * Violations of this rule should throw, not warn.
  */
 

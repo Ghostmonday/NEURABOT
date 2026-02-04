@@ -32,11 +32,13 @@ This isn't just another OpenClaw fork. **NEURABOT** adds **Sowwy** — a complet
 ### 🚀 What You Get That Others Don't
 
 **1. Identity Learning System**
+
 - Extracts who you are from conversations (goals, constraints, preferences, beliefs, risks, capabilities, relationships, historical facts)
 - Stores in LanceDB for semantic similarity search
 - Automatically improves context over time
 
 **2. Persona-Based Task Routing**
+
 - **LegalOps** (highest priority): Compliance, contracts, sensitive decisions
 - **ChiefOfStaff**: Email, scheduling, coordination, synthesis
 - **Dev**: Coding, debugging, architecture
@@ -44,24 +46,28 @@ This isn't just another OpenClaw fork. **NEURABOT** adds **Sowwy** — a complet
 - Automatic arbitration when personas conflict
 
 **3. Mission Control Task OS**
+
 - PostgreSQL-backed task queue with priorities
 - Automatic scheduling and retry logic
 - Stuck task detection and recovery
 - Full audit logging
 
 **4. Zero-Trust Security Model**
+
 - Mandatory approval gates for: email.send, browser.navigate, financial.transaction, VPS provisioning
 - SMT throttling (100 prompts per 5-hour window, 80% target utilization)
 - Emergency kill switch (`SOWWY_KILL_SWITCH=true`)
 - Automatic PII/credential redaction in logs
 
 **5. Memory Consolidation**
+
 - Extracts preferences and decisions from conversations
 - Consolidates duplicate memories
 - Prioritizes recent information
 - Dual storage: PostgreSQL (structured) + LanceDB (semantic)
 
 **6. Extension Ecosystem**
+
 - **Hostinger**: VPS provisioning and management
 - **Twilio**: SMS gateway integration
 - **Proton Email**: Secure email handling
@@ -95,7 +101,7 @@ openclaw gateway --port 18789 --verbose
 Sowwy extracts 8 categories of information about you:
 
 1. **goal** — What you want to achieve
-2. **constraint** — Hard limits, non-negotiables  
+2. **constraint** — Hard limits, non-negotiables
 3. **preference** — Soft preferences, style choices
 4. **belief** — Values, stances, worldview
 5. **risk** — Known risks, fears, concerns
@@ -125,6 +131,7 @@ LegalOps > ChiefOfStaff > Dev > RnD
 ### Approval Gates
 
 **ALWAYS require human approval for:**
+
 - `email.send` — Sending emails
 - `browser.navigate` — Auto navigation
 - `financial.transaction` — Any spending
@@ -139,27 +146,32 @@ LegalOps > ChiefOfStaff > Dev > RnD
 ## Architecture
 
 ### Mission Control
+
 - **Task Store**: PostgreSQL persistence with full CRUD + audit
 - **Scheduler**: Priority queue, retry logic, stuck detection
 - **Audit Log**: Complete history of all actions
 
 ### Identity Model
+
 - **Fragments**: 8-category extraction from conversations
 - **LanceDB Store**: Vector similarity search for context retrieval
 - **Search**: Semantic similarity + category filtering
 
 ### Memory System
+
 - **Extraction**: Pulls preferences/decisions from conversations
 - **Consolidation**: Merges duplicates, prioritizes recent
 - **Dual Storage**: PostgreSQL (structured) + LanceDB (semantic)
 
 ### Security
+
 - **Policy Engine**: Zero-trust model with approval gates
 - **Threat Model**: Defined attack vectors and mitigations
 - **Redaction**: Automatic PII/credential scrubbing
 - **Env Validation**: Strict environment variable checking
 
 ### Monitoring
+
 - **Metrics**: Task throughput, SMT utilization, identity counts
 - **Health Checks**: Circuit breaker states, error rates
 - **Prometheus Export**: Standard metrics format
@@ -216,15 +228,15 @@ SOWWY_KILL_SWITCH=false
 
 ## What's Different from Vanilla OpenClaw
 
-| Feature | OpenClaw | NEURABOT (Sowwy) |
-|---------|----------|------------------|
-| Task Management | Manual CLI commands | Autonomous task OS with scheduling |
-| Identity | Static prompts | Learns from conversations (8 categories) |
-| Personas | Single agent | Multi-persona with priority arbitration |
-| Memory | Session-only | Persistent consolidation across sessions |
-| Security | Basic allowlists | Zero-trust with approval gates |
-| Monitoring | Basic logs | Prometheus metrics + circuit breakers |
-| Extensions | Channel plugins | VPS, SMS, Email, Remote desktop |
+| Feature         | OpenClaw            | NEURABOT (Sowwy)                         |
+| --------------- | ------------------- | ---------------------------------------- |
+| Task Management | Manual CLI commands | Autonomous task OS with scheduling       |
+| Identity        | Static prompts      | Learns from conversations (8 categories) |
+| Personas        | Single agent        | Multi-persona with priority arbitration  |
+| Memory          | Session-only        | Persistent consolidation across sessions |
+| Security        | Basic allowlists    | Zero-trust with approval gates           |
+| Monitoring      | Basic logs          | Prometheus metrics + circuit breakers    |
+| Extensions      | Channel plugins     | VPS, SMS, Email, Remote desktop          |
 
 ---
 

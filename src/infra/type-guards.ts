@@ -1,6 +1,6 @@
 /**
  * Type Guards
- * 
+ *
  * Utility functions for runtime type checking and narrowing.
  * Prevents unsafe type assertions and improves type safety.
  */
@@ -15,9 +15,7 @@ export function isError(value: unknown): value is Error {
 /**
  * Check if value has a message property
  */
-export function hasMessage(
-  value: unknown,
-): value is { message: string } {
+export function hasMessage(value: unknown): value is { message: string } {
   return (
     typeof value === "object" &&
     value !== null &&

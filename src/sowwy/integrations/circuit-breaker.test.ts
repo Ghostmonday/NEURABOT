@@ -5,13 +5,10 @@ describe("CircuitBreaker", () => {
   let circuitBreaker: CircuitBreaker;
 
   beforeEach(() => {
-    circuitBreaker = new CircuitBreaker(
-      async () => "success",
-      {
-        failureThreshold: 3,
-        cooldownMs: 1000,
-      }
-    );
+    circuitBreaker = new CircuitBreaker(async () => "success", {
+      failureThreshold: 3,
+      cooldownMs: 1000,
+    });
   });
 
   describe("constructor", () => {

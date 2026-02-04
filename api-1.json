@@ -41,9 +41,7 @@
   "paths": {
     "/api/billing/v1/catalog": {
       "get": {
-        "tags": [
-          "Billing: Catalog"
-        ],
+        "tags": ["Billing: Catalog"],
         "summary": "Get catalog item list",
         "description": "Retrieve catalog items available for order.\n\nPrices in catalog items is displayed as cents (without floating point), e.g: float `17.99` is displayed as integer `1799`.\n\nUse this endpoint to view available services and pricing before placing orders.",
         "operationId": "billing_getCatalogItemListV1",
@@ -77,9 +75,7 @@
     },
     "/api/billing/v1/orders": {
       "post": {
-        "tags": [
-          "Billing: Orders"
-        ],
+        "tags": ["Billing: Orders"],
         "summary": "Create service order",
         "description": "Create a new service order. \n\n**DEPRECATED**\n\nTo purchase a domain, use [`POST /api/domains/v1/portfolio`](/#tag/domains-portfolio/POST/api/domains/v1/portfolio) instead.\n\nTo purchase a VPS, use [`POST /api/vps/v1/virtual-machines`](/#tag/vps-virtual-machine/POST/api/vps/v1/virtual-machines) instead.\n\n\nTo place order, you need to provide payment method ID and list of price items from the catalog endpoint together with quantity.\nCoupons also can be provided during order creation.\n\nOrders created using this endpoint will be set for automatic renewal.\n\nSome `credit_card` payments might need additional verification, rendering purchase unprocessed.\nWe recommend use other payment methods than `credit_card` if you encounter this issue.",
         "operationId": "billing_createServiceOrderV1",
@@ -120,9 +116,7 @@
     },
     "/api/billing/v1/payment-methods/{paymentMethodId}": {
       "post": {
-        "tags": [
-          "Billing: Payment methods"
-        ],
+        "tags": ["Billing: Payment methods"],
         "summary": "Set default payment method",
         "description": "Set the default payment method for your account.\n\nUse this endpoint to configure the primary payment method for future orders.",
         "operationId": "billing_setDefaultPaymentMethodV1",
@@ -151,9 +145,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Billing: Payment methods"
-        ],
+        "tags": ["Billing: Payment methods"],
         "summary": "Delete payment method",
         "description": "Delete a payment method from your account.\n\nUse this endpoint to remove unused payment methods from user accounts.",
         "operationId": "billing_deletePaymentMethodV1",
@@ -184,9 +176,7 @@
     },
     "/api/billing/v1/payment-methods": {
       "get": {
-        "tags": [
-          "Billing: Payment methods"
-        ],
+        "tags": ["Billing: Payment methods"],
         "summary": "Get payment method list",
         "description": "Retrieve available payment methods that can be used for placing new orders.\n\nIf you want to add new payment method, please use [hPanel](https://hpanel.hostinger.com/billing/payment-methods).\n\nUse this endpoint to view available payment options before creating orders.",
         "operationId": "billing_getPaymentMethodListV1",
@@ -212,9 +202,7 @@
     },
     "/api/billing/v1/subscriptions": {
       "get": {
-        "tags": [
-          "Billing: Subscriptions"
-        ],
+        "tags": ["Billing: Subscriptions"],
         "summary": "Get subscription list",
         "description": "Retrieve a list of all subscriptions associated with your account.\n\nUse this endpoint to monitor active services and billing status.",
         "operationId": "billing_getSubscriptionListV1",
@@ -240,9 +228,7 @@
     },
     "/api/billing/v1/subscriptions/{subscriptionId}/auto-renewal/disable": {
       "delete": {
-        "tags": [
-          "Billing: Subscriptions"
-        ],
+        "tags": ["Billing: Subscriptions"],
         "summary": "Disable auto-renewal",
         "description": "Disable auto-renewal for a subscription.\n\nUse this endpoint when disable auto-renewal for a subscription.",
         "operationId": "billing_disableAutoRenewalV1",
@@ -273,9 +259,7 @@
     },
     "/api/billing/v1/subscriptions/{subscriptionId}/auto-renewal/enable": {
       "patch": {
-        "tags": [
-          "Billing: Subscriptions"
-        ],
+        "tags": ["Billing: Subscriptions"],
         "summary": "Enable auto-renewal",
         "description": "Enable auto-renewal for a subscription.\n\nUse this endpoint when enable auto-renewal for a subscription.",
         "operationId": "billing_enableAutoRenewalV1",
@@ -306,9 +290,7 @@
     },
     "/api/dns/v1/snapshots/{domain}/{snapshotId}": {
       "get": {
-        "tags": [
-          "DNS: Snapshot"
-        ],
+        "tags": ["DNS: Snapshot"],
         "summary": "Get DNS snapshot",
         "description": "Retrieve particular DNS snapshot with contents of DNS zone records.\n\nUse this endpoint to view historical DNS configurations for domains.",
         "operationId": "DNS_getDNSSnapshotV1",
@@ -342,9 +324,7 @@
     },
     "/api/dns/v1/snapshots/{domain}": {
       "get": {
-        "tags": [
-          "DNS: Snapshot"
-        ],
+        "tags": ["DNS: Snapshot"],
         "summary": "Get DNS snapshot list",
         "description": "Retrieve DNS snapshots for a domain.\n\nUse this endpoint to view available DNS backup points for restoration.",
         "operationId": "DNS_getDNSSnapshotListV1",
@@ -375,9 +355,7 @@
     },
     "/api/dns/v1/snapshots/{domain}/{snapshotId}/restore": {
       "post": {
-        "tags": [
-          "DNS: Snapshot"
-        ],
+        "tags": ["DNS: Snapshot"],
         "summary": "Restore DNS snapshot",
         "description": "Restore DNS zone to the selected snapshot.\n\nUse this endpoint to revert domain DNS to a previous configuration.",
         "operationId": "DNS_restoreDNSSnapshotV1",
@@ -411,9 +389,7 @@
     },
     "/api/dns/v1/zones/{domain}": {
       "get": {
-        "tags": [
-          "DNS: Zone"
-        ],
+        "tags": ["DNS: Zone"],
         "summary": "Get DNS records",
         "description": "Retrieve DNS zone records for a specific domain.\n\nUse this endpoint to view current DNS configuration for domain management.",
         "operationId": "DNS_getDNSRecordsV1",
@@ -442,9 +418,7 @@
         }
       },
       "put": {
-        "tags": [
-          "DNS: Zone"
-        ],
+        "tags": ["DNS: Zone"],
         "summary": "Update DNS records",
         "description": "Update DNS records for the selected domain.\n\nUsing `overwrite = true` will replace existing records with the provided ones. \nOtherwise existing records will be updated and new records will be added.\n\nUse this endpoint to modify domain DNS configuration.",
         "operationId": "DNS_updateDNSRecordsV1",
@@ -486,9 +460,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "DNS: Zone"
-        ],
+        "tags": ["DNS: Zone"],
         "summary": "Delete DNS records",
         "description": "Delete DNS records for the selected domain.\n\nTo filter which records to delete, add the `name` of the record and `type` to the filter. \nMultiple filters can be provided with single request.\n\nIf you have multiple records with the same name and type, and you want to delete only part of them,\nrefer to the `Update zone records` endpoint.\n\nUse this endpoint to remove specific DNS records from domains.",
         "operationId": "DNS_deleteDNSRecordsV1",
@@ -532,9 +504,7 @@
     },
     "/api/dns/v1/zones/{domain}/reset": {
       "post": {
-        "tags": [
-          "DNS: Zone"
-        ],
+        "tags": ["DNS: Zone"],
         "summary": "Reset DNS records",
         "description": "Reset DNS zone to the default records.\n\nUse this endpoint to restore domain DNS to original configuration.",
         "operationId": "DNS_resetDNSRecordsV1",
@@ -578,9 +548,7 @@
     },
     "/api/dns/v1/zones/{domain}/validate": {
       "post": {
-        "tags": [
-          "DNS: Zone"
-        ],
+        "tags": ["DNS: Zone"],
         "summary": "Validate DNS records",
         "description": "Validate DNS records prior to update for the selected domain.\n\nIf the validation is successful, the response will contain `200 Success` code.\nIf there is validation error, the response will fail with `422 Validation error` code.\n\nUse this endpoint to verify DNS record validity before applying changes.",
         "operationId": "DNS_validateDNSRecordsV1",
@@ -624,9 +592,7 @@
     },
     "/api/v2/direct/verifications/active": {
       "get": {
-        "tags": [
-          "Domain Access Verifier: Verifications"
-        ],
+        "tags": ["Domain Access Verifier: Verifications"],
         "summary": "Get domain verifications",
         "description": "Retrieve a list of pending and completed domain verifications.",
         "operationId": "v2_getDomainVerificationsDIRECT",
@@ -665,9 +631,7 @@
     },
     "/api/domains/v1/availability": {
       "post": {
-        "tags": [
-          "Domains: Availability"
-        ],
+        "tags": ["Domains: Availability"],
         "summary": "Check domain availability",
         "description": "Check availability of domain names across multiple TLDs.\n\nMultiple TLDs can be checked at once.\nIf you want alternative domains with response, provide only one TLD and set `with_alternatives` to `true`.\nTLDs should be provided without leading dot (e.g. `com`, `net`, `org`).\n\nEndpoint has rate limit of 10 requests per minute.\n\nUse this endpoint to verify domain availability before purchase.",
         "operationId": "domains_checkDomainAvailabilityV1",
@@ -706,9 +670,7 @@
     },
     "/api/domains/v1/forwarding/{domain}": {
       "get": {
-        "tags": [
-          "Domains: Forwarding"
-        ],
+        "tags": ["Domains: Forwarding"],
         "summary": "Get domain forwarding",
         "description": "Retrieve domain forwarding data.\n\nUse this endpoint to view current redirect configuration for domains.",
         "operationId": "domains_getDomainForwardingV1",
@@ -737,9 +699,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Domains: Forwarding"
-        ],
+        "tags": ["Domains: Forwarding"],
         "summary": "Delete domain forwarding",
         "description": "Delete domain forwarding data.\n\nUse this endpoint to remove redirect configuration from domains.",
         "operationId": "domains_deleteDomainForwardingV1",
@@ -770,9 +730,7 @@
     },
     "/api/domains/v1/forwarding": {
       "post": {
-        "tags": [
-          "Domains: Forwarding"
-        ],
+        "tags": ["Domains: Forwarding"],
         "summary": "Create domain forwarding",
         "description": "Create domain forwarding configuration.\n\nUse this endpoint to set up domain redirects to other URLs.",
         "operationId": "domains_createDomainForwardingV1",
@@ -811,9 +769,7 @@
     },
     "/api/domains/v1/portfolio/{domain}/domain-lock": {
       "put": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Enable domain lock",
         "description": "Enable domain lock for the domain.\n\nWhen domain lock is enabled, the domain cannot be transferred to another registrar without first disabling the lock.\n\nUse this endpoint to secure domains against unauthorized transfers.",
         "operationId": "domains_enableDomainLockV1",
@@ -842,9 +798,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Disable domain lock",
         "description": "Disable domain lock for the domain.\n\nDomain lock needs to be disabled before transferring the domain to another registrar.\n\nUse this endpoint to prepare domains for transfer to other registrars.",
         "operationId": "domains_disableDomainLockV1",
@@ -875,9 +829,7 @@
     },
     "/api/domains/v1/portfolio/{domain}": {
       "get": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Get domain details",
         "description": "Retrieve detailed information for specified domain.\n\nUse this endpoint to view comprehensive domain configuration and status.",
         "operationId": "domains_getDomainDetailsV1",
@@ -908,9 +860,7 @@
     },
     "/api/domains/v1/portfolio": {
       "get": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Get domain list",
         "description": "Retrieve all domains associated with your account.\n\nUse this endpoint to view user's domain portfolio.",
         "operationId": "domains_getDomainListV1",
@@ -934,9 +884,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Purchase new domain",
         "description": "Purchase and register a new domain name.\n\nIf registration fails, login to [hPanel](https://hpanel.hostinger.com/) and check domain registration status.\n\nIf no payment method is provided, your default payment method will be used automatically.\n\nIf no WHOIS information is provided, default contact information for that TLD will be used. \nBefore making request, ensure WHOIS information for desired TLD exists in your account.\n\nSome TLDs require `additional_details` to be provided and these will be validated before completing purchase.\n\nUse this endpoint to register new domains for users.",
         "operationId": "domains_purchaseNewDomainV1",
@@ -975,9 +923,7 @@
     },
     "/api/domains/v1/portfolio/{domain}/privacy-protection": {
       "put": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Enable privacy protection",
         "description": "Enable privacy protection for the domain.\n\nWhen privacy protection is enabled, domain owner's personal information is hidden from public WHOIS database.\n\nUse this endpoint to protect domain owner's personal information from public view.",
         "operationId": "domains_enablePrivacyProtectionV1",
@@ -1006,9 +952,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Disable privacy protection",
         "description": "Disable privacy protection for the domain.\n\nWhen privacy protection is disabled, domain owner's personal information is visible in public WHOIS database.\n\nUse this endpoint to make domain owner's information publicly visible.",
         "operationId": "domains_disablePrivacyProtectionV1",
@@ -1039,9 +983,7 @@
     },
     "/api/domains/v1/portfolio/{domain}/nameservers": {
       "put": {
-        "tags": [
-          "Domains: Portfolio"
-        ],
+        "tags": ["Domains: Portfolio"],
         "summary": "Update domain nameservers",
         "description": "Set nameservers for a specified domain.\n\nBe aware, that improper nameserver configuration can lead to the domain being unresolvable or unavailable.\n\nUse this endpoint to configure custom DNS hosting for domains.",
         "operationId": "domains_updateDomainNameserversV1",
@@ -1085,9 +1027,7 @@
     },
     "/api/domains/v1/whois/{whoisId}": {
       "get": {
-        "tags": [
-          "Domains: WHOIS"
-        ],
+        "tags": ["Domains: WHOIS"],
         "summary": "Get WHOIS profile",
         "description": "Retrieve a WHOIS contact profile.\n\nUse this endpoint to view domain registration contact information.",
         "operationId": "domains_getWHOISProfileV1",
@@ -1116,9 +1056,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Domains: WHOIS"
-        ],
+        "tags": ["Domains: WHOIS"],
         "summary": "Delete WHOIS profile",
         "description": "Delete WHOIS contact profile.\n\nUse this endpoint to remove unused contact profiles from account.",
         "operationId": "domains_deleteWHOISProfileV1",
@@ -1149,9 +1087,7 @@
     },
     "/api/domains/v1/whois": {
       "get": {
-        "tags": [
-          "Domains: WHOIS"
-        ],
+        "tags": ["Domains: WHOIS"],
         "summary": "Get WHOIS profile list",
         "description": "Retrieve WHOIS contact profiles.\n\nUse this endpoint to view available contact profiles for domain registration.",
         "operationId": "domains_getWHOISProfileListV1",
@@ -1180,9 +1116,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Domains: WHOIS"
-        ],
+        "tags": ["Domains: WHOIS"],
         "summary": "Create WHOIS profile",
         "description": "Create WHOIS contact profile.\n\nUse this endpoint to add new contact information for domain registration.",
         "operationId": "domains_createWHOISProfileV1",
@@ -1221,9 +1155,7 @@
     },
     "/api/domains/v1/whois/{whoisId}/usage": {
       "get": {
-        "tags": [
-          "Domains: WHOIS"
-        ],
+        "tags": ["Domains: WHOIS"],
         "summary": "Get WHOIS profile usage",
         "description": "Retrieve domain list where provided WHOIS contact profile is used.\n\nUse this endpoint to view which domains use specific contact profiles.",
         "operationId": "domains_getWHOISProfileUsageV1",
@@ -1254,9 +1186,7 @@
     },
     "/api/hosting/v1/datacenters": {
       "get": {
-        "tags": [
-          "Hosting: Datacenters"
-        ],
+        "tags": ["Hosting: Datacenters"],
         "summary": "List available datacenters",
         "description": "Retrieve a list of datacenters available for setting up hosting plans based on available datacenter capacity and hosting plan of your order.\nThe first item in the list is the best match for your specific order requirements.",
         "operationId": "hosting_listAvailableDatacentersV1",
@@ -1287,9 +1217,7 @@
     },
     "/api/hosting/v1/domains/free-subdomains": {
       "post": {
-        "tags": [
-          "Hosting: Domains"
-        ],
+        "tags": ["Hosting: Domains"],
         "summary": "Generate a free subdomain",
         "description": "Generate a unique free subdomain that can be used for hosting services without purchasing custom domains.\nFree subdomains allow you to start using hosting services immediately and you can always connect a custom domain to your site later.",
         "operationId": "hosting_generateAFreeSubdomainV1",
@@ -1315,9 +1243,7 @@
     },
     "/api/hosting/v1/domains/verify-ownership": {
       "post": {
-        "tags": [
-          "Hosting: Domains"
-        ],
+        "tags": ["Hosting: Domains"],
         "summary": "Verify domain ownership",
         "description": "Verify ownership of a single domain and return the verification status.\n\nUse this endpoint to check if a domain is accessible for you before using it for new websites.\nIf the domain is accessible, the response will have `is_accessible: true`.\nIf not, add the given TXT record to your domain's DNS records and try verifying again.\nKeep in mind that it may take up to 10 minutes for new TXT DNS records to propagate.\n\nSkip this verification when using Hostinger's free subdomains (*.hostingersite.com).",
         "operationId": "hosting_verifyDomainOwnershipV1",
@@ -1356,9 +1282,7 @@
     },
     "/api/hosting/v1/orders": {
       "get": {
-        "tags": [
-          "Hosting: Orders"
-        ],
+        "tags": ["Hosting: Orders"],
         "summary": "List orders",
         "description": "Retrieve a paginated list of orders accessible to the authenticated client.\n\nThis endpoint returns orders of your hosting accounts as well as orders of other client hosting accounts that have shared access with you.\n\nUse the available query parameters to filter results by order statuses or specific order IDs for more targeted results.",
         "operationId": "hosting_listOrdersV1",
@@ -1406,9 +1330,7 @@
     },
     "/api/hosting/v1/websites": {
       "get": {
-        "tags": [
-          "Hosting: Websites"
-        ],
+        "tags": ["Hosting: Websites"],
         "summary": "List websites",
         "description": "Retrieve a paginated list of websites (main and addon types) accessible to the authenticated client.\n\nThis endpoint returns websites from your hosting accounts as well as websites from other client hosting accounts that have shared access with you.\n\nUse the available query parameters to filter results by username, order ID, enabled status, or domain name for more targeted results.",
         "operationId": "hosting_listWebsitesV1",
@@ -1460,9 +1382,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Hosting: Websites"
-        ],
+        "tags": ["Hosting: Websites"],
         "summary": "Create website",
         "description": "Create a new website for the authenticated client.\n\nProvide the domain name and associated order ID to create a new website. The datacenter_code parameter is required when creating the first website on a new hosting plan - this will set up and configure new hosting account in the selected datacenter.\n\nSubsequent websites will be hosted on the same datacenter automatically.\n\nWebsite creation takes up to a few minutes to complete. Check the websites list endpoint to see when your new website becomes available.",
         "operationId": "hosting_createWebsiteV1",
@@ -1501,9 +1421,7 @@
     },
     "/api/reach/v1/contacts/{uuid}": {
       "delete": {
-        "tags": [
-          "Reach: Contacts"
-        ],
+        "tags": ["Reach: Contacts"],
         "summary": "Delete a contact",
         "description": "Delete a contact with the specified UUID.\n\nThis endpoint permanently removes a contact from the email marketing system.",
         "operationId": "reach_deleteAContactV1",
@@ -1534,9 +1452,7 @@
     },
     "/api/reach/v1/contacts/groups": {
       "get": {
-        "tags": [
-          "Reach: Contacts"
-        ],
+        "tags": ["Reach: Contacts"],
         "summary": "List contact groups",
         "description": "Get a list of all contact groups.\n\nThis endpoint returns a list of contact groups that can be used to organize contacts.",
         "operationId": "reach_listContactGroupsV1",
@@ -1564,9 +1480,7 @@
     },
     "/api/reach/v1/contacts": {
       "get": {
-        "tags": [
-          "Reach: Contacts"
-        ],
+        "tags": ["Reach: Contacts"],
         "summary": "List contacts",
         "description": "Get a list of contacts, optionally filtered by group and subscription status.\n\nThis endpoint returns a paginated list of contacts with their basic information.\nYou can filter contacts by group UUID and subscription status.",
         "operationId": "reach_listContactsV1",
@@ -1609,9 +1523,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Reach: Contacts"
-        ],
+        "tags": ["Reach: Contacts"],
         "summary": "Create a new contact",
         "description": "Create a new contact in the email marketing system.\n\nThis endpoint allows you to create a new contact with basic information like name, email, and surname.\nYou can optionally assign the contact to specific groups and add notes.\n\nThe contact will be automatically subscribed to email communications.",
         "operationId": "reach_createANewContactV1",
@@ -1650,9 +1562,7 @@
     },
     "/api/reach/v1/segmentation/segments": {
       "get": {
-        "tags": [
-          "Reach: Segments"
-        ],
+        "tags": ["Reach: Segments"],
         "summary": "List segments",
         "description": "Get a list of all contact segments.\n\nThis endpoint returns a list of contact segments that can be used to organize contacts.",
         "operationId": "reach_listSegmentsV1",
@@ -1676,9 +1586,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Reach: Segments"
-        ],
+        "tags": ["Reach: Segments"],
         "summary": "Create a new contact segment",
         "description": "Create a new contact segment.\n\nThis endpoint allows creating a new contact segment that can be used to organize contacts.\nThe segment can be configured with specific criteria like email, name, subscription status, etc.",
         "operationId": "reach_createANewContactSegmentV1",
@@ -1717,9 +1625,7 @@
     },
     "/api/reach/v1/segmentation/segments/{segmentUuid}/contacts": {
       "get": {
-        "tags": [
-          "Reach: Segments"
-        ],
+        "tags": ["Reach: Segments"],
         "summary": "List segment contacts",
         "description": "Retrieve contacts associated with a specific segment.\n\nThis endpoint allows you to fetch and filter contacts that belong to a particular segment,\nidentified by its UUID.",
         "operationId": "reach_listSegmentContactsV1",
@@ -1764,9 +1670,7 @@
     },
     "/api/reach/v1/segmentation/segments/{segmentUuid}": {
       "get": {
-        "tags": [
-          "Reach: Segments"
-        ],
+        "tags": ["Reach: Segments"],
         "summary": "Get segment details",
         "description": "Get details of a specific segment.\n\nThis endpoint retrieves information about a single segment identified by UUID.\nSegments are used to organize and group contacts based on specific criteria.",
         "operationId": "reach_getSegmentDetailsV1",
@@ -1797,9 +1701,7 @@
     },
     "/api/vps/v1/data-centers": {
       "get": {
-        "tags": [
-          "VPS: Data centers"
-        ],
+        "tags": ["VPS: Data centers"],
         "summary": "Get data center list",
         "description": "Retrieve all available data centers.\n\nUse this endpoint to view location options before deploying VPS instances.",
         "operationId": "VPS_getDataCenterListV1",
@@ -1825,9 +1727,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/containers": {
       "get": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Get project containers",
         "description": "Retrieves a list of all containers belonging to a specific Docker Compose project on the virtual machine. \n\nThis endpoint returns detailed information about each container including their current status, port mappings, and runtime configuration. \n\nUse this to monitor the health and state of all services within your Docker Compose project.",
         "operationId": "VPS_getProjectContainersV1",
@@ -1865,9 +1765,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}": {
       "get": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Get project contents",
         "description": "Retrieves the complete project information including the docker-compose.yml file contents, project metadata, and current deployment status. \n\nThis endpoint provides the full configuration and state details of a specific Docker Compose project. \n\nUse this to inspect project settings, review the compose file, or check the overall project health.",
         "operationId": "VPS_getProjectContentsV1",
@@ -1905,9 +1803,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/down": {
       "delete": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Delete project",
         "description": "Completely removes a Docker Compose project from the virtual machine, stopping all containers and cleaning up \nassociated resources including networks, volumes, and images. \n\nThis operation is irreversible and will delete all project data. \n\nUse this when you want to permanently remove a project and free up system resources.",
         "operationId": "VPS_deleteProjectV1",
@@ -1945,9 +1841,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker": {
       "get": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Get project list",
         "description": "Retrieves a list of all Docker Compose projects currently deployed on the virtual machine. \n\nThis endpoint returns basic information about each project including name, status, file path and list of containers with \ndetails about their names, image, status, health and ports. Container stats are omitted in this endpoint.\nIf you need to get detailed information about container with stats included, use the `Get project containers` endpoint. \n\nUse this to get an overview of all Docker projects on your VPS instance.",
         "operationId": "VPS_getProjectListV1",
@@ -1980,9 +1874,7 @@
         "x-scalar-stability": "experimental"
       },
       "post": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Create new project",
         "description": "Deploy new project from docker-compose.yaml contents or download contents from URL. \n\nURL can be Github repository url in format https://github.com/[user]/[repo] and it will be automatically resolved to \ndocker-compose.yaml file in master branch. Any other URL provided must return docker-compose.yaml file contents.\n\nIf project with the same name already exists, existing project will be replaced.",
         "operationId": "VPS_createNewProjectV1",
@@ -2027,9 +1919,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/logs": {
       "get": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Get project logs",
         "description": "Retrieves aggregated log entries from all services within a Docker Compose project. \n\nThis endpoint returns recent log output from each container, organized by service name with timestamps. \nThe response contains the last 300 log entries across all services. \n\nUse this for debugging, monitoring application behavior, and troubleshooting issues across your entire project stack.",
         "operationId": "VPS_getProjectLogsV1",
@@ -2067,9 +1957,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/restart": {
       "post": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Restart project",
         "description": "Restarts all services in a Docker Compose project by stopping and starting containers in the correct dependency order. \n\nThis operation preserves data volumes and network configurations while refreshing the running containers. \n\nUse this to apply configuration changes or recover from service failures.",
         "operationId": "VPS_restartProjectV1",
@@ -2107,9 +1995,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/start": {
       "post": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Start project",
         "description": "Starts all services in a Docker Compose project that are currently stopped. \n\nThis operation brings up containers in the correct dependency order as defined in the compose file. \n\nUse this to resume a project that was previously stopped or to start services after a system reboot.",
         "operationId": "VPS_startProjectV1",
@@ -2147,9 +2033,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/stop": {
       "post": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Stop project",
         "description": "Stops all running services in a Docker Compose project while preserving container configurations and data volumes. \n\nThis operation gracefully shuts down containers in reverse dependency order. \n\nUse this to temporarily halt a project without removing data or configurations.",
         "operationId": "VPS_stopProjectV1",
@@ -2187,9 +2071,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/docker/{projectName}/update": {
       "post": {
-        "tags": [
-          "VPS: Docker Manager"
-        ],
+        "tags": ["VPS: Docker Manager"],
         "summary": "Update project",
         "description": "Updates a Docker Compose project by pulling the latest image versions and recreating containers with new configurations. \n\nThis operation preserves data volumes while applying changes from the compose file. \n\nUse this to deploy application updates, apply configuration changes, or refresh container images to their latest versions.",
         "operationId": "VPS_updateProjectV1",
@@ -2227,9 +2109,7 @@
     },
     "/api/vps/v1/firewall/{firewallId}/activate/{virtualMachineId}": {
       "post": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Activate firewall",
         "description": "Activate a firewall for a specified virtual machine.\n\nOnly one firewall can be active for a virtual machine at a time.\n\nUse this endpoint to apply firewall rules to VPS instances.",
         "operationId": "VPS_activateFirewallV1",
@@ -2266,9 +2146,7 @@
     },
     "/api/vps/v1/firewall/{firewallId}/deactivate/{virtualMachineId}": {
       "post": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Deactivate firewall",
         "description": "Deactivate a firewall for a specified virtual machine.\n\nUse this endpoint to remove firewall protection from VPS instances.",
         "operationId": "VPS_deactivateFirewallV1",
@@ -2305,9 +2183,7 @@
     },
     "/api/vps/v1/firewall/{firewallId}": {
       "get": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Get firewall details",
         "description": "Retrieve firewall by its ID and rules associated with it.\n\nUse this endpoint to view specific firewall configuration and rules.",
         "operationId": "VPS_getFirewallDetailsV1",
@@ -2336,9 +2212,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Delete firewall",
         "description": "Delete a specified firewall.\n\nAny virtual machine that has this firewall activated will automatically have it deactivated.\n\nUse this endpoint to remove unused firewall configurations.",
         "operationId": "VPS_deleteFirewallV1",
@@ -2369,9 +2243,7 @@
     },
     "/api/vps/v1/firewall": {
       "get": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Get firewall list",
         "description": "Retrieve all available firewalls.\n\nUse this endpoint to view existing firewall configurations.",
         "operationId": "VPS_getFirewallListV1",
@@ -2408,9 +2280,7 @@
         }
       },
       "post": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Create new firewall",
         "description": "Create a new firewall.\n\nUse this endpoint to set up new firewall configurations for VPS security.",
         "operationId": "VPS_createNewFirewallV1",
@@ -2449,9 +2319,7 @@
     },
     "/api/vps/v1/firewall/{firewallId}/rules/{ruleId}": {
       "put": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Update firewall rule",
         "description": "Update a specific firewall rule from a specified firewall.\n\nAny virtual machine that has this firewall activated will lose sync with the firewall and will have to be synced again manually.\n\nUse this endpoint to modify existing firewall rules.",
         "operationId": "VPS_updateFirewallRuleV1",
@@ -2496,9 +2364,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Delete firewall rule",
         "description": "Delete a specific firewall rule from a specified firewall.\n\nAny virtual machine that has this firewall activated will lose sync with the firewall and will have to be synced again manually.\n       \nUse this endpoint to remove specific firewall rules.",
         "operationId": "VPS_deleteFirewallRuleV1",
@@ -2532,9 +2398,7 @@
     },
     "/api/vps/v1/firewall/{firewallId}/rules": {
       "post": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Create firewall rule",
         "description": "Create new firewall rule for a specified firewall.\n\nBy default, the firewall drops all incoming traffic, which means you must add accept rules for all ports you want to use.\n\nAny virtual machine that has this firewall activated will lose sync with the firewall and will have to be synced again manually.\n\nUse this endpoint to add new security rules to firewalls.",
         "operationId": "VPS_createFirewallRuleV1",
@@ -2578,9 +2442,7 @@
     },
     "/api/vps/v1/firewall/{firewallId}/sync/{virtualMachineId}": {
       "post": {
-        "tags": [
-          "VPS: Firewall"
-        ],
+        "tags": ["VPS: Firewall"],
         "summary": "Sync firewall",
         "description": "Sync a firewall for a specified virtual machine.\n\nFirewall can lose sync with virtual machine if the firewall has new rules added, removed or updated.\n\nUse this endpoint to apply updated firewall rules to VPS instances.",
         "operationId": "VPS_syncFirewallV1",
@@ -2617,9 +2479,7 @@
     },
     "/api/vps/v1/post-install-scripts/{postInstallScriptId}": {
       "get": {
-        "tags": [
-          "VPS: Post-install scripts"
-        ],
+        "tags": ["VPS: Post-install scripts"],
         "summary": "Get post-install script",
         "description": "Retrieve post-install script by its ID.\n\nUse this endpoint to view specific automation script details.",
         "operationId": "VPS_getPostInstallScriptV1",
@@ -2648,9 +2508,7 @@
         }
       },
       "put": {
-        "tags": [
-          "VPS: Post-install scripts"
-        ],
+        "tags": ["VPS: Post-install scripts"],
         "summary": "Update post-install script",
         "description": "Update a specific post-install script.\n\nUse this endpoint to modify existing automation scripts.",
         "operationId": "VPS_updatePostInstallScriptV1",
@@ -2692,9 +2550,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Post-install scripts"
-        ],
+        "tags": ["VPS: Post-install scripts"],
         "summary": "Delete post-install script",
         "description": "Delete a post-install script from your account.\n       \nUse this endpoint to remove unused automation scripts.",
         "operationId": "VPS_deletePostInstallScriptV1",
@@ -2725,9 +2581,7 @@
     },
     "/api/vps/v1/post-install-scripts": {
       "get": {
-        "tags": [
-          "VPS: Post-install scripts"
-        ],
+        "tags": ["VPS: Post-install scripts"],
         "summary": "Get post-install scripts",
         "description": "Retrieve post-install scripts associated with your account.\n\nUse this endpoint to view available automation scripts for VPS deployment.",
         "operationId": "VPS_getPostInstallScriptsV1",
@@ -2764,9 +2618,7 @@
         }
       },
       "post": {
-        "tags": [
-          "VPS: Post-install scripts"
-        ],
+        "tags": ["VPS: Post-install scripts"],
         "summary": "Create post-install script",
         "description": "Add a new post-install script to your account, which can then be used after virtual machine installation.\n\nThe script contents will be saved to the file `/post_install` with executable attribute set and will be executed once virtual machine is installed.\nThe output of the script will be redirected to `/post_install.log`. Maximum script size is 48KB.\n\nUse this endpoint to create automation scripts for VPS setup tasks.",
         "operationId": "VPS_createPostInstallScriptV1",
@@ -2805,9 +2657,7 @@
     },
     "/api/vps/v1/public-keys/attach/{virtualMachineId}": {
       "post": {
-        "tags": [
-          "VPS: Public Keys"
-        ],
+        "tags": ["VPS: Public Keys"],
         "summary": "Attach public key",
         "description": "Attach existing public keys from your account to a specified virtual machine.\n\nMultiple keys can be attached to a single virtual machine.\n\nUse this endpoint to enable SSH key authentication for VPS instances.",
         "operationId": "VPS_attachPublicKeyV1",
@@ -2851,9 +2701,7 @@
     },
     "/api/vps/v1/public-keys/{publicKeyId}": {
       "delete": {
-        "tags": [
-          "VPS: Public Keys"
-        ],
+        "tags": ["VPS: Public Keys"],
         "summary": "Delete public key",
         "description": "Delete a public key from your account. \n\n**Deleting public key from account does not remove it from virtual machine** \n       \nUse this endpoint to remove unused SSH keys from account.",
         "operationId": "VPS_deletePublicKeyV1",
@@ -2884,9 +2732,7 @@
     },
     "/api/vps/v1/public-keys": {
       "get": {
-        "tags": [
-          "VPS: Public Keys"
-        ],
+        "tags": ["VPS: Public Keys"],
         "summary": "Get public keys",
         "description": "Retrieve public keys associated with your account.\n\nUse this endpoint to view available SSH keys for VPS authentication.",
         "operationId": "VPS_getPublicKeysV1",
@@ -2923,9 +2769,7 @@
         }
       },
       "post": {
-        "tags": [
-          "VPS: Public Keys"
-        ],
+        "tags": ["VPS: Public Keys"],
         "summary": "Create public key",
         "description": "Add a new public key to your account.\n\nUse this endpoint to register SSH keys for VPS authentication.",
         "operationId": "VPS_createPublicKeyV1",
@@ -2964,9 +2808,7 @@
     },
     "/api/vps/v1/templates/{templateId}": {
       "get": {
-        "tags": [
-          "VPS: OS Templates"
-        ],
+        "tags": ["VPS: OS Templates"],
         "summary": "Get template details",
         "description": "Retrieve detailed information about a specific OS template for virtual machines.\n\nUse this endpoint to view specific template specifications before deployment.",
         "operationId": "VPS_getTemplateDetailsV1",
@@ -2997,9 +2839,7 @@
     },
     "/api/vps/v1/templates": {
       "get": {
-        "tags": [
-          "VPS: OS Templates"
-        ],
+        "tags": ["VPS: OS Templates"],
         "summary": "Get templates",
         "description": "Retrieve available OS templates for virtual machines.\n\nUse this endpoint to view operating system options before creating or recreating VPS instances.",
         "operationId": "VPS_getTemplatesV1",
@@ -3025,9 +2865,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/actions/{actionId}": {
       "get": {
-        "tags": [
-          "VPS: Actions"
-        ],
+        "tags": ["VPS: Actions"],
         "summary": "Get action details",
         "description": "Retrieve detailed information about a specific action performed on a specified virtual machine.\n\nUse this endpoint to monitor specific VPS operation status and details.",
         "operationId": "VPS_getActionDetailsV1",
@@ -3061,9 +2899,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/actions": {
       "get": {
-        "tags": [
-          "VPS: Actions"
-        ],
+        "tags": ["VPS: Actions"],
         "summary": "Get actions",
         "description": "Retrieve actions performed on a specified virtual machine.\n\nActions are operations or events that have been executed on the virtual machine, such as starting, stopping, or modifying \nthe machine. This endpoint allows you to view the history of these actions, providing details about each action, \nsuch as the action name, timestamp, and status.\n\nUse this endpoint to view VPS operation history and troubleshoot issues.",
         "operationId": "VPS_getActionsV1",
@@ -3105,9 +2941,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/public-keys": {
       "get": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Get attached public keys",
         "description": "Retrieve public keys attached to a specified virtual machine.\n\nUse this endpoint to view SSH keys configured for specific VPS instances.",
         "operationId": "VPS_getAttachedPublicKeysV1",
@@ -3149,9 +2983,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/backups": {
       "get": {
-        "tags": [
-          "VPS: Backups"
-        ],
+        "tags": ["VPS: Backups"],
         "summary": "Get backups",
         "description": "Retrieve backups for a specified virtual machine.\n\nUse this endpoint to view available backup points for VPS data recovery.",
         "operationId": "VPS_getBackupsV1",
@@ -3193,9 +3025,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/backups/{backupId}/restore": {
       "post": {
-        "tags": [
-          "VPS: Backups"
-        ],
+        "tags": ["VPS: Backups"],
         "summary": "Restore backup",
         "description": "Restore a backup for a specified virtual machine.\n\nThe system will then initiate the restore process, which may take some time depending on the size of the backup.\n\n**All data on the virtual machine will be overwritten with the data from the backup.**\n\nUse this endpoint to recover VPS data from backup points.",
         "operationId": "VPS_restoreBackupV1",
@@ -3229,9 +3059,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/hostname": {
       "put": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Set hostname",
         "description": "Set hostname for a specified virtual machine.\n\nChanging hostname does not update PTR record automatically.\nIf you want your virtual machine to be reachable by a hostname, \nyou need to point your domain A/AAAA records to virtual machine IP as well.\n\nUse this endpoint to configure custom hostnames for VPS instances.",
         "operationId": "VPS_setHostnameV1",
@@ -3273,9 +3101,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Reset hostname",
         "description": "Reset hostname and PTR record of a specified virtual machine to default value.\n\nUse this endpoint to restore default hostname configuration for VPS instances.",
         "operationId": "VPS_resetHostnameV1",
@@ -3306,9 +3132,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}": {
       "get": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Get virtual machine details",
         "description": "Retrieve detailed information about a specified virtual machine.\n\nUse this endpoint to view comprehensive VPS configuration and status.",
         "operationId": "VPS_getVirtualMachineDetailsV1",
@@ -3339,9 +3163,7 @@
     },
     "/api/vps/v1/virtual-machines": {
       "get": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Get virtual machines",
         "description": "Retrieve all available virtual machines.\n\nUse this endpoint to view available VPS instances.",
         "operationId": "VPS_getVirtualMachinesV1",
@@ -3365,9 +3187,7 @@
         }
       },
       "post": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Purchase new virtual machine",
         "description": "Purchase and setup a new virtual machine.\n\nIf virtual machine setup fails for any reason, login to [hPanel](https://hpanel.hostinger.com/) and complete the setup manually.\n\nIf no payment method is provided, your default payment method will be used automatically.\n\nUse this endpoint to create new VPS instances.",
         "operationId": "VPS_purchaseNewVirtualMachineV1",
@@ -3406,9 +3226,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/monarx": {
       "get": {
-        "tags": [
-          "VPS: Malware scanner"
-        ],
+        "tags": ["VPS: Malware scanner"],
         "summary": "Get scan metrics",
         "description": "Retrieve scan metrics for the [Monarx](https://www.monarx.com/) malware scanner installed on a specified virtual machine.\n\nThe scan metrics provide detailed information about malware scans performed by Monarx, including number of scans, \ndetected threats, and other relevant statistics. This information is useful for monitoring security status of the \nvirtual machine and assessing effectiveness of the malware scanner.\n\nUse this endpoint to monitor VPS security scan results and threat detection.",
         "operationId": "VPS_getScanMetricsV1",
@@ -3440,9 +3258,7 @@
         }
       },
       "post": {
-        "tags": [
-          "VPS: Malware scanner"
-        ],
+        "tags": ["VPS: Malware scanner"],
         "summary": "Install Monarx",
         "description": "Install the Monarx malware scanner on a specified virtual machine.\n\n[Monarx](https://www.monarx.com/) is a security tool designed to detect and prevent malware infections on virtual machines. \nBy installing Monarx, users can enhance the security of their virtual machines, ensuring that they are protected against malicious software.\n\nUse this endpoint to enable malware protection on VPS instances.",
         "operationId": "VPS_installMonarxV1",
@@ -3474,9 +3290,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Malware scanner"
-        ],
+        "tags": ["VPS: Malware scanner"],
         "summary": "Uninstall Monarx",
         "description": "Uninstall the Monarx malware scanner on a specified virtual machine.\n\nIf Monarx is not installed, the request will still be processed without any effect.\n\nUse this endpoint to remove malware scanner from VPS instances.",
         "operationId": "VPS_uninstallMonarxV1",
@@ -3510,9 +3324,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/metrics": {
       "get": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Get metrics",
         "description": "Retrieve historical metrics for a specified virtual machine.\n\nIt includes the following metrics: \n- CPU usage\n- Memory usage\n- Disk usage\n- Network usage\n- Uptime\n\nUse this endpoint to monitor VPS performance and resource utilization over time.",
         "operationId": "VPS_getMetricsV1",
@@ -3569,9 +3381,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/nameservers": {
       "put": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Set nameservers",
         "description": "Set nameservers for a specified virtual machine.\n\nBe aware, that improper nameserver configuration can lead to the virtual machine being unable to resolve domain names.\n\nUse this endpoint to configure custom DNS resolvers for VPS instances.",
         "operationId": "VPS_setNameserversV1",
@@ -3615,9 +3425,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/ptr/{ipAddressId}": {
       "post": {
-        "tags": [
-          "VPS: PTR records"
-        ],
+        "tags": ["VPS: PTR records"],
         "summary": "Create PTR record",
         "description": "Create or update a PTR (Pointer) record for a specified virtual machine.\n\nUse this endpoint to configure reverse DNS lookup for VPS IP addresses.",
         "operationId": "VPS_createPTRRecordV1",
@@ -3662,9 +3470,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: PTR records"
-        ],
+        "tags": ["VPS: PTR records"],
         "summary": "Delete PTR record",
         "description": "Delete a PTR (Pointer) record for a specified virtual machine.\n\nOnce deleted, reverse DNS lookups to the virtual machine's IP address will no longer return the previously configured hostname.\n\nUse this endpoint to remove reverse DNS configuration from VPS instances.",
         "operationId": "VPS_deletePTRRecordV1",
@@ -3698,9 +3504,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/panel-password": {
       "put": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Set panel password",
         "description": "Set panel password for a specified virtual machine.\n\nIf virtual machine does not use panel OS, the request will still be processed without any effect.\nRequirements for password are same as in the [recreate virtual machine endpoint](/#tag/vps-virtual-machine/POST/api/vps/v1/virtual-machines/{virtualMachineId}/recreate).\n\nUse this endpoint to configure control panel access credentials for VPS instances.",
         "operationId": "VPS_setPanelPasswordV1",
@@ -3744,9 +3548,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/recovery": {
       "post": {
-        "tags": [
-          "VPS: Recovery"
-        ],
+        "tags": ["VPS: Recovery"],
         "summary": "Start recovery mode",
         "description": "Initiate recovery mode for a specified virtual machine.\n\nRecovery mode is a special state that allows users to perform system rescue operations, \nsuch as repairing file systems, recovering data, or troubleshooting issues that prevent the virtual machine \nfrom booting normally. \n\nVirtual machine will boot recovery disk image and original disk image will be mounted in `/mnt` directory.\n\nUse this endpoint to enable system rescue operations on VPS instances.",
         "operationId": "VPS_startRecoveryModeV1",
@@ -3788,9 +3590,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Recovery"
-        ],
+        "tags": ["VPS: Recovery"],
         "summary": "Stop recovery mode",
         "description": "Stop recovery mode for a specified virtual machine.\n\nIf virtual machine is not in recovery mode, this operation will fail.\n\nUse this endpoint to exit system rescue mode and return VPS to normal operation.",
         "operationId": "VPS_stopRecoveryModeV1",
@@ -3821,9 +3621,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/recreate": {
       "post": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Recreate virtual machine",
         "description": "Recreate a virtual machine from scratch.\n\nThe recreation process involves reinstalling the operating system and resetting the virtual machine to its initial state.\nSnapshots, if there are any, will be deleted.\n\n## Password Requirements\nPassword will be checked against leaked password databases. \nRequirements for the password are:\n- At least 12 characters long\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- Is not leaked publicly\n\n**This operation is irreversible and will result in the loss of all data stored on the virtual machine!**\n\nUse this endpoint to completely rebuild VPS instances with fresh OS installation.",
         "operationId": "VPS_recreateVirtualMachineV1",
@@ -3867,9 +3665,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/restart": {
       "post": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Restart virtual machine",
         "description": "Restart a specified virtual machine by fully stopping and starting it.\n\nIf the virtual machine was stopped, it will be started.\n\nUse this endpoint to reboot VPS instances.",
         "operationId": "VPS_restartVirtualMachineV1",
@@ -3900,9 +3696,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/root-password": {
       "put": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Set root password",
         "description": "Set root password for a specified virtual machine.\n\nRequirements for password are same as in the [recreate virtual machine endpoint](/#tag/vps-virtual-machine/POST/api/vps/v1/virtual-machines/{virtualMachineId}/recreate).\n\nUse this endpoint to update administrator credentials for VPS instances.",
         "operationId": "VPS_setRootPasswordV1",
@@ -3946,9 +3740,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/setup": {
       "post": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Setup purchased virtual machine",
         "description": "Setup newly purchased virtual machine with `initial` state.\n\nUse this endpoint to configure and initialize purchased VPS instances.",
         "operationId": "VPS_setupPurchasedVirtualMachineV1",
@@ -3992,9 +3784,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/snapshot": {
       "get": {
-        "tags": [
-          "VPS: Snapshots"
-        ],
+        "tags": ["VPS: Snapshots"],
         "summary": "Get snapshot",
         "description": "Retrieve snapshot for a specified virtual machine.\n\nUse this endpoint to view current VPS snapshot information.",
         "operationId": "VPS_getSnapshotV1",
@@ -4023,9 +3813,7 @@
         }
       },
       "post": {
-        "tags": [
-          "VPS: Snapshots"
-        ],
+        "tags": ["VPS: Snapshots"],
         "summary": "Create snapshot",
         "description": "Create a snapshot of a specified virtual machine.\n\nA snapshot captures the state and data of the virtual machine at a specific point in time, \nallowing users to restore the virtual machine to that state if needed. \nThis operation is useful for backup purposes, system recovery, \nand testing changes without affecting the current state of the virtual machine.\n\n**Creating new snapshot will overwrite the existing snapshot!**\n\nUse this endpoint to capture VPS state for backup and recovery purposes.",
         "operationId": "VPS_createSnapshotV1",
@@ -4054,9 +3842,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "VPS: Snapshots"
-        ],
+        "tags": ["VPS: Snapshots"],
         "summary": "Delete snapshot",
         "description": "Delete a snapshot of a specified virtual machine.\n\nUse this endpoint to remove VPS snapshots.",
         "operationId": "VPS_deleteSnapshotV1",
@@ -4087,9 +3873,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/snapshot/restore": {
       "post": {
-        "tags": [
-          "VPS: Snapshots"
-        ],
+        "tags": ["VPS: Snapshots"],
         "summary": "Restore snapshot",
         "description": "Restore a specified virtual machine to a previous state using a snapshot.\n\nRestoring from a snapshot allows users to revert the virtual machine to that state, which is useful for system recovery, undoing changes, or testing.\n\nUse this endpoint to revert VPS instances to previous saved states.",
         "operationId": "VPS_restoreSnapshotV1",
@@ -4120,9 +3904,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/start": {
       "post": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Start virtual machine",
         "description": "Start a specified virtual machine.\n\nIf the virtual machine is already running, the request will still be processed without any effect.\n\nUse this endpoint to power on stopped VPS instances.",
         "operationId": "VPS_startVirtualMachineV1",
@@ -4153,9 +3935,7 @@
     },
     "/api/vps/v1/virtual-machines/{virtualMachineId}/stop": {
       "post": {
-        "tags": [
-          "VPS: Virtual machine"
-        ],
+        "tags": ["VPS: Virtual machine"],
         "summary": "Stop virtual machine",
         "description": "Stop a specified virtual machine.\n\nIf the virtual machine is already stopped, the request will still be processed without any effect.\n\nUse this endpoint to power off running VPS instances.",
         "operationId": "VPS_stopVirtualMachineV1",
@@ -4206,10 +3986,7 @@
         "x-scalar-ignore": true
       },
       "Billing.V1.Order.StoreRequest": {
-        "required": [
-          "payment_method_id",
-          "items"
-        ],
+        "required": ["payment_method_id", "items"],
         "properties": {
           "payment_method_id": {
             "description": "Payment method ID",
@@ -4219,10 +3996,7 @@
           "items": {
             "type": "array",
             "items": {
-              "required": [
-                "item_id",
-                "quantity"
-              ],
+              "required": ["item_id", "quantity"],
               "properties": {
                 "item_id": {
                   "description": "Price Item ID",
@@ -4241,9 +4015,7 @@
             "description": "Discount coupon codes",
             "type": "array",
             "items": {
-              "example": [
-                "Coupon 3"
-              ]
+              "example": ["Coupon 3"]
             }
           }
         },
@@ -4254,18 +4026,14 @@
           "reason_code": {
             "description": "Cancellation reason code",
             "type": "string",
-            "enum": [
-              "other"
-            ],
+            "enum": ["other"],
             "example": "other",
             "nullable": true
           },
           "cancel_option": {
             "description": "Cancellation option",
             "type": "string",
-            "enum": [
-              "immediately"
-            ],
+            "enum": ["immediately"],
             "example": "immediately",
             "nullable": true
           }
@@ -4273,18 +4041,13 @@
         "type": "object"
       },
       "DNS.V1.Zone.DestroyRequest": {
-        "required": [
-          "filters"
-        ],
+        "required": ["filters"],
         "properties": {
           "filters": {
             "description": "Filter records for deletion",
             "type": "array",
             "items": {
-              "required": [
-                "name",
-                "type"
-              ],
+              "required": ["name", "type"],
               "properties": {
                 "name": {
                   "description": "Name of the record",
@@ -4294,18 +4057,7 @@
                 "type": {
                   "description": "Type of the record",
                   "type": "string",
-                  "enum": [
-                    "A",
-                    "AAAA",
-                    "CNAME",
-                    "ALIAS",
-                    "MX",
-                    "TXT",
-                    "NS",
-                    "SOA",
-                    "SRV",
-                    "CAA"
-                  ],
+                  "enum": ["A", "AAAA", "CNAME", "ALIAS", "MX", "TXT", "NS", "SOA", "SRV", "CAA"],
                   "example": "A"
                 }
               },
@@ -4335,18 +4087,13 @@
             "items": {
               "type": "string"
             },
-            "example": [
-              "MX",
-              "TXT"
-            ]
+            "example": ["MX", "TXT"]
           }
         },
         "type": "object"
       },
       "DNS.V1.Zone.UpdateRequest": {
-        "required": [
-          "zone"
-        ],
+        "required": ["zone"],
         "properties": {
           "overwrite": {
             "description": "If `true`, resource records (RRs) matching name and type will be deleted and new RRs will be created, otherwise resource records' ttl's are updated and new records are appended. If no matching RRs are found, they are created.",
@@ -4357,11 +4104,7 @@
           "zone": {
             "type": "array",
             "items": {
-              "required": [
-                "name",
-                "records",
-                "type"
-              ],
+              "required": ["name", "records", "type"],
               "properties": {
                 "name": {
                   "description": "Name of the record (use `@` for wildcard name)",
@@ -4372,9 +4115,7 @@
                   "description": "Records assigned to the name",
                   "type": "array",
                   "items": {
-                    "required": [
-                      "content"
-                    ],
+                    "required": ["content"],
                     "properties": {
                       "content": {
                         "description": "Content of the name record",
@@ -4393,18 +4134,7 @@
                 "type": {
                   "description": "Type of the record",
                   "type": "string",
-                  "enum": [
-                    "A",
-                    "AAAA",
-                    "CNAME",
-                    "ALIAS",
-                    "MX",
-                    "TXT",
-                    "NS",
-                    "SOA",
-                    "SRV",
-                    "CAA"
-                  ],
+                  "enum": ["A", "AAAA", "CNAME", "ALIAS", "MX", "TXT", "NS", "SOA", "SRV", "CAA"],
                   "example": "A"
                 }
               },
@@ -4415,9 +4145,7 @@
         "type": "object"
       },
       "DomainAccessVerifier.V2.Verifications.ListRequest": {
-        "required": [
-          "domains"
-        ],
+        "required": ["domains"],
         "properties": {
           "domains": {
             "description": "The list of domains for which to get verification details for.",
@@ -4431,10 +4159,7 @@
         "type": "object"
       },
       "Domains.V1.Availability.AvailabilityRequest": {
-        "required": [
-          "domain",
-          "tlds"
-        ],
+        "required": ["domain", "tlds"],
         "properties": {
           "domain": {
             "description": "Domain name (without TLD)",
@@ -4448,11 +4173,7 @@
               "description": "TLD without leading dot",
               "type": "string"
             },
-            "example": [
-              "com",
-              "net",
-              "org"
-            ]
+            "example": ["com", "net", "org"]
           },
           "with_alternatives": {
             "description": "Should response include alternatives",
@@ -4464,11 +4185,7 @@
         "type": "object"
       },
       "Domains.V1.Forwarding.StoreRequest": {
-        "required": [
-          "domain",
-          "redirect_type",
-          "redirect_url"
-        ],
+        "required": ["domain", "redirect_type", "redirect_url"],
         "properties": {
           "domain": {
             "description": "Domain name",
@@ -4478,10 +4195,7 @@
           "redirect_type": {
             "description": "Redirect type",
             "type": "string",
-            "enum": [
-              "301",
-              "302"
-            ],
+            "enum": ["301", "302"],
             "example": "301",
             "x-enum-descriptions": {
               "301": "Permanent",
@@ -4497,10 +4211,7 @@
         "type": "object"
       },
       "Domains.V1.Portfolio.PurchaseRequest": {
-        "required": [
-          "domain",
-          "item_id"
-        ],
+        "required": ["domain", "item_id"],
         "properties": {
           "domain": {
             "description": "Domain name",
@@ -4551,19 +4262,14 @@
             "description": "Discount coupon codes",
             "type": "array",
             "items": {
-              "example": [
-                "Coupon 3"
-              ]
+              "example": ["Coupon 3"]
             }
           }
         },
         "type": "object"
       },
       "Domains.V1.Portfolio.UpdateNameserversRequest": {
-        "required": [
-          "ns1",
-          "ns2"
-        ],
+        "required": ["ns1", "ns2"],
         "properties": {
           "ns1": {
             "description": "First name server",
@@ -4589,12 +4295,7 @@
         "type": "object"
       },
       "Domains.V1.WHOIS.StoreRequest": {
-        "required": [
-          "tld",
-          "entity_type",
-          "country",
-          "whois_details"
-        ],
+        "required": ["tld", "entity_type", "country", "whois_details"],
         "properties": {
           "tld": {
             "description": "TLD of the domain (without leading dot)",
@@ -4609,10 +4310,7 @@
           "entity_type": {
             "description": "Legal entity type",
             "type": "string",
-            "enum": [
-              "individual",
-              "organization"
-            ],
+            "enum": ["individual", "organization"],
             "example": "individual"
           },
           "tld_details": {
@@ -4627,9 +4325,7 @@
         "type": "object"
       },
       "Hosting.V1.Datacenters.ListRequest": {
-        "required": [
-          "order_id"
-        ],
+        "required": ["order_id"],
         "properties": {
           "order_id": {
             "type": "integer",
@@ -4639,9 +4335,7 @@
         "type": "object"
       },
       "Hosting.V1.Domains.VerifyOwnershipRequest": {
-        "required": [
-          "domain"
-        ],
+        "required": ["domain"],
         "properties": {
           "domain": {
             "description": "Domain to verify ownership for",
@@ -4652,10 +4346,7 @@
         "type": "object"
       },
       "Hosting.V1.Websites.CreateWebsiteRequest": {
-        "required": [
-          "domain",
-          "order_id"
-        ],
+        "required": ["domain", "order_id"],
         "properties": {
           "domain": {
             "description": "Domain name for the website. Cannot start with \"www.\"",
@@ -4677,11 +4368,7 @@
         "type": "object"
       },
       "Reach.V1.Contacts.Segments.StoreRequest": {
-        "required": [
-          "name",
-          "conditions",
-          "logic"
-        ],
+        "required": ["name", "conditions", "logic"],
         "properties": {
           "name": {
             "type": "string",
@@ -4767,19 +4454,14 @@
           },
           "logic": {
             "type": "string",
-            "enum": [
-              "AND",
-              "OR"
-            ],
+            "enum": ["AND", "OR"],
             "example": "AND"
           }
         },
         "type": "object"
       },
       "Reach.V1.Contacts.StoreRequest": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "properties": {
           "email": {
             "type": "string",
@@ -4805,12 +4487,7 @@
         "type": "object"
       },
       "VPS.V1.Firewall.Rules.StoreRequest": {
-        "required": [
-          "protocol",
-          "port",
-          "source",
-          "source_detail"
-        ],
+        "required": ["protocol", "port", "source", "source_detail"],
         "properties": {
           "protocol": {
             "type": "string",
@@ -4838,10 +4515,7 @@
           },
           "source": {
             "type": "string",
-            "enum": [
-              "any",
-              "custom"
-            ],
+            "enum": ["any", "custom"],
             "example": "any"
           },
           "source_detail": {
@@ -4853,9 +4527,7 @@
         "type": "object"
       },
       "VPS.V1.Firewall.StoreRequest": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -4865,10 +4537,7 @@
         "type": "object"
       },
       "VPS.V1.PostInstallScript.StoreRequest": {
-        "required": [
-          "name",
-          "content"
-        ],
+        "required": ["name", "content"],
         "properties": {
           "name": {
             "description": "Name of the script",
@@ -4884,9 +4553,7 @@
         "type": "object"
       },
       "VPS.V1.PublicKey.AttachRequest": {
-        "required": [
-          "ids"
-        ],
+        "required": ["ids"],
         "properties": {
           "ids": {
             "description": "Public Key IDs to attach",
@@ -4894,19 +4561,13 @@
             "items": {
               "type": "integer"
             },
-            "example": [
-              18232,
-              10230230
-            ]
+            "example": [18232, 10230230]
           }
         },
         "type": "object"
       },
       "VPS.V1.PublicKey.StoreRequest": {
-        "required": [
-          "name",
-          "key"
-        ],
+        "required": ["name", "key"],
         "properties": {
           "name": {
             "type": "string",
@@ -4920,10 +4581,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.DockerManager.UpRequest": {
-        "required": [
-          "project_name",
-          "content"
-        ],
+        "required": ["project_name", "content"],
         "properties": {
           "project_name": {
             "description": "Docker Compose project name using alphanumeric characters, dashes, and underscores only",
@@ -4947,9 +4605,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.HostnameUpdateRequest": {
-        "required": [
-          "hostname"
-        ],
+        "required": ["hostname"],
         "properties": {
           "hostname": {
             "type": "string",
@@ -4959,10 +4615,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.MetricGetRequest": {
-        "required": [
-          "date_from",
-          "date_to"
-        ],
+        "required": ["date_from", "date_to"],
         "properties": {
           "date_from": {
             "type": "string",
@@ -4978,9 +4631,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.NameserversUpdateRequest": {
-        "required": [
-          "ns1"
-        ],
+        "required": ["ns1"],
         "properties": {
           "ns1": {
             "type": "string",
@@ -5000,9 +4651,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.PTR.StoreRequest": {
-        "required": [
-          "domain"
-        ],
+        "required": ["domain"],
         "properties": {
           "domain": {
             "description": "Pointer record domain",
@@ -5013,9 +4662,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.PanelPasswordUpdateRequest": {
-        "required": [
-          "password"
-        ],
+        "required": ["password"],
         "properties": {
           "password": {
             "description": "Panel password for the virtual machine",
@@ -5028,10 +4675,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.PurchaseRequest": {
-        "required": [
-          "item_id",
-          "setup"
-        ],
+        "required": ["item_id", "setup"],
         "properties": {
           "item_id": {
             "description": "Catalog price item ID",
@@ -5050,18 +4694,14 @@
             "description": "Discount coupon codes",
             "type": "array",
             "items": {
-              "example": [
-                "Coupon 3"
-              ]
+              "example": ["Coupon 3"]
             }
           }
         },
         "type": "object"
       },
       "VPS.V1.VirtualMachine.Recovery.StartRequest": {
-        "required": [
-          "root_password"
-        ],
+        "required": ["root_password"],
         "properties": {
           "root_password": {
             "description": "Temporary root password for recovery mode",
@@ -5072,9 +4712,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.RecreateRequest": {
-        "required": [
-          "template_id"
-        ],
+        "required": ["template_id"],
         "properties": {
           "template_id": {
             "description": "Template ID",
@@ -5104,9 +4742,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.RootPasswordUpdateRequest": {
-        "required": [
-          "password"
-        ],
+        "required": ["password"],
         "properties": {
           "password": {
             "description": "Root password for the virtual machine",
@@ -5119,10 +4755,7 @@
         "type": "object"
       },
       "VPS.V1.VirtualMachine.SetupRequest": {
-        "required": [
-          "data_center_id",
-          "template_id"
-        ],
+        "required": ["data_center_id", "template_id"],
         "properties": {
           "template_id": {
             "description": "Template ID",
@@ -5241,13 +4874,7 @@
           "period_unit": {
             "description": "Period unit",
             "type": "string",
-            "enum": [
-              "day",
-              "week",
-              "month",
-              "year",
-              "none"
-            ],
+            "enum": ["day", "week", "month", "year", "none"],
             "example": "day"
           }
         },
@@ -5643,18 +5270,7 @@
           "type": {
             "description": "Type of the record",
             "type": "string",
-            "enum": [
-              "A",
-              "AAAA",
-              "CNAME",
-              "ALIAS",
-              "MX",
-              "TXT",
-              "NS",
-              "SOA",
-              "SRV",
-              "CAA"
-            ],
+            "enum": ["A", "AAAA", "CNAME", "ALIAS", "MX", "TXT", "NS", "SOA", "SRV", "CAA"],
             "example": "A"
           }
         },
@@ -5741,18 +5357,13 @@
             "PENDING": {
               "pixel.tld": {
                 "NAMESERVERS": {
-                  "records": [
-                    "ns1.nameserver.com",
-                    "ns2.nameserver.com"
-                  ],
+                  "records": ["ns1.nameserver.com", "ns2.nameserver.com"],
                   "last_verification_attempt": "2025-08-05 13:15:00",
                   "next_verification_attempt": "2025-08-05 14:30:00",
                   "verification_expiration": "2025-08-12 13:15:00"
                 },
                 "TXT": {
-                  "records": [
-                    "txt-verification-hash"
-                  ],
+                  "records": ["txt-verification-hash"],
                   "last_verification_attempt": "2025-08-05 14:45:00",
                   "next_verification_attempt": "2025-08-05 15:00:00",
                   "verification_expiration": "2025-08-12 14:45:00"
@@ -5762,9 +5373,7 @@
             "VERIFIED": {
               "byte.tld": {
                 "TXT": {
-                  "records": [
-                    "other-txt-verification-hash"
-                  ]
+                  "records": ["other-txt-verification-hash"]
                 }
               }
             }
@@ -5887,10 +5496,7 @@
               }
             },
             "example": {
-              "ns1.example.tld": [
-                "258.231.55.321",
-                "258.231.55.322"
-              ]
+              "ns1.example.tld": ["258.231.55.321", "258.231.55.322"]
             }
           },
           "domain_contacts": {
@@ -5965,12 +5571,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "domain",
-              "free_domain",
-              "domain_transfer",
-              "free_domain_transfer"
-            ],
+            "enum": ["domain", "free_domain", "domain_transfer", "free_domain_transfer"],
             "example": "domain"
           },
           "status": {
@@ -6012,10 +5613,7 @@
           "redirect_type": {
             "description": "Redirect type",
             "type": "string",
-            "enum": [
-              "301",
-              "302"
-            ],
+            "enum": ["301", "302"],
             "example": "301",
             "x-enum-descriptions": {
               "301": "Permanent",
@@ -6068,10 +5666,7 @@
           "entity_type": {
             "description": "WHOIS profile entity type",
             "type": "string",
-            "enum": [
-              "individual",
-              "organization"
-            ],
+            "enum": ["individual", "organization"],
             "example": "individual"
           },
           "whois_details": {
@@ -6106,10 +5701,7 @@
         "items": {
           "type": "string"
         },
-        "example": [
-          "mydomain1.tld",
-          "mydomain2.tld"
-        ]
+        "example": ["mydomain1.tld", "mydomain2.tld"]
       },
       "Hosting.V1.Datacenter.CoordinatesResource": {
         "properties": {
@@ -6204,14 +5796,7 @@
           "app_type": {
             "description": "Node.js application type",
             "type": "string",
-            "enum": [
-              "create-react-app",
-              "vite",
-              "angular",
-              "react",
-              "vue",
-              "parcel"
-            ],
+            "enum": ["create-react-app", "vite", "angular", "react", "vue", "parcel"],
             "example": "vite",
             "nullable": true
           },
@@ -6242,20 +5827,14 @@
           "package_manager": {
             "description": "Package manager",
             "type": "string",
-            "enum": [
-              "npm",
-              "yarn",
-              "pnpm"
-            ],
+            "enum": ["npm", "yarn", "pnpm"],
             "example": "npm",
             "nullable": true
           },
           "source_type": {
             "description": "Source type for the build",
             "type": "string",
-            "enum": [
-              "archive"
-            ],
+            "enum": ["archive"],
             "example": "archive",
             "nullable": true
           },
@@ -6351,12 +5930,7 @@
           "vhost_type": {
             "description": "Virtual host type",
             "type": "string",
-            "enum": [
-              "main",
-              "addon",
-              "parked",
-              "subdomain"
-            ],
+            "enum": ["main", "addon", "parked", "subdomain"],
             "example": "main"
           },
           "is_enabled": {
@@ -6428,10 +6002,7 @@
           },
           "subscription_status": {
             "type": "string",
-            "enum": [
-              "subscribed",
-              "unsubscribed"
-            ],
+            "enum": ["subscribed", "unsubscribed"],
             "example": "subscribed"
           },
           "subscribed_at": {
@@ -6441,11 +6012,7 @@
           },
           "source": {
             "type": "string",
-            "enum": [
-              "sync",
-              "import",
-              "manual"
-            ],
+            "enum": ["sync", "import", "manual"],
             "example": "sync",
             "nullable": true
           },
@@ -6574,10 +6141,7 @@
           },
           "subscription_status": {
             "type": "string",
-            "enum": [
-              "subscribed",
-              "unsubscribed"
-            ],
+            "enum": ["subscribed", "unsubscribed"],
             "example": "subscribed"
           },
           "subscribed_at": {
@@ -6587,11 +6151,7 @@
           },
           "source": {
             "type": "string",
-            "enum": [
-              "sync",
-              "import",
-              "manual"
-            ],
+            "enum": ["sync", "import", "manual"],
             "example": "sync",
             "nullable": true
           },
@@ -6626,13 +6186,7 @@
           "state": {
             "description": "Action state",
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "delayed",
-              "sent",
-              "created"
-            ],
+            "enum": ["success", "error", "delayed", "sent", "created"],
             "example": "success",
             "x-enum-descriptions": {
               "success": "Action was successful",
@@ -6752,12 +6306,7 @@
           "type": {
             "description": "Port mapping type - published (accessible from host), exposed (only internal), or range variants",
             "type": "string",
-            "enum": [
-              "published",
-              "published_range",
-              "exposed",
-              "exposed_range"
-            ],
+            "enum": ["published", "published_range", "exposed", "exposed_range"],
             "example": "published",
             "x-enum-descriptions": {
               "published": "A single port mapped from the host to the container (e.g., host:8080 -> container:80)",
@@ -6769,10 +6318,7 @@
           "protocol": {
             "description": "Network protocol used for communication",
             "type": "string",
-            "enum": [
-              "tcp",
-              "udp"
-            ],
+            "enum": ["tcp", "udp"],
             "example": "tcp"
           },
           "host_ip": {
@@ -6846,15 +6392,7 @@
           "state": {
             "description": "Programmatic container lifecycle state for automated processing",
             "type": "string",
-            "enum": [
-              "created",
-              "running",
-              "restarting",
-              "exited",
-              "paused",
-              "dead",
-              "stopping"
-            ],
+            "enum": ["created", "running", "restarting", "exited", "paused", "dead", "stopping"],
             "example": "running",
             "x-enum-descriptions": {
               "created": "Container has been created but never started",
@@ -6869,12 +6407,7 @@
           "health": {
             "description": "Container health status",
             "type": "string",
-            "enum": [
-              "starting",
-              "healthy",
-              "unhealthy",
-              ""
-            ],
+            "enum": ["starting", "healthy", "unhealthy", ""],
             "example": "healthy",
             "x-enum-descriptions": {
               "": "No health check is configured for the container (this is the default when no HEALTHCHECK is defined)",
@@ -7017,13 +6550,7 @@
           "state": {
             "description": "Derived project state parsed from the raw docker compose status",
             "type": "string",
-            "enum": [
-              "running",
-              "stopped",
-              "created",
-              "mixed",
-              "unknown"
-            ],
+            "enum": ["running", "stopped", "created", "mixed", "unknown"],
             "example": "running",
             "x-enum-descriptions": {
               "running": "Project is running and all services are healthy",
@@ -7101,10 +6628,7 @@
           "action": {
             "description": "Firewall rule action",
             "type": "string",
-            "enum": [
-              "accept",
-              "drop"
-            ],
+            "enum": ["accept", "drop"],
             "example": "accept"
           },
           "protocol": {
@@ -7515,10 +7039,7 @@
           },
           "actions_lock": {
             "type": "string",
-            "enum": [
-              "unlocked",
-              "locked"
-            ],
+            "enum": ["unlocked", "locked"],
             "example": "unlocked"
           },
           "cpus": {
@@ -7653,18 +7174,12 @@
                     "field_1": {
                       "type": "array",
                       "items": {},
-                      "example": [
-                        "The field_1 field is required.",
-                        "The field_1 must be a number."
-                      ]
+                      "example": ["The field_1 field is required.", "The field_1 must be a number."]
                     },
                     "field_2": {
                       "type": "array",
                       "items": {},
-                      "example": [
-                        "The field_2 field is required.",
-                        "The field_2 must be a string."
-                      ]
+                      "example": ["The field_2 field is required.", "The field_2 must be a string."]
                     }
                   },
                   "type": "object"
@@ -7689,10 +7204,7 @@
         "description": "Filter catalog items by category",
         "schema": {
           "type": "string",
-          "enum": [
-            "DOMAIN",
-            "VPS"
-          ],
+          "enum": ["DOMAIN", "VPS"],
           "example": "VPS"
         }
       },
@@ -7851,10 +7363,7 @@
           "items": {
             "type": "integer"
           },
-          "example": [
-            12345,
-            67890
-          ],
+          "example": [12345, 67890],
           "nullable": true
         }
       },
@@ -7867,17 +7376,9 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "active",
-              "deleting",
-              "deleted",
-              "suspended"
-            ]
+            "enum": ["active", "deleting", "deleted", "suspended"]
           },
-          "example": [
-            "active",
-            "suspended"
-          ],
+          "example": ["active", "suspended"],
           "nullable": true
         }
       },
@@ -7949,10 +7450,7 @@
         "required": false,
         "schema": {
           "type": "string",
-          "enum": [
-            "subscribed",
-            "unsubscribed"
-          ],
+          "enum": ["subscribed", "unsubscribed"],
           "example": "subscribed"
         }
       },
@@ -8270,16 +7768,11 @@
     },
     {
       "name": "DNS",
-      "tags": [
-        "DNS: Snapshot",
-        "DNS: Zone"
-      ]
+      "tags": ["DNS: Snapshot", "DNS: Zone"]
     },
     {
       "name": "Domain Access Verifier",
-      "tags": [
-        "Domain Access Verifier: Verifications"
-      ]
+      "tags": ["Domain Access Verifier: Verifications"]
     },
     {
       "name": "Hosting",
@@ -8295,10 +7788,7 @@
     },
     {
       "name": "Reach",
-      "tags": [
-        "Reach: Contacts",
-        "Reach: Segments"
-      ]
+      "tags": ["Reach: Contacts", "Reach: Segments"]
     },
     {
       "name": "VPS",
@@ -8320,9 +7810,7 @@
     },
     {
       "name": "Miscellaneous",
-      "tags": [
-        "Models"
-      ]
+      "tags": ["Models"]
     }
   ]
 }

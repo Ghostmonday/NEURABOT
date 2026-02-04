@@ -54,10 +54,10 @@ import { loadGatewayModelCatalog } from "./server-model-catalog.js";
 import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
 import { loadGatewayPlugins } from "./server-plugins.js";
 import { createGatewayReloadHandlers } from "./server-reload-handlers.js";
-import { bootstrapSowwy } from "./server-sowwy.js";
 import { resolveGatewayRuntimeConfig } from "./server-runtime-config.js";
 import { createGatewayRuntimeState } from "./server-runtime-state.js";
 import { resolveSessionKeyForRun } from "./server-session-key.js";
+import { bootstrapSowwy } from "./server-sowwy.js";
 import { logGatewayStartup } from "./server-startup-log.js";
 import { startGatewaySidecars } from "./server-startup.js";
 import { startGatewayTailscaleExposure } from "./server-tailscale.js";
@@ -221,7 +221,7 @@ export async function startGatewayServer(
   const defaultWorkspaceDir = resolveAgentWorkspaceDir(cfgAtStart, defaultAgentId);
   const sowwyBootstrap = await bootstrapSowwy();
   const baseMethods = Array.from(
-    new Set([...listGatewayMethods(), ...sowwyBootstrap.sowwyMethodNames])
+    new Set([...listGatewayMethods(), ...sowwyBootstrap.sowwyMethodNames]),
   );
   const { pluginRegistry, gatewayMethods: baseGatewayMethods } = loadGatewayPlugins({
     cfg: cfgAtStart,

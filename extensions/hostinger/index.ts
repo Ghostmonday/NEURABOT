@@ -1,16 +1,16 @@
 /**
  * Hostinger Extension for Sowwy
- * 
+ *
  * Provides comprehensive Hostinger API integration for:
  * - Domain management (WHOIS, availability, portfolio)
  * - VPS management (VMs, Docker, firewall, backups)
  * - DNS management (zones, records, snapshots)
  * - Billing and subscriptions
  * - Hosting management
- * 
+ *
  * API Base: https://developers.hostinger.com
  * Authentication: Bearer token (API token from Hostinger Panel)
- * 
+ *
  * SPEED DEMON IMPLEMENTATION NOTES:
  * - All type definitions below match api-1.yaml specification
  * - Use these interfaces for request/response validation
@@ -256,7 +256,7 @@ export interface HostingerConfig {
 
 /**
  * Hostinger API Client
- * 
+ *
  * Implements all endpoints from api-1.yaml:
  * - Billing: /api/billing/v1/*
  * - Domains: /api/domains/v1/*
@@ -264,7 +264,7 @@ export interface HostingerConfig {
  * - VPS: /api/vps/v1/*
  * - Hosting: /api/hosting/v1/*
  * - Reach: /api/reach/v1/*
- * 
+ *
  * SPEED DEMON: All methods validate responses against Zod schemas
  * to ensure API compatibility. Handle HostingerAPIError appropriately.
  */
@@ -285,12 +285,12 @@ export class HostingerClient {
   private async request<T>(
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     endpoint: string,
-    body?: unknown
+    body?: unknown,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     const headers: Record<string, string> = {
-      "Authorization": `Bearer ${this.config.apiToken}`,
+      Authorization: `Bearer ${this.config.apiToken}`,
       "Content-Type": "application/json",
     };
 
@@ -304,13 +304,13 @@ export class HostingerClient {
     }
 
     const response = await fetch(url, options);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new HostingerAPIError(
         errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`,
         response.status,
-        errorData.error?.correlation_id
+        errorData.error?.correlation_id,
       );
     }
 
@@ -323,12 +323,16 @@ export class HostingerClient {
 
   async getCatalog(category?: string, name?: string): Promise<BillingCatalogItem[]> {
     const params = new URLSearchParams();
-    if (category) params.append("category", category);
-    if (name) params.append("name", name);
-    
+    if (category) {
+      params.append("category", category);
+    }
+    if (name) {
+      params.append("name", name);
+    }
+
     const response = await this.request<{ data: BillingCatalogItem[] }>(
       "GET",
-      `/api/billing/v1/catalog?${params.toString()}`
+      `/api/billing/v1/catalog?${params.toString()}`,
     );
     return response.data;
   }
@@ -336,7 +340,7 @@ export class HostingerClient {
   async getPaymentMethods(): Promise<PaymentMethod[]> {
     const response = await this.request<{ data: PaymentMethod[] }>(
       "GET",
-      "/api/billing/v1/payment-methods"
+      "/api/billing/v1/payment-methods",
     );
     return response.data;
   }
@@ -344,7 +348,7 @@ export class HostingerClient {
   async getSubscriptions(): Promise<BillingSubscription[]> {
     const response = await this.request<{ data: BillingSubscription[] }>(
       "GET",
-      "/api/billing/v1/subscriptions"
+      "/api/billing/v1/subscriptions",
     );
     return response.data;
   }
@@ -352,14 +356,14 @@ export class HostingerClient {
   async disableAutoRenewal(subscriptionId: string): Promise<void> {
     await this.request(
       "DELETE",
-      `/api/billing/v1/subscriptions/${subscriptionId}/auto-renewal/disable`
+      `/api/billing/v1/subscriptions/${subscriptionId}/auto-renewal/disable`,
     );
   }
 
   async enableAutoRenewal(subscriptionId: string): Promise<void> {
     await this.request(
       "PATCH",
-      `/api/billing/v1/subscriptions/${subscriptionId}/auto-renewal/enable`
+      `/api/billing/v1/subscriptions/${subscriptionId}/auto-renewal/enable`,
     );
   }
 
@@ -371,7 +375,7 @@ export class HostingerClient {
     const response = await this.request<{ data: DomainAvailability[] }>(
       "POST",
       "/api/domains/v1/availability",
-      { domains }
+      { domains },
     );
     return response.data;
   }
@@ -379,7 +383,7 @@ export class HostingerClient {
   async getDomainPortfolio(): Promise<DomainPortfolioItem[]> {
     const response = await this.request<{ data: DomainPortfolioItem[] }>(
       "GET",
-      "/api/domains/v1/portfolio"
+      "/api/domains/v1/portfolio",
     );
     return response.data;
   }
@@ -387,41 +391,32 @@ export class HostingerClient {
   async getDomainDetails(domain: string): Promise<DomainPortfolioItem> {
     const response = await this.request<{ data: DomainPortfolioItem }>(
       "GET",
-      `/api/domains/v1/portfolio/${domain}`
+      `/api/domains/v1/portfolio/${domain}`,
     );
     return response.data;
   }
 
-  async getDomainForwarding(domain: string): Promise<{ rules: Array<{ source: string; destination: string; type: number }> }> {
-    const response = await this.request<{ data: { rules: Array<{ source: string; destination: string; type: number }> } }>(
-      "GET",
-      `/api/domains/v1/forwarding/${domain}`
-    );
+  async getDomainForwarding(
+    domain: string,
+  ): Promise<{ rules: Array<{ source: string; destination: string; type: number }> }> {
+    const response = await this.request<{
+      data: { rules: Array<{ source: string; destination: string; type: number }> };
+    }>("GET", `/api/domains/v1/forwarding/${domain}`);
     return response.data;
   }
 
   async setPrivacyProtection(domain: string, enabled: boolean): Promise<void> {
-    await this.request(
-      "PUT",
-      `/api/domains/v1/portfolio/${domain}/privacy-protection`,
-      { enabled }
-    );
+    await this.request("PUT", `/api/domains/v1/portfolio/${domain}/privacy-protection`, {
+      enabled,
+    });
   }
 
   async setNameservers(domain: string, nameservers: string[]): Promise<void> {
-    await this.request(
-      "PUT",
-      `/api/domains/v1/portfolio/${domain}/nameservers`,
-      { nameservers }
-    );
+    await this.request("PUT", `/api/domains/v1/portfolio/${domain}/nameservers`, { nameservers });
   }
 
   async setDomainLock(domain: string, locked: boolean): Promise<void> {
-    await this.request(
-      "PUT",
-      `/api/domains/v1/portfolio/${domain}/domain-lock`,
-      { locked }
-    );
+    await this.request("PUT", `/api/domains/v1/portfolio/${domain}/domain-lock`, { locked });
   }
 
   // =========================================================================
@@ -429,24 +424,18 @@ export class HostingerClient {
   // =========================================================================
 
   async getDNSZone(domain: string): Promise<DNSZone> {
-    const response = await this.request<{ data: DNSZone }>(
-      "GET",
-      `/api/dns/v1/zones/${domain}`
-    );
+    const response = await this.request<{ data: DNSZone }>("GET", `/api/dns/v1/zones/${domain}`);
     return response.data;
   }
 
   async resetDNSZone(domain: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/dns/v1/zones/${domain}/reset`
-    );
+    await this.request("POST", `/api/dns/v1/zones/${domain}/reset`);
   }
 
   async validateDNSZone(domain: string): Promise<{ valid: boolean; errors: string[] }> {
     const response = await this.request<{ data: { valid: boolean; errors: string[] } }>(
       "POST",
-      `/api/dns/v1/zones/${domain}/validate`
+      `/api/dns/v1/zones/${domain}/validate`,
     );
     return response.data;
   }
@@ -454,7 +443,7 @@ export class HostingerClient {
   async getDNSSnapshots(domain: string): Promise<DNSSnapshot[]> {
     const response = await this.request<{ data: DNSSnapshot[] }>(
       "GET",
-      `/api/dns/v1/snapshots/${domain}`
+      `/api/dns/v1/snapshots/${domain}`,
     );
     return response.data;
   }
@@ -462,16 +451,13 @@ export class HostingerClient {
   async getDNSSnapshot(domain: string, snapshotId: string): Promise<DNSSnapshot> {
     const response = await this.request<{ data: DNSSnapshot }>(
       "GET",
-      `/api/dns/v1/snapshots/${domain}/${snapshotId}`
+      `/api/dns/v1/snapshots/${domain}/${snapshotId}`,
     );
     return response.data;
   }
 
   async restoreDNSSnapshot(domain: string, snapshotId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/dns/v1/snapshots/${domain}/${snapshotId}/restore`
-    );
+    await this.request("POST", `/api/dns/v1/snapshots/${domain}/${snapshotId}/restore`);
   }
 
   // =========================================================================
@@ -481,7 +467,7 @@ export class HostingerClient {
   async listVirtualMachines(): Promise<VirtualMachine[]> {
     const response = await this.request<{ data: VirtualMachine[] }>(
       "GET",
-      "/api/vps/v1/virtual-machines"
+      "/api/vps/v1/virtual-machines",
     );
     return response.data;
   }
@@ -489,36 +475,27 @@ export class HostingerClient {
   async getVirtualMachine(vmId: string): Promise<VirtualMachine> {
     const response = await this.request<{ data: VirtualMachine }>(
       "GET",
-      `/api/vps/v1/virtual-machines/${vmId}`
+      `/api/vps/v1/virtual-machines/${vmId}`,
     );
     return response.data;
   }
 
   async startVirtualMachine(vmId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/virtual-machines/${vmId}/start`
-    );
+    await this.request("POST", `/api/vps/v1/virtual-machines/${vmId}/start`);
   }
 
   async stopVirtualMachine(vmId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/virtual-machines/${vmId}/stop`
-    );
+    await this.request("POST", `/api/vps/v1/virtual-machines/${vmId}/stop`);
   }
 
   async restartVirtualMachine(vmId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/virtual-machines/${vmId}/restart`
-    );
+    await this.request("POST", `/api/vps/v1/virtual-machines/${vmId}/restart`);
   }
 
   async getVMMetrics(vmId: string): Promise<VMMetrics> {
     const response = await this.request<{ data: VMMetrics }>(
       "GET",
-      `/api/vps/v1/virtual-machines/${vmId}/metrics`
+      `/api/vps/v1/virtual-machines/${vmId}/metrics`,
     );
     return response.data;
   }
@@ -526,39 +503,34 @@ export class HostingerClient {
   async getVMBackups(vmId: string): Promise<VMSnapshot[]> {
     const response = await this.request<{ data: VMSnapshot[] }>(
       "GET",
-      `/api/vps/v1/virtual-machines/${vmId}/backups`
+      `/api/vps/v1/virtual-machines/${vmId}/backups`,
     );
     return response.data;
   }
 
   async restoreVMBackup(vmId: string, backupId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/virtual-machines/${vmId}/backups/${backupId}/restore`
-    );
+    await this.request("POST", `/api/vps/v1/virtual-machines/${vmId}/backups/${backupId}/restore`);
   }
 
   async getVPSPublicKeys(): Promise<Array<{ id: string; name: string; fingerprint: string }>> {
-    const response = await this.request<{ data: Array<{ id: string; name: string; fingerprint: string }> }>(
-      "GET",
-      "/api/vps/v1/public-keys"
-    );
+    const response = await this.request<{
+      data: Array<{ id: string; name: string; fingerprint: string }>;
+    }>("GET", "/api/vps/v1/public-keys");
     return response.data;
   }
 
   async attachPublicKeyToVM(vmId: string, publicKeyId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/public-keys/attach/${vmId}`,
-      { public_key_id: publicKeyId }
-    );
+    await this.request("POST", `/api/vps/v1/public-keys/attach/${vmId}`, {
+      public_key_id: publicKeyId,
+    });
   }
 
-  async listVPSDataCenters(): Promise<Array<{ id: string; name: string; country: string; country_code: string }>> {
-    const response = await this.request<{ data: Array<{ id: string; name: string; country: string; country_code: string }> }>(
-      "GET",
-      "/api/vps/v1/data-centers"
-    );
+  async listVPSDataCenters(): Promise<
+    Array<{ id: string; name: string; country: string; country_code: string }>
+  > {
+    const response = await this.request<{
+      data: Array<{ id: string; name: string; country: string; country_code: string }>;
+    }>("GET", "/api/vps/v1/data-centers");
     return response.data;
   }
 
@@ -569,7 +541,7 @@ export class HostingerClient {
   async listDockerProjects(vmId: string): Promise<DockerProject[]> {
     const response = await this.request<{ data: DockerProject[] }>(
       "GET",
-      `/api/vps/v1/virtual-machines/${vmId}/docker`
+      `/api/vps/v1/virtual-machines/${vmId}/docker`,
     );
     return response.data;
   }
@@ -577,7 +549,7 @@ export class HostingerClient {
   async getDockerProject(vmId: string, projectName: string): Promise<DockerProject> {
     const response = await this.request<{ data: DockerProject }>(
       "GET",
-      `/api/vps/v1/virtual-machines/${vmId}/docker/${projectName}`
+      `/api/vps/v1/virtual-machines/${vmId}/docker/${projectName}`,
     );
     return response.data;
   }
@@ -586,7 +558,7 @@ export class HostingerClient {
     const params = tail ? `?tail=${tail}` : "";
     const response = await this.request<{ data: { logs: string } }>(
       "GET",
-      `/api/vps/v1/virtual-machines/${vmId}/docker/${projectName}/logs${params}`
+      `/api/vps/v1/virtual-machines/${vmId}/docker/${projectName}/logs${params}`,
     );
     return response.data.logs;
   }
@@ -596,45 +568,33 @@ export class HostingerClient {
   // =========================================================================
 
   async listFirewalls(): Promise<Firewall[]> {
-    const response = await this.request<{ data: Firewall[] }>(
-      "GET",
-      "/api/vps/v1/firewall"
-    );
+    const response = await this.request<{ data: Firewall[] }>("GET", "/api/vps/v1/firewall");
     return response.data;
   }
 
   async getFirewall(firewallId: string): Promise<Firewall> {
     const response = await this.request<{ data: Firewall }>(
       "GET",
-      `/api/vps/v1/firewall/${firewallId}`
+      `/api/vps/v1/firewall/${firewallId}`,
     );
     return response.data;
   }
 
-  async addFirewallRule(
-    firewallId: string,
-    rule: Omit<FirewallRule, "id">
-  ): Promise<FirewallRule> {
+  async addFirewallRule(firewallId: string, rule: Omit<FirewallRule, "id">): Promise<FirewallRule> {
     const response = await this.request<{ data: FirewallRule }>(
       "POST",
       `/api/vps/v1/firewall/${firewallId}/rules`,
-      rule
+      rule,
     );
     return response.data;
   }
 
   async activateFirewall(firewallId: string, vmId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/firewall/${firewallId}/activate/${vmId}`
-    );
+    await this.request("POST", `/api/vps/v1/firewall/${firewallId}/activate/${vmId}`);
   }
 
   async deactivateFirewall(firewallId: string, vmId: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/api/vps/v1/firewall/${firewallId}/deactivate/${vmId}`
-    );
+    await this.request("POST", `/api/vps/v1/firewall/${firewallId}/deactivate/${vmId}`);
   }
 
   // =========================================================================
@@ -644,24 +604,24 @@ export class HostingerClient {
   async listHostingWebsites(): Promise<HostingWebsite[]> {
     const response = await this.request<{ data: HostingWebsite[] }>(
       "GET",
-      "/api/hosting/v1/websites"
+      "/api/hosting/v1/websites",
     );
     return response.data;
   }
 
-  async listHostingOrders(): Promise<Array<{ id: string; product: string; status: string; created_at: string }>> {
-    const response = await this.request<{ data: Array<{ id: string; product: string; status: string; created_at: string }> }>(
-      "GET",
-      "/api/hosting/v1/orders"
-    );
+  async listHostingOrders(): Promise<
+    Array<{ id: string; product: string; status: string; created_at: string }>
+  > {
+    const response = await this.request<{
+      data: Array<{ id: string; product: string; status: string; created_at: string }>;
+    }>("GET", "/api/hosting/v1/orders");
     return response.data;
   }
 
   async listHostingDataCenters(): Promise<Array<{ id: string; name: string; country: string }>> {
-    const response = await this.request<{ data: Array<{ id: string; name: string; country: string }> }>(
-      "GET",
-      "/api/hosting/v1/datacenters"
-    );
+    const response = await this.request<{
+      data: Array<{ id: string; name: string; country: string }>;
+    }>("GET", "/api/hosting/v1/datacenters");
     return response.data;
   }
 }
@@ -674,7 +634,7 @@ export class HostingerAPIError extends Error {
   constructor(
     message: string,
     public readonly statusCode: number,
-    public readonly correlationId?: string
+    public readonly correlationId?: string,
   ) {
     super(message);
     this.name = "HostingerAPIError";
@@ -702,7 +662,7 @@ interface ExtensionAPI {
 export const hostingerExtension = {
   name: "hostinger",
   version: "1.0.0",
-  
+
   async register(api: ExtensionAPI) {
     const config: HostingerConfig = {
       apiToken: api.getConfig("HOSTINGER_API_TOKEN") || "",
@@ -839,7 +799,10 @@ export const hostingerExtension = {
       const virtualMachineId = args.virtualMachineId as string;
       const vm = await client.getVirtualMachine(virtualMachineId);
       if (vm.status === "running") {
-        return { approved: false, reason: `VM "${vm.name}" is running. Stopping will cause service interruption.` };
+        return {
+          approved: false,
+          reason: `VM "${vm.name}" is running. Stopping will cause service interruption.`,
+        };
       }
       return { approved: true };
     });
@@ -848,7 +811,10 @@ export const hostingerExtension = {
       const virtualMachineId = args.virtualMachineId as string;
       const vm = await client.getVirtualMachine(virtualMachineId);
       if (vm.status === "running") {
-        return { approved: false, reason: `VM "${vm.name}" is running. Restart will cause brief downtime.` };
+        return {
+          approved: false,
+          reason: `VM "${vm.name}" is running. Restart will cause brief downtime.`,
+        };
       }
       return { approved: true };
     });

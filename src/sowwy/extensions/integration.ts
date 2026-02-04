@@ -1,6 +1,6 @@
 /**
  * Sowwy Extension Integration Guide
- * 
+ *
  * How extensions integrate with the Sowwy foundation:
  * - Scheduler integration
  * - Circuit breaker registration
@@ -9,17 +9,14 @@
  * - Task store access
  */
 
+import type { IdentityFragment, SearchResult } from "../identity/fragments.js";
 // Import types from foundation modules
-import type { 
-  Task, 
-  TaskCreateInput, 
+import type {
+  Task,
+  TaskCreateInput,
   TaskUpdateInput,
-  TaskStatus 
+  TaskStatus,
 } from "../mission-control/schema.js";
-import type { 
-  IdentityFragment,
-  SearchResult 
-} from "../identity/fragments.js";
 import type { AuditLogEntry } from "../mission-control/store.js";
 
 // ============================================================================
@@ -40,7 +37,7 @@ export interface ExtensionFoundation {
     execute<T>(operation: () => Promise<T>): Promise<T>;
     getState(): { state: "CLOSED" | "OPEN" | "HALF_OPEN"; failures: number };
   };
-  
+
   // ========================================================================
   // SMT Throttler Access
   // ========================================================================
@@ -48,17 +45,14 @@ export interface ExtensionFoundation {
   // UNTHROTTLED operations (identity, audit, health, kill) always pass.
   canProceed(operation: string, category?: string): boolean;
   recordUsage(operation: string): void;
-  
+
   // ========================================================================
   // Persona Executor Registration
   // ========================================================================
   // Extensions register persona executors to handle tasks.
   // Multiple executors can be registered; router picks the right one.
-  registerPersonaExecutor(
-    persona: string,
-    executor: PersonaExecutor
-  ): void;
-  
+  registerPersonaExecutor(persona: string, executor: PersonaExecutor): void;
+
   // ========================================================================
   // Identity Store Access (READ-ONLY)
   // ========================================================================
@@ -68,7 +62,7 @@ export interface ExtensionFoundation {
     search(query: string, options?: { limit?: number }): Promise<SearchResult[]>;
     getByCategory(category: string): Promise<IdentityFragment[]>;
   };
-  
+
   // ========================================================================
   // Task Store Access
   // ========================================================================
@@ -78,13 +72,13 @@ export interface ExtensionFoundation {
     update(taskId: string, input: TaskUpdateInput): Promise<Task | null>;
     get(taskId: string): Promise<Task | null>;
   };
-  
+
   // ========================================================================
   // Audit Logging
   // ========================================================================
   // Extensions should audit significant actions.
   logAudit(entry: Omit<AuditLogEntry, "id" | "createdAt">): Promise<void>;
-  
+
   // ========================================================================
   // Scheduler Access
   // ========================================================================
@@ -104,12 +98,12 @@ export interface ExtensionFoundation {
  */
 export interface PersonaExecutor {
   persona: string;
-  
+
   /**
    * Check if this executor can handle the task
    */
   canHandle(task: Task): boolean;
-  
+
   /**
    * Execute the task
    */
@@ -119,7 +113,7 @@ export interface PersonaExecutor {
       identityContext: string;
       smt: { recordUsage(op: string): void };
       audit: { log(entry: Omit<AuditLogEntry, "id" | "createdAt">): Promise<void> };
-    }
+    },
   ): Promise<ExecutorResult>;
 }
 
@@ -161,11 +155,11 @@ interface ExtensionConfig {
  */
 async function registerExtension(
   foundation: ExtensionFoundation,
-  config: ExtensionConfig
+  config: ExtensionConfig,
 ): Promise<void> {
   // 1. Register circuit breaker for external API
   const twilioBreaker = foundation.registerCircuitBreaker("twilio");
-  
+
   // 2. Register persona executor
   foundation.registerPersonaExecutor("Dev", {
     persona: "Dev",
@@ -175,7 +169,7 @@ async function registerExtension(
       return { success: true, outcome: "COMPLETED", summary: "Done", confidence: 1.0 };
     },
   });
-  
+
   // 3. Use identity store (read-only)
   const identity = await foundation.getIdentityStore();
   const goals = await identity.search("project goals", { limit: 5 });
@@ -219,12 +213,12 @@ export interface ExtensionLifecycle {
    * Called when extension is loaded
    */
   initialize(foundation: ExtensionFoundation): Promise<void>;
-  
+
   /**
    * Called when extension is unloaded
    */
   shutdown(): Promise<void>;
-  
+
   /**
    * Called periodically for background work
    */
@@ -237,7 +231,7 @@ export interface ExtensionLifecycle {
 
 /**
  * When building an extension, ensure:
- * 
+ *
  * 1. [ ] Register circuit breaker for external APIs
  * 2. [ ] Register persona executor(s)
  * 3. [ ] Check SMT.canProceed() before expensive operations

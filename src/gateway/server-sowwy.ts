@@ -5,23 +5,25 @@
  * registers Sowwy RPC methods with the gateway. Optionally starts the task scheduler.
  */
 
-import type { GatewayRequestHandler } from "./server-methods/types.js";
-import type { GatewayRequestHandlerOptions } from "./server-methods/types.js";
-import { ErrorCodes, errorShape } from "./protocol/index.js";
+import type {
+  GatewayRequestHandler,
+  GatewayRequestHandlerOptions,
+} from "./server-methods/types.js";
 import {
-  createPostgresStores,
   createLanceDBIdentityStore,
-  registerSowwyRPCMethods,
-  TaskScheduler,
-  SMTThrottler,
+  createPostgresStores,
   PersonaOwner,
-  type SowwyStores,
+  registerSowwyRPCMethods,
+  SMTThrottler,
+  TaskScheduler,
   type GatewayContext,
+  type SowwyStores,
   type Task,
   type TaskExecutionResult,
 } from "../sowwy/index.js";
 import { validateSowwyEnv } from "../sowwy/security/env-validator.js";
-import { redactError, redactString } from "../sowwy/security/redact.js";
+import { redactString } from "../sowwy/security/redact.js";
+import { ErrorCodes, errorShape } from "./protocol/index.js";
 
 const SOWWY_METHODS = [
   "tasks.list",
@@ -56,8 +58,9 @@ function createStubEmbeddingProvider(dimensions = 384): {
 }
 
 function getUserId(opts: GatewayRequestHandlerOptions): string {
-  const key = opts.client?.connect?.sessionKey ?? opts.client?.connect?.identity;
-  return typeof key === "string" ? key : "gateway";
+  // Gateway context doesn't expose sessionKey/identity in connect params
+  // Use a default user ID for gateway-initiated requests
+  return "gateway";
 }
 
 /** Build params-derived args for each Sowwy RPC method. */
@@ -83,12 +86,7 @@ function argsFor(method: string, params: Record<string, unknown>): unknown[] {
     case "tasks.approve":
       return [params.taskId];
     case "tasks.complete":
-      return [
-        params.taskId,
-        params.outcome,
-        params.summary,
-        params.confidence,
-      ];
+      return [params.taskId, params.outcome, params.summary, params.confidence];
     case "tasks.cancel":
       return [params.taskId, params.reason];
     case "sowwy.pause":
@@ -110,7 +108,7 @@ export interface SowwyBootstrapResult {
 /**
  * Bootstrap Sowwy: create stores, identity store, SMT, RPC handlers, and optional scheduler.
  * If SOWWY_POSTGRES_HOST is not set, returns no-op handlers and null scheduler.
- * 
+ *
  * Validates all environment variables and redacts secrets from errors.
  */
 export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
@@ -120,7 +118,9 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     env = validateSowwyEnv();
   } catch (error) {
     // Redact any secrets that might have leaked into error message
-    throw new Error(redactString(error instanceof Error ? error.message : String(error)));
+    throw new Error(redactString(error instanceof Error ? error.message : String(error)), {
+      cause: error,
+    });
   }
 
   const pgHost = env.postgres?.host;
@@ -161,7 +161,9 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
   const sowwyHandlers: Record<string, GatewayRequestHandler> = {};
   for (const method of SOWWY_METHODS) {
     const fn = rpcMethods[method];
-    if (!fn) continue;
+    if (!fn) {
+      continue;
+    }
     sowwyHandlers[method] = async (opts) => {
       const userId = getUserId(opts);
       const ctxWithUser: GatewayContext = { ...context, userId };
@@ -171,45 +173,29 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
         opts.respond(
           false,
           undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, `unknown method: ${method}`)
+          errorShape(ErrorCodes.INVALID_REQUEST, `unknown method: ${method}`),
         );
         return;
       }
       try {
-        const params = (opts.params ?? {}) as Record<string, unknown>;
+        const params = opts.params ?? {};
         const args = argsFor(method, params);
-        const result = await (handler as (...a: unknown[]) => Promise<unknown>)(
-          ...args
-        );
+        const result = await (handler as (...a: unknown[]) => Promise<unknown>)(...args);
         opts.respond(true, result);
       } catch (err) {
-        const message = redactString(
-          err instanceof Error ? err.message : String(err)
-        );
-        opts.respond(
-          false,
-          undefined,
-          errorShape(ErrorCodes.INVALID_REQUEST, message)
-        );
+        const message = redactString(err instanceof Error ? err.message : String(err));
+        opts.respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, message));
       }
     };
   }
 
-  const scheduler = new TaskScheduler(
-    stores.tasks,
-    identityStore,
-    smt,
-    {
-      pollIntervalMs: env.scheduler.pollIntervalMs,
-      maxRetries: env.scheduler.maxRetries,
-      stuckTaskThresholdMs: env.scheduler.stuckTaskThresholdMs,
-    }
-  );
+  const scheduler = new TaskScheduler(stores.tasks, identityStore, smt, {
+    pollIntervalMs: env.scheduler.pollIntervalMs,
+    maxRetries: env.scheduler.maxRetries,
+    stuckTaskThresholdMs: env.scheduler.stuckTaskThresholdMs,
+  });
 
-  const personaStub = async (
-    _task: Task,
-    _context: string
-  ): Promise<TaskExecutionResult> => ({
+  const personaStub = async (_task: Task, _context: string): Promise<TaskExecutionResult> => ({
     success: true,
     outcome: "COMPLETED",
     summary: "Stub executor (register real persona executors)",

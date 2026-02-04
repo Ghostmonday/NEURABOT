@@ -1,6 +1,6 @@
 /**
  * Gateway Error Handler
- * 
+ *
  * Provides safe error formatting that never leaks sensitive information
  * to clients. All errors are logged internally with full details (redacted),
  * but clients receive generic error messages.
@@ -20,18 +20,15 @@ export type SafeErrorResponse = {
 
 /**
  * Format error for client response (never exposes internal details)
- * 
+ *
  * Logs full error details internally (with redaction), but returns
  * generic message to client to prevent information leakage.
- * 
+ *
  * @param error - Error to format
  * @param requestId - Optional request ID for correlation
  * @returns Safe error response
  */
-export function formatSafeError(
-  error: unknown,
-  requestId?: string,
-): SafeErrorResponse {
+export function formatSafeError(error: unknown, requestId?: string): SafeErrorResponse {
   const id = requestId ?? randomUUID().slice(0, 8);
 
   // Log full error internally (redacted)
@@ -47,10 +44,10 @@ export function formatSafeError(
 
 /**
  * Format client-facing error (for known/expected errors)
- * 
+ *
  * Use this for validation errors, authentication failures, etc.
  * where the error message is safe to expose to clients.
- * 
+ *
  * @param message - Error message (will be redacted)
  * @param code - Error code
  * @param requestId - Optional request ID
@@ -70,15 +67,12 @@ export function formatClientError(
 
 /**
  * Format rate limit error
- * 
+ *
  * @param retryAfter - Seconds until retry allowed
  * @param requestId - Optional request ID
  * @returns Safe error response
  */
-export function formatRateLimitError(
-  retryAfter: number,
-  requestId?: string,
-): SafeErrorResponse {
+export function formatRateLimitError(retryAfter: number, requestId?: string): SafeErrorResponse {
   return {
     error: "Rate limit exceeded",
     code: "RATE_LIMIT_EXCEEDED",
@@ -89,7 +83,7 @@ export function formatRateLimitError(
 
 /**
  * Send safe error response to client
- * 
+ *
  * @param res - HTTP response object
  * @param statusCode - HTTP status code
  * @param error - Error response object

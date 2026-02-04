@@ -1,14 +1,14 @@
 /**
  * Sowwy LegalOps Persona Skill - Foundation
- * 
+ *
  * ⚠️ PERSONA PURPOSE:
  * - Handles LEGAL category tasks
  * - Contract review, compliance, legal research
  * - Risk assessment, policy review
  */
 
-import type { Task } from "../mission-control/schema.js";
 import type { PersonaExecutor, ExecutorResult } from "../extensions/integration.js";
+import type { Task } from "../mission-control/schema.js";
 
 // ============================================================================
 // LegalOps Persona Skill
@@ -16,44 +16,50 @@ import type { PersonaExecutor, ExecutorResult } from "../extensions/integration.
 
 export const legalOpsPersonaSkill: PersonaExecutor = {
   persona: "LegalOps",
-  
+
   canHandle(task: Task): boolean {
     return task.category === "LEGAL";
   },
-  
+
   async execute(
     task: Task,
     context: {
       identityContext: string;
       smt: { recordUsage(op: string): void };
-      audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> };
-    }
+      audit: {
+        log(entry: {
+          taskId: string;
+          action: string;
+          details: Record<string, unknown>;
+          performedBy: string;
+        }): Promise<void>;
+      };
+    },
   ): Promise<ExecutorResult> {
     const { identityContext, smt, audit } = context;
-    
+
     smt.recordUsage("persona.legalops.execute");
-    
+
     try {
       const title = task.title.toLowerCase();
-      
+
       if (title.includes("contract") || title.includes("agreement") || title.includes("terms")) {
         return await handleContractReview(task, identityContext, audit);
       }
-      
+
       if (title.includes("compliance") || title.includes("policy") || title.includes("gdpr")) {
         return await handleComplianceReview(task, identityContext, audit);
       }
-      
+
       if (title.includes("risk") || title.includes("liability") || title.includes("exposure")) {
         return await handleRiskAssessment(task, identityContext, audit);
       }
-      
+
       if (title.includes("nda") || title.includes("confidential") || title.includes("privacy")) {
         return await handleNDAReview(task, identityContext, audit);
       }
-      
+
       return await handleGenericLegalTask(task, identityContext, audit);
-      
     } catch (error) {
       return {
         success: false,
@@ -73,7 +79,14 @@ export const legalOpsPersonaSkill: PersonaExecutor = {
 async function handleContractReview(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -81,7 +94,7 @@ async function handleContractReview(
     details: { title: task.title, identityContext },
     performedBy: "LegalOps",
   });
-  
+
   return {
     success: true,
     outcome: "CONTRACT_REVIEWED",
@@ -93,7 +106,14 @@ async function handleContractReview(
 async function handleComplianceReview(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -101,7 +121,7 @@ async function handleComplianceReview(
     details: { title: task.title, identityContext },
     performedBy: "LegalOps",
   });
-  
+
   return {
     success: true,
     outcome: "COMPLIANCE_REVIEWED",
@@ -113,7 +133,14 @@ async function handleComplianceReview(
 async function handleRiskAssessment(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -121,7 +148,7 @@ async function handleRiskAssessment(
     details: { title: task.title, identityContext },
     performedBy: "LegalOps",
   });
-  
+
   return {
     success: true,
     outcome: "RISK_ASSESSED",
@@ -133,7 +160,14 @@ async function handleRiskAssessment(
 async function handleNDAReview(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -141,7 +175,7 @@ async function handleNDAReview(
     details: { title: task.title, identityContext },
     performedBy: "LegalOps",
   });
-  
+
   return {
     success: true,
     outcome: "NDA_REVIEWED",
@@ -153,7 +187,14 @@ async function handleNDAReview(
 async function handleGenericLegalTask(
   task: Task,
   identityContext: string,
-  audit: { log(entry: { taskId: string; action: string; details: Record<string, unknown>; performedBy: string }): Promise<void> }
+  audit: {
+    log(entry: {
+      taskId: string;
+      action: string;
+      details: Record<string, unknown>;
+      performedBy: string;
+    }): Promise<void>;
+  },
 ): Promise<ExecutorResult> {
   await audit.log({
     taskId: task.taskId,
@@ -161,7 +202,7 @@ async function handleGenericLegalTask(
     details: { title: task.title, identityContext },
     performedBy: "LegalOps",
   });
-  
+
   return {
     success: true,
     outcome: "COMPLETED",

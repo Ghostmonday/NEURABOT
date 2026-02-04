@@ -1,15 +1,15 @@
 /**
  * Sowwy Identity Model - LanceDB Store Implementation
- * 
+ *
  * ⚠️ WRITE ACCESS RULE (NON-NEGOTIABLE):
  * Only the Identity Extraction Pipeline may write identity fragments.
  * This store enforces read-only access for personas/tools.
- * 
+ *
  * ⚠️ PERFORMANCE:
  * - Semantic search uses vector similarity (cosine)
  * - Embeddings cached per content hash
  * - Batch writes for extraction pipeline
- * 
+ *
  * ⚠️ IDENTITY INTEGRITY:
  * - 8 categories are LOCKED - enforced at schema level
  * - Fragments never deleted (only marked reviewed)
@@ -19,9 +19,9 @@
 import * as lancedb from "@lancedb/lancedb";
 import { randomUUID } from "node:crypto";
 import type {
-  IdentityFragment,
-  IdentityCategory,
   FragmentSource,
+  IdentityCategory,
+  IdentityFragment,
   SearchOptions,
   SearchResult,
 } from "./fragments.js";
@@ -75,35 +75,35 @@ export class LanceDBIdentityStore implements IdentityStore {
   private readonly writeAccessAllowed: boolean;
   private readonly embeddingProvider: EmbeddingProvider;
   private readonly vectorDim: number;
-  
+
   private static readonly TABLE_NAME = "identity_fragments";
-  
+
   constructor(config: LanceDBIdentityStoreConfig) {
     this.dbPath = config.dbPath;
     this.writeAccessAllowed = config.writeAccessAllowed;
     this.embeddingProvider = config.embeddingProvider;
     this.vectorDim = config.embeddingProvider.getDimensions();
   }
-  
+
   /**
    * Initialize database connection and table
    */
-  private async ensureInitialized(): Promise<void> {
+  async ensureInitialized(): Promise<void> {
     if (this.table) {
       return;
     }
     if (this.initPromise) {
       return this.initPromise;
     }
-    
+
     this.initPromise = this.doInitialize();
     return this.initPromise;
   }
-  
+
   private async doInitialize(): Promise<void> {
     this.db = await lancedb.connect(this.dbPath);
     const tables = await this.db.tableNames();
-    
+
     if (tables.includes(LanceDBIdentityStore.TABLE_NAME)) {
       this.table = await this.db.openTable(LanceDBIdentityStore.TABLE_NAME);
     } else {
@@ -126,27 +126,27 @@ export class LanceDBIdentityStore implements IdentityStore {
       await this.table.delete('id = "__schema__"');
     }
   }
-  
+
   /**
    * Write a single fragment (extraction pipeline only)
    */
   async write(fragment: Omit<IdentityFragment, "id" | "createdAt">): Promise<IdentityFragment> {
     if (!this.writeAccessAllowed) {
       throw new Error(
-        "Identity store write access denied. Only the Identity Extraction Pipeline may write fragments."
+        "Identity store write access denied. Only the Identity Extraction Pipeline may write fragments.",
       );
     }
-    
+
     await this.ensureInitialized();
-    
+
     // Generate embedding
     const embedding = await this.embeddingProvider.embed(
-      `${fragment.category}: ${fragment.content}`
+      `${fragment.category}: ${fragment.content}`,
     );
-    
+
     const now = Date.now();
     const id = randomUUID();
-    
+
     const row: IdentityFragmentRow = {
       id,
       category: fragment.category,
@@ -159,9 +159,9 @@ export class LanceDBIdentityStore implements IdentityStore {
       embedding,
       reviewed: fragment.metadata?.reviewedByHuman || false,
     };
-    
+
     await this.table!.add([row]);
-    
+
     return {
       id,
       category: fragment.category,
@@ -174,37 +174,35 @@ export class LanceDBIdentityStore implements IdentityStore {
       embedding,
     };
   }
-  
+
   /**
    * Write multiple fragments (extraction pipeline only)
    */
   async writeBatch(
-    fragments: Array<Omit<IdentityFragment, "id" | "createdAt">>
+    fragments: Array<Omit<IdentityFragment, "id" | "createdAt">>,
   ): Promise<IdentityFragment[]> {
     if (!this.writeAccessAllowed) {
       throw new Error(
-        "Identity store write access denied. Only the Identity Extraction Pipeline may write fragments."
+        "Identity store write access denied. Only the Identity Extraction Pipeline may write fragments.",
       );
     }
-    
+
     await this.ensureInitialized();
-    
+
     const now = Date.now();
     const rows: IdentityFragmentRow[] = [];
     const results: IdentityFragment[] = [];
-    
+
     // Generate embeddings in parallel
     const embeddings = await Promise.all(
-      fragments.map(f => 
-        this.embeddingProvider.embed(`${f.category}: ${f.content}`)
-      )
+      fragments.map((f) => this.embeddingProvider.embed(`${f.category}: ${f.content}`)),
     );
-    
+
     for (let i = 0; i < fragments.length; i++) {
       const fragment = fragments[i];
       const embedding = embeddings[i];
       const id = randomUUID();
-      
+
       rows.push({
         id,
         category: fragment.category,
@@ -217,7 +215,7 @@ export class LanceDBIdentityStore implements IdentityStore {
         embedding,
         reviewed: fragment.metadata?.reviewedByHuman || false,
       });
-      
+
       results.push({
         id,
         category: fragment.category,
@@ -230,83 +228,81 @@ export class LanceDBIdentityStore implements IdentityStore {
         embedding,
       });
     }
-    
+
     await this.table!.add(rows);
     return results;
   }
-  
+
   /**
    * Get fragment by ID
    */
   async getById(id: string): Promise<IdentityFragment | null> {
     await this.ensureInitialized();
-    
-    const results = await this.table!
-      .search()
+
+    // Use vector search with zero vector to get all, then filter
+    const zeroVector: number[] = Array.from({ length: this.vectorDim }, () => 0);
+    const results = (await this.table!.vectorSearch(zeroVector)
       .where(`id = '${id}'`)
       .limit(1)
-      .toArray();
-    
+      .toArray()) as IdentityFragmentRow[];
+
     if (results.length === 0) {
       return null;
     }
-    
-    return this.rowToFragment(results[0] as any);
+
+    return this.rowToFragment(results[0]);
   }
-  
+
   /**
    * Get fragments by category
    */
   async getByCategory(category: IdentityCategory): Promise<IdentityFragment[]> {
     await this.ensureInitialized();
-    
-    const results = await this.table!
-      .search()
+
+    // Use vector search with zero vector to get all, then filter
+    const zeroVector: number[] = Array.from({ length: this.vectorDim }, () => 0);
+    const results = (await this.table!.vectorSearch(zeroVector)
       .where(`category = '${category}'`)
-      .toArray();
-    
-    return results.map(row => this.rowToFragment(row as any));
+      .toArray()) as IdentityFragmentRow[];
+
+    return results.map((row: IdentityFragmentRow) => this.rowToFragment(row));
   }
-  
+
   /**
    * Get all fragments
    */
   async getAll(): Promise<IdentityFragment[]> {
     await this.ensureInitialized();
-    
-    const results = await this.table!
-      .search()
-      .toArray();
-    
-    return results.map(row => this.rowToFragment(row as any));
+
+    // Use vector search with zero vector to get all rows
+    const zeroVector: number[] = Array.from({ length: this.vectorDim }, () => 0);
+    const results = (await this.table!.vectorSearch(zeroVector).toArray()) as IdentityFragmentRow[];
+
+    return results.map((row: IdentityFragmentRow) => this.rowToFragment(row));
   }
-  
+
   /**
    * Semantic search
    */
   async search(query: string, options?: SearchOptions): Promise<SearchResult[]> {
     await this.ensureInitialized();
-    
+
     // Generate query embedding
     const queryEmbedding = await this.embeddingProvider.embed(query);
-    
+
     const limit = options?.limit || 10;
     const threshold = options?.threshold || 0.5;
-    
-    let searchQuery = this.table!
-      .vectorSearch(queryEmbedding)
-      .limit(limit * 2); // Get more candidates for filtering
-    
+
+    let searchQuery = this.table!.vectorSearch(queryEmbedding).limit(limit * 2); // Get more candidates for filtering
+
     // Filter by categories if specified
     if (options?.categories && options.categories.length > 0) {
-      const categoryFilter = options.categories
-        .map(c => `category = '${c}'`)
-        .join(" OR ");
+      const categoryFilter = options.categories.map((c) => `category = '${c}'`).join(" OR ");
       searchQuery = searchQuery.where(`(${categoryFilter})`);
     }
-    
+
     const results = await searchQuery.toArray();
-    
+
     // Convert distance to similarity score and filter
     const mapped = results
       .map((row: any) => {
@@ -320,36 +316,36 @@ export class LanceDBIdentityStore implements IdentityStore {
       })
       .filter((r: SearchResult) => r.score >= threshold)
       .slice(0, limit); // Final limit after filtering
-    
+
     return mapped;
   }
-  
+
   /**
    * Search by category
    */
   async searchByCategory(
     query: string,
     category: IdentityCategory,
-    limit?: number
+    limit?: number,
   ): Promise<SearchResult[]> {
     return this.search(query, {
       categories: [category],
       limit: limit || 10,
     });
   }
-  
+
   /**
    * Find similar fragments
    */
   async findSimilar(
     content: string,
     threshold: number = 0.7,
-    limit: number = 5
+    limit: number = 5,
   ): Promise<IdentityFragment[]> {
     const results = await this.search(content, { threshold, limit });
-    return results.map(r => r.fragment);
+    return results.map((r) => r.fragment);
   }
-  
+
   /**
    * Count all fragments
    */
@@ -357,16 +353,16 @@ export class LanceDBIdentityStore implements IdentityStore {
     await this.ensureInitialized();
     return this.table!.countRows();
   }
-  
+
   /**
    * Count by category
    */
   async countByCategory(): Promise<Record<IdentityCategory, number>> {
     await this.ensureInitialized();
-    
+
     const allFragments = await this.getAll();
     const counts: Record<string, number> = {};
-    
+
     // Initialize all categories to 0
     const categories: IdentityCategory[] = [
       "goal",
@@ -378,19 +374,19 @@ export class LanceDBIdentityStore implements IdentityStore {
       "relationship",
       "historical_fact",
     ];
-    
+
     for (const cat of categories) {
       counts[cat] = 0;
     }
-    
+
     // Count fragments
     for (const fragment of allFragments) {
       counts[fragment.category] = (counts[fragment.category] || 0) + 1;
     }
-    
+
     return counts as Record<IdentityCategory, number>;
   }
-  
+
   /**
    * Delete fragment (soft delete - mark as reviewed)
    */
@@ -398,21 +394,21 @@ export class LanceDBIdentityStore implements IdentityStore {
     if (!this.writeAccessAllowed) {
       throw new Error("Identity store write access denied.");
     }
-    
+
     await this.ensureInitialized();
-    
+
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id)) {
       throw new Error(`Invalid fragment ID format: ${id}`);
     }
-    
+
     // For identity, we don't actually delete - we mark as reviewed
     // This maintains audit trail
     await this.markReviewed(id);
     return true;
   }
-  
+
   /**
    * Mark fragment as reviewed
    */
@@ -420,24 +416,24 @@ export class LanceDBIdentityStore implements IdentityStore {
     if (!this.writeAccessAllowed) {
       throw new Error("Identity store write access denied.");
     }
-    
+
     await this.ensureInitialized();
-    
+
     // Get current fragment
     const fragment = await this.getById(id);
     if (!fragment) {
       throw new Error(`Fragment not found: ${id}`);
     }
-    
+
     // Update metadata
     const updatedMetadata = {
       ...fragment.metadata,
       reviewedByHuman: true,
     };
-    
+
     // Update row (LanceDB doesn't have direct update, so we delete and re-add)
     await this.table!.delete(`id = '${id}'`);
-    
+
     const row: IdentityFragmentRow = {
       id: fragment.id,
       category: fragment.category,
@@ -450,10 +446,10 @@ export class LanceDBIdentityStore implements IdentityStore {
       embedding: fragment.embedding || [],
       reviewed: true,
     };
-    
+
     await this.table!.add([row]);
   }
-  
+
   /**
    * Close database connection
    */
@@ -465,10 +461,10 @@ export class LanceDBIdentityStore implements IdentityStore {
       this.initPromise = null;
     }
   }
-  
+
   // Private helpers
-  
-  private rowToFragment(row: any): IdentityFragment {
+
+  private rowToFragment(row: IdentityFragmentRow): IdentityFragment {
     return {
       id: row.id,
       category: row.category,
@@ -476,9 +472,7 @@ export class LanceDBIdentityStore implements IdentityStore {
       context: row.context,
       confidence: row.confidence,
       source: row.source,
-      metadata: typeof row.metadata === 'string' 
-        ? JSON.parse(row.metadata) 
-        : row.metadata,
+      metadata: typeof row.metadata === "string" ? JSON.parse(row.metadata) : row.metadata,
       createdAt: new Date(row.created_at).toISOString(),
       embedding: row.embedding,
     };
@@ -490,7 +484,7 @@ export class LanceDBIdentityStore implements IdentityStore {
 // ============================================================================
 
 export async function createLanceDBIdentityStore(
-  config: LanceDBIdentityStoreConfig
+  config: LanceDBIdentityStoreConfig,
 ): Promise<LanceDBIdentityStore> {
   const store = new LanceDBIdentityStore(config);
   await store.ensureInitialized();

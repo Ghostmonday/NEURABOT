@@ -60,11 +60,11 @@ async function assessPersonaPerformance(personaId: string): Promise<PersonaImpro
   // - Decision quality (confidence scores)
   // - Human corrections/feedback
   // - Identity alignment (does persona match Amir's style?)
-  
+
   const metrics = await getPersonaMetrics(personaId);
   const feedback = await getPersonaFeedback(personaId);
   const identity = await getRelevantIdentity(`persona ${personaId} execution`);
-  
+
   // Generate improvement proposals
   return await llm.generateImprovements({
     personaId,
@@ -81,18 +81,18 @@ async function identifyRoleGaps(): Promise<RoleResearch[]> {
   // - Tasks marked BLOCKED due to missing capability
   // - Identity fragments about company structure/goals
   // - Web research on company roles
-  
+
   const unassignedTasks = await taskStore.findUnassigned();
   const blockedTasks = await taskStore.findBlocked({ reason: "missing_capability" });
   const companyGoals = await identityStore.query({ category: "goal", context: "company" });
-  
+
   // Research what roles are needed
   const research = await researchRoles({
     taskGaps: unassignedTasks,
     blockedTasks,
     companyGoals,
   });
-  
+
   return research;
 }
 
@@ -103,19 +103,19 @@ async function researchRoles(params: {
   companyGoals: IdentityFragment[];
 }): Promise<RoleResearch[]> {
   // Use browser tool to research occupations
-  const researchTasks = params.taskGaps.map(gap => ({
+  const researchTasks = params.taskGaps.map((gap) => ({
     query: `What role handles ${gap.title} in a company?`,
     context: gap.description,
   }));
-  
+
   const webResults = await browser.search(researchTasks);
-  
+
   // Cross-reference with identity
   const relevantIdentity = await identityStore.query({
     category: "capability",
     context: "company structure",
   });
-  
+
   // Generate role research proposals
   return await llm.synthesizeRoleResearch({
     webResults,
@@ -132,7 +132,7 @@ async function createPersonaFromResearch(research: RoleResearch): Promise<Person
     identity: await getRelevantIdentity(`role ${research.roleName}`),
     existingPersonas: await getAllPersonas(),
   });
-  
+
   return {
     roleResearch: research,
     proposedSkill: {
@@ -159,7 +159,7 @@ async function applyPersonaImprovement(improvement: PersonaImprovement): Promise
     });
     return;
   }
-  
+
   // Auto-apply if confidence high and no approval needed
   await updatePersonaSkill(improvement.personaId, improvement.proposedChanges);
   await auditLog.append(null, {
@@ -205,7 +205,8 @@ cron.schedule("0 2 * * 0", async () => {
 async function triggerRoleGapAnalysis(): Promise<void> {
   const gaps = await identifyRoleGaps();
   for (const gap of gaps) {
-    if (gap.priority > 7) { // High priority
+    if (gap.priority > 7) {
+      // High priority
       const creation = await createPersonaFromResearch(gap);
       await createNewPersona(creation);
     }
@@ -220,7 +221,7 @@ async function handleUnassignableTask(task: Task): Promise<void> {
     blockedTasks: [],
     companyGoals: [],
   });
-  
+
   if (research.length > 0) {
     const creation = await createPersonaFromResearch(research[0]);
     await createNewPersona(creation);
@@ -234,7 +235,7 @@ async function handleUnassignableTask(task: Task): Promise<void> {
 // When approval task is created
 async function handlePersonaApproval(task: Task): Promise<void> {
   const improvement = JSON.parse(task.contextLinks.improvement);
-  
+
   // Show in WebChat UI with diff view
   await notifyHuman({
     type: "persona_improvement_review",
@@ -244,7 +245,7 @@ async function handlePersonaApproval(task: Task): Promise<void> {
     proposedVersion: improvement.proposedChanges,
     evidence: improvement.evidence,
   });
-  
+
   // Human approves via SMS/chat: "approve persona improvement <taskId>"
 }
 
@@ -252,7 +253,7 @@ async function handlePersonaApproval(task: Task): Promise<void> {
 async function approvePersonaChange(taskId: string): Promise<void> {
   const task = await taskStore.get(taskId);
   const improvement = JSON.parse(task.contextLinks.improvement);
-  
+
   await updatePersonaSkill(improvement.personaId, improvement.proposedChanges);
   await taskStore.update(taskId, {
     status: "DONE",
@@ -298,12 +299,14 @@ async function approvePersonaChange(taskId: string): Promise<void> {
 ## When to Revisit
 
 **Prerequisites:**
+
 - Core task system stable (3+ months operation)
 - Identity model has substantial data (1000+ fragments)
 - Personas executing reliably (90%+ success rate)
 - Strong evaluation criteria established for persona performance
 
 **Implementation Order:**
+
 1. Start with assessment-only (no auto-improvement)
 2. Add role research after 2-3 months of operational data
 3. Persona creation always gated - never auto-create

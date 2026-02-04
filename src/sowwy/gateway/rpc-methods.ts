@@ -1,13 +1,13 @@
 /**
  * Sowwy Gateway RPC Methods
- * 
+ *
  * Registers tasks.* methods with the OpenClaw Gateway:
  * - tasks.list - List tasks with filters
  * - tasks.create - Create a new task
  * - tasks.update - Update an existing task
  * - tasks.get - Get a single task
  * - tasks.nextReady - Get highest priority READY task
- * 
+ *
  * Also registers:
  * - sowwy.status - System status
  * - sowwy.pause - Global pause (kill switch)
@@ -19,10 +19,15 @@
 // RPC Method Types
 // ============================================================================
 
-import type { Task, TaskCreateInput, TaskUpdateInput, TaskFilter } from "../mission-control/schema.js";
-import type { TaskStore, AuditStore, DecisionStore, SowwyStores, AuditLogEntry, DecisionLogEntry } from "../mission-control/store.js";
-import type { IdentityStore } from "../identity/store.js";
 import type { SearchResult } from "../identity/fragments.js";
+import type { IdentityStore } from "../identity/store.js";
+import type {
+  Task,
+  TaskCreateInput,
+  TaskFilter,
+  TaskUpdateInput,
+} from "../mission-control/schema.js";
+import type { AuditLogEntry, DecisionLogEntry, SowwyStores } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 
 // ============================================================================
@@ -47,12 +52,17 @@ export interface TaskRPCMethods {
   "tasks.update": (taskId: string, input: TaskUpdateInput) => Promise<Task | null>;
   "tasks.get": (taskId: string) => Promise<Task | null>;
   "tasks.nextReady": () => Promise<Task | null>;
-  
+
   // Task lifecycle
   "tasks.approve": (taskId: string) => Promise<Task | null>;
-  "tasks.complete": (taskId: string, outcome: string, summary: string, confidence: number) => Promise<Task | null>;
+  "tasks.complete": (
+    taskId: string,
+    outcome: string,
+    summary: string,
+    confidence: number,
+  ) => Promise<Task | null>;
   "tasks.cancel": (taskId: string, reason: string) => Promise<Task | null>;
-  
+
   // Audit & decisions
   "tasks.audit": (taskId: string) => Promise<AuditLogEntry[]>;
   "tasks.decisions": (taskId: string) => Promise<DecisionLogEntry[]>;
@@ -63,11 +73,11 @@ export interface SowwyRPCMethods extends TaskRPCMethods {
   "sowwy.status": () => Promise<SowwyStatus>;
   "sowwy.pause": (reason: string) => Promise<{ success: boolean }>;
   "sowwy.resume": () => Promise<{ success: boolean }>;
-  
+
   // Identity
   "identity.search": (query: string, options?: { limit?: number }) => Promise<SearchResult[]>;
   "identity.stats": () => Promise<IdentityStats>;
-  
+
   // Monitoring
   "sowwy.metrics": () => Promise<Metrics>;
   "sowwy.health": () => Promise<HealthStatus>;
@@ -114,31 +124,29 @@ export interface HealthStatus {
 // RPC Method Registry
 // ============================================================================
 
-export function registerSowwyRPCMethods(
-  context: GatewayContext
-): Record<string, Function> {
+export function registerSowwyRPCMethods(context: GatewayContext): Record<string, Function> {
   const { stores, identityStore, smt, userId } = context;
-  
+
   return {
     // ========================================================================
     // Task CRUD Methods
     // ========================================================================
-    
+
     "tasks.list": async (filter?: TaskFilter): Promise<Task[]> => {
       return stores.tasks.list(filter);
     },
-    
+
     "tasks.create": async (input: TaskCreateInput): Promise<Task> => {
       // Validate input
       if (!input.title || !input.category || !input.personaOwner) {
         throw new Error("Missing required fields: title, category, personaOwner");
       }
-      
+
       const task = await stores.tasks.create({
         ...input,
         createdBy: userId,
       });
-      
+
       // Audit log
       await stores.audit.append({
         taskId: task.taskId,
@@ -146,19 +154,16 @@ export function registerSowwyRPCMethods(
         details: { title: task.title, category: task.category },
         performedBy: userId,
       });
-      
+
       return task;
     },
-    
-    "tasks.update": async (
-      taskId: string,
-      input: TaskUpdateInput
-    ): Promise<Task | null> => {
+
+    "tasks.update": async (taskId: string, input: TaskUpdateInput): Promise<Task | null> => {
       const existing = await stores.tasks.get(taskId);
       if (!existing) {
         throw new Error(`Task not found: ${taskId}`);
       }
-      
+
       const task = await stores.tasks.update(taskId, input);
       if (task) {
         await stores.audit.append({
@@ -168,28 +173,28 @@ export function registerSowwyRPCMethods(
           performedBy: userId,
         });
       }
-      
+
       return task;
     },
-    
+
     "tasks.get": async (taskId: string): Promise<Task | null> => {
       return stores.tasks.get(taskId);
     },
-    
+
     "tasks.nextReady": async (): Promise<Task | null> => {
       return stores.tasks.getNextReady();
     },
-    
+
     // ========================================================================
     // Task Lifecycle Methods
     // ========================================================================
-    
+
     "tasks.approve": async (taskId: string): Promise<Task | null> => {
       const task = await stores.tasks.update(taskId, {
         approved: true,
         approvedBy: userId,
       });
-      
+
       if (task) {
         await stores.audit.append({
           taskId,
@@ -198,15 +203,15 @@ export function registerSowwyRPCMethods(
           performedBy: userId,
         });
       }
-      
+
       return task;
     },
-    
+
     "tasks.complete": async (
       taskId: string,
       outcome: string,
       summary: string,
-      confidence: number
+      confidence: number,
     ): Promise<Task | null> => {
       const task = await stores.tasks.update(taskId, {
         status: "DONE",
@@ -214,7 +219,7 @@ export function registerSowwyRPCMethods(
         decisionSummary: summary,
         confidence,
       });
-      
+
       if (task) {
         await stores.audit.append({
           taskId,
@@ -222,7 +227,7 @@ export function registerSowwyRPCMethods(
           details: { outcome, summary, confidence },
           performedBy: userId,
         });
-        
+
         await stores.decisions.log({
           taskId,
           decision: outcome,
@@ -232,20 +237,17 @@ export function registerSowwyRPCMethods(
           outcome,
         });
       }
-      
+
       return task;
     },
-    
-    "tasks.cancel": async (
-      taskId: string,
-      reason: string
-    ): Promise<Task | null> => {
+
+    "tasks.cancel": async (taskId: string, reason: string): Promise<Task | null> => {
       const task = await stores.tasks.update(taskId, {
         status: "DONE",
         outcome: "ABORTED",
         decisionSummary: reason,
       });
-      
+
       if (task) {
         await stores.audit.append({
           taskId,
@@ -254,28 +256,28 @@ export function registerSowwyRPCMethods(
           performedBy: userId,
         });
       }
-      
+
       return task;
     },
-    
+
     // ========================================================================
     // Audit & Decision Methods
     // ========================================================================
-    
+
     "tasks.audit": async (taskId: string): Promise<AuditLogEntry[]> => {
       return stores.audit.getByTaskId(taskId);
     },
-    
+
     "tasks.decisions": async (taskId: string): Promise<DecisionLogEntry[]> => {
       return stores.decisions.getByTaskId(taskId);
     },
-    
+
     // ========================================================================
     // System Control Methods
     // ========================================================================
-    
+
     "sowwy.status": async (): Promise<SowwyStatus> => {
-      const queueDepth = await stores.tasks.count({ status: "READY" as any });
+      const queueDepth = await stores.tasks.count({ status: "READY", requiresApproval: undefined });
       return {
         running: true,
         paused: smt.isPaused(),
@@ -285,7 +287,7 @@ export function registerSowwyRPCMethods(
         lastTaskAt: null, // TODO: Track this
       };
     },
-    
+
     "sowwy.pause": async (reason: string): Promise<{ success: boolean }> => {
       smt.pause();
       await stores.audit.append({
@@ -296,7 +298,7 @@ export function registerSowwyRPCMethods(
       });
       return { success: true };
     },
-    
+
     "sowwy.resume": async (): Promise<{ success: boolean }> => {
       smt.resume();
       await stores.audit.append({
@@ -307,18 +309,18 @@ export function registerSowwyRPCMethods(
       });
       return { success: true };
     },
-    
+
     // ========================================================================
     // Identity Methods
     // ========================================================================
-    
+
     "identity.search": async (
       query: string,
-      options?: { limit?: number }
+      options?: { limit?: number },
     ): Promise<SearchResult[]> => {
       return identityStore.search(query, options);
     },
-    
+
     "identity.stats": async (): Promise<IdentityStats> => {
       return {
         totalFragments: await identityStore.count(),
@@ -326,11 +328,11 @@ export function registerSowwyRPCMethods(
         averageConfidence: 0, // TODO: Calculate
       };
     },
-    
+
     // ========================================================================
     // Monitoring Methods
     // ========================================================================
-    
+
     "sowwy.metrics": async (): Promise<Metrics> => {
       return {
         tasksCompleted: 0, // TODO: Track
@@ -340,7 +342,7 @@ export function registerSowwyRPCMethods(
         schedulerUptime: 0,
       };
     },
-    
+
     "sowwy.health": async (): Promise<HealthStatus> => {
       // TODO: Implement actual health checks
       return {
@@ -360,9 +362,14 @@ export function registerSowwyRPCMethods(
 // Re-export types
 // ============================================================================
 
-export type { Task, TaskCreateInput, TaskUpdateInput, TaskFilter } from "../mission-control/schema.js";
-export type { AuditLogEntry, DecisionLogEntry } from "../mission-control/store.js";
 export type { SearchResult } from "../identity/fragments.js";
+export type {
+  Task,
+  TaskCreateInput,
+  TaskFilter,
+  TaskUpdateInput,
+} from "../mission-control/schema.js";
+export type { AuditLogEntry, DecisionLogEntry } from "../mission-control/store.js";
 
 // Export HealthStatus as GatewayHealthStatus to avoid conflict with monitoring/metrics
 export type GatewayHealthStatus = HealthStatus;

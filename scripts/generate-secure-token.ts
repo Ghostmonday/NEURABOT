@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * Generate Secure Token
- * 
+ *
  * Generates a cryptographically secure token for gateway authentication.
  * Outputs token in format suitable for environment variables.
- * 
+ *
  * Usage:
  *   node scripts/generate-secure-token.ts
  *   # Output: OPENCLAW_GATEWAY_TOKEN=...

@@ -1,8 +1,8 @@
 /**
  * Gateway Rate Limiter
- * 
+ *
  * IP-based rate limiting to prevent DoS attacks and API abuse.
- * 
+ *
  * Features:
  * - Sliding window rate limiting
  * - Automatic IP blocking after threshold exceeded
@@ -27,7 +27,7 @@ type RequestEntry = {
 
 /**
  * Gateway Rate Limiter
- * 
+ *
  * Tracks requests per IP address and blocks excessive requests.
  */
 export class GatewayRateLimiter {
@@ -42,7 +42,7 @@ export class GatewayRateLimiter {
 
   /**
    * Check if request from client IP should be allowed
-   * 
+   *
    * @returns Object with allowed status and optional retryAfter seconds
    */
   check(clientIp: string): { allowed: boolean; retryAfter?: number } {
@@ -107,9 +107,13 @@ export class GatewayRateLimiter {
    */
   getRequestCount(clientIp: string): number {
     const entry = this.requests.get(clientIp);
-    if (!entry) return 0;
+    if (!entry) {
+      return 0;
+    }
     const now = Date.now();
-    if (now >= entry.resetAt) return 0;
+    if (now >= entry.resetAt) {
+      return 0;
+    }
     return entry.count;
   }
 
@@ -118,9 +122,12 @@ export class GatewayRateLimiter {
    */
   private startCleanup(): void {
     // Cleanup every 5 minutes
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, 5 * 60 * 1000);
+    this.cleanupInterval = setInterval(
+      () => {
+        this.cleanup();
+      },
+      5 * 60 * 1000,
+    );
   }
 
   /**

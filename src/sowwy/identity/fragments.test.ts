@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  IdentityCategory,
-  FragmentSource,
-  type IdentityFragment,
-} from "./fragments.js";
+import { IdentityCategory, FragmentSource, type IdentityFragment } from "./fragments.js";
 
 describe("Identity Fragments", () => {
   describe("IdentityCategory", () => {

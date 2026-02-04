@@ -1,6 +1,6 @@
 /**
  * Sowwy Metrics Collector - Prometheus Implementation
- * 
+ *
  * ⚠️ METRICS OVERVIEW:
  * - Task throughput and queue depth
  * - SMT utilization and limits
@@ -36,7 +36,8 @@ export class InMemoryMetricsCollector implements MetricsCollector {
   }
 
   incrementIdentityFragment(): void {
-    this.counters["identity_fragments_total"] = (this.counters["identity_fragments_total"] ?? 0) + 1;
+    this.counters["identity_fragments_total"] =
+      (this.counters["identity_fragments_total"] ?? 0) + 1;
   }
 
   incrementSMTUsage(): void {
@@ -76,12 +77,16 @@ export class InMemoryMetricsCollector implements MetricsCollector {
   // Record timings
   recordPersonaExecution(persona: string, durationMs: number): void {
     const key = `persona_${persona}_execution_ms`;
-    if (!this.timings[key]) this.timings[key] = [];
+    if (!this.timings[key]) {
+      this.timings[key] = [];
+    }
     this.timings[key].push(durationMs);
   }
 
   recordTaskExecution(durationMs: number): void {
-    if (!this.timings["task_execution_ms"]) this.timings["task_execution_ms"] = [];
+    if (!this.timings["task_execution_ms"]) {
+      this.timings["task_execution_ms"] = [];
+    }
     this.timings["task_execution_ms"].push(durationMs);
   }
 
@@ -96,23 +101,23 @@ export class InMemoryMetricsCollector implements MetricsCollector {
       },
       tasksCompletedPerHour: this.calculateRatePerHour("tasks_completed"),
       taskQueueDepth: this.gauges["task_queue_depth"] ?? 0,
-      
+
       // SMT metrics
       smtUtilization: this.gauges["smt_utilization"] ?? 0,
       smtRemaining: 100 - (this.gauges["smt_utilization"] ?? 0) * 100,
       smtPaused: false,
-      
+
       // Identity metrics
       identityFragments: this.counters["identity_fragments_total"] ?? 0,
       identityByCategory: {},
       identityExtractionRate: this.calculateRatePerHour("identity_fragments_total"),
-      
+
       // Persona metrics
       personaExecutionTime: this.calculateTimingMetrics(),
-      
+
       // Channel metrics
       channelMessageRates: {},
-      
+
       // Health metrics
       healthCheckStatus: {
         postgres: this.gauges["health_postgres"] === 1,
@@ -120,13 +125,13 @@ export class InMemoryMetricsCollector implements MetricsCollector {
         gateway: this.gauges["health_gateway"] === 1,
         smt: this.gauges["health_smt"] === 1,
       },
-      
+
       // Circuit breaker metrics
       circuitBreakerStates: {},
-      
+
       // Error metrics
       errorRateByOperation: {},
-      
+
       // Security metrics
       authFailures: this.counters["auth_failures_total"] ?? 0,
       pairingRequests: this.counters["pairing_requests_total"] ?? 0,
@@ -159,35 +164,35 @@ export class InMemoryMetricsCollector implements MetricsCollector {
 
 export function metricsToPrometheus(metrics: SowwyMetrics): string {
   const lines: string[] = [];
-  
+
   // Task metrics
   lines.push(`# HELP sowwy_tasks_total Total number of tasks`);
   lines.push(`# TYPE sowwy_tasks_total counter`);
   lines.push(`sowwy_tasks_total ${metrics.tasksTotal}`);
-  
+
   lines.push(`# HELP sowwy_task_queue_depth Number of tasks waiting in queue`);
   lines.push(`# TYPE sowwy_task_queue_depth gauge`);
   lines.push(`sowwy_task_queue_depth ${metrics.taskQueueDepth}`);
-  
+
   // SMT metrics
   lines.push(`# HELP sowwy_smt_utilization SMT token utilization (0-1)`);
   lines.push(`# TYPE sowwy_smt_utilization gauge`);
   lines.push(`sowwy_smt_utilization ${metrics.smtUtilization}`);
-  
+
   // Identity metrics
   lines.push(`# HELP sowwy_identity_fragments_total Total identity fragments stored`);
   lines.push(`# TYPE sowwy_identity_fragments_total counter`);
   lines.push(`sowwy_identity_fragments_total ${metrics.identityFragments}`);
-  
+
   // Security metrics
   lines.push(`# HELP sowwy_auth_failures_total Total authentication failures`);
   lines.push(`# TYPE sowwy_auth_failures_total counter`);
   lines.push(`sowwy_auth_failures_total ${metrics.authFailures}`);
-  
+
   lines.push(`# HELP sowwy_approval_denials_total Total approval denials`);
   lines.push(`# TYPE sowwy_approval_denials_total counter`);
   lines.push(`sowwy_approval_denials_total ${metrics.approvalDenials}`);
-  
+
   return lines.join("\n") + "\n";
 }
 

@@ -39,6 +39,7 @@ Sowwy is designed to give an AI **controlled** access to your digital life. The 
 ## API Keys Required
 
 ### Core (Required for Testing)
+
 ```bash
 # .env configuration
 # LLM API Key - for AI reasoning
@@ -51,6 +52,7 @@ SOWWY_POSTGRES_PASSWORD=secure-password-here
 ```
 
 ### Extensions (Optional - Add as Needed)
+
 ```bash
 # Twilio SMS
 TWILIO_ACCOUNT_SID=your-sid
@@ -69,12 +71,14 @@ DESKIN_DEVICE_ID=your-device-id
 ## Testing Locally
 
 ### Step 1: Start PostgreSQL
+
 ```bash
 cd /home/amir/Documents/clawdbot
 docker-compose up -d postgres
 ```
 
 ### Step 2: Run the Gateway
+
 ```bash
 # With API key
 export ANTHROPIC_API_KEY=sk-ant-api03-xxx
@@ -82,49 +86,55 @@ pnpm gateway:dev
 ```
 
 ### Step 3: Connect to Gateway
+
 The Gateway runs at `ws://127.0.0.1:18789`. Connect using any WebSocket client:
 
 ```javascript
 // Example connection
-const ws = new WebSocket('ws://127.0.0.1:18789');
+const ws = new WebSocket("ws://127.0.0.1:18789");
 
 ws.onopen = () => {
   // List tasks
-  ws.send(JSON.stringify({
-    method: 'tasks.list',
-    params: {},
-    id: 1
-  }));
+  ws.send(
+    JSON.stringify({
+      method: "tasks.list",
+      params: {},
+      id: 1,
+    }),
+  );
 };
 ```
 
 ## Capability Tiers
 
 ### Tier 1: Always Allowed (No Approval Needed)
-| Action | Description | Safety |
-|--------|-------------|--------|
-| `identity.extract` | Learn from conversations | ✅ Safe - only improves AI |
-| `audit.log` | Record actions | ✅ Safe - only improves observability |
-| `health.check` | System status | ✅ Safe - read-only |
-| `tasks.list` | View tasks | ✅ Safe - read-only |
-| `identity.search` | Retrieve context | ✅ Safe - read-only |
+
+| Action             | Description              | Safety                                |
+| ------------------ | ------------------------ | ------------------------------------- |
+| `identity.extract` | Learn from conversations | ✅ Safe - only improves AI            |
+| `audit.log`        | Record actions           | ✅ Safe - only improves observability |
+| `health.check`     | System status            | ✅ Safe - read-only                   |
+| `tasks.list`       | View tasks               | ✅ Safe - read-only                   |
+| `identity.search`  | Retrieve context         | ✅ Safe - read-only                   |
 
 ### Tier 2: Allowed with SMT Throttling
-| Action | Description | Limit |
-|--------|-------------|-------|
-| `tasks.create` | Create tasks | 500/day |
+
+| Action            | Description       | Limit   |
+| ----------------- | ----------------- | ------- |
+| `tasks.create`    | Create tasks      | 500/day |
 | `persona.execute` | Run persona logic | 500/day |
-| `llm.complete` | AI reasoning | 500/day |
+| `llm.complete`    | AI reasoning      | 500/day |
 
 ### Tier 3: Requires Approval (Default-Deny)
-| Action | Requires | Example |
-|--------|----------|---------|
-| `email.send` | Human approval | Send email to external |
-| `sms.send` | Human approval | Send SMS |
-| `browser.navigate` | Human approval | Visit URL |
-| `file.write` | Human approval | Create/modify files |
-| `deskin.click` | Human approval | Control Mac |
-| `app.submit` | LegalOps approval | Submit to App Store |
+
+| Action             | Requires          | Example                |
+| ------------------ | ----------------- | ---------------------- |
+| `email.send`       | Human approval    | Send email to external |
+| `sms.send`         | Human approval    | Send SMS               |
+| `browser.navigate` | Human approval    | Visit URL              |
+| `file.write`       | Human approval    | Create/modify files    |
+| `deskin.click`     | Human approval    | Control Mac            |
+| `app.submit`       | LegalOps approval | Submit to App Store    |
 
 ## Approval Gates
 
@@ -148,29 +158,34 @@ ws.onopen = () => {
 ## Security Layers (Defense in Depth)
 
 ### Layer 1: Gateway Hardening
+
 ```yaml
 # gateway.config
-bind: 127.0.0.1        # Loopback only - no public access
-dmPolicy: pairing      # Only paired devices can DM
-tokenRequired: true     # Always require auth token
+bind: 127.0.0.1 # Loopback only - no public access
+dmPolicy: pairing # Only paired devices can DM
+tokenRequired: true # Always require auth token
 ```
 
 ### Layer 2: SMT Throttling
+
 - Prevents runaway execution
 - Reserves 20% capacity for LegalOps/Email
 - Identity extraction, audit, health always bypass
 
 ### Layer 3: Circuit Breakers
+
 - External APIs (Twilio, Proton, etc.) have breakers
 - Breaker opens after 5 failures
 - Fail fast instead of hanging
 
 ### Layer 4: Approval Gates
+
 - Default-deny for sensitive actions
 - Human must explicitly approve
 - Audit trail of all approvals
 
 ### Layer 5: Kill Switch
+
 ```bash
 # Emergency stop - immediately pauses all execution
 pnpm sowwy pause --reason "emergency"
@@ -180,6 +195,7 @@ pnpm sowwy resume
 ```
 
 ### Layer 6: Audit Logging
+
 - Every action logged with timestamp, user, details
 - Append-only - never deleted
 - Includes decision summaries and confidence scores
@@ -189,6 +205,7 @@ pnpm sowwy resume
 ### The "AI Doing Anything" Problem
 
 The goal is **contextual autonomy**:
+
 - **In known contexts**: AI can act autonomously (e.g., "organize my downloads")
 - **In unknown contexts**: AI asks for approval (e.g., "send email to stranger")
 - **In sensitive contexts**: Human must approve (e.g., "submit to App Store")
@@ -206,14 +223,14 @@ The goal is **contextual autonomy**:
 // Exact conditions for autonomous action
 const AUTONOMOUS_ACTIONS = {
   // These AI can do without asking:
-  readEmails: true,           // Reading is safe
-  searchIdentity: true,       // Learning is good
-  createTasks: true,          // Task creation is reversible
-  draftResponses: true,       // Drafts need review anyway
-  
+  readEmails: true, // Reading is safe
+  searchIdentity: true, // Learning is good
+  createTasks: true, // Task creation is reversible
+  draftResponses: true, // Drafts need review anyway
+
   // These require approval:
   sendEmail: "human_required",
-  sendSms: "human_required", 
+  sendSms: "human_required",
   modifyFiles: "human_required",
   controlMac: "human_required",
   visitUrls: "human_required",
@@ -224,16 +241,16 @@ async function canAutonomousAction(action: string, context: IdentityContext): Pr
   if (AUTONOMOUS_ACTIONS[action] === true) {
     return true; // Always allowed
   }
-  
+
   if (AUTONOMOUS_ACTIONS[action] === "human_required") {
     return false; // Always requires approval
   }
-  
+
   // Check identity for context-aware decisions
   if (action === "visitUrls" && context.prefersAutoBrowse) {
     return true; // User trusts AI for browsing
   }
-  
+
   return false; // Default to requiring approval
 }
 ```
@@ -306,24 +323,27 @@ pnpm gateway:dev
 > **"An AI that knows you, respects your boundaries, and gets things done"**
 
 - **Knows you**: Identity model remembers your preferences
-- **Respects boundaries**: Approval gates for sensitive actions  
+- **Respects boundaries**: Approval gates for sensitive actions
 - **Gets things done**: Autonomous for routine tasks, assisted for complex ones
 
 ## Security Best Practices
 
 1. **Never bind Gateway to public IP**
+
    ```
    bind: 127.0.0.1  # ✅ Good
    bind: 0.0.0.0    # ❌ Bad - anyone can connect
    ```
 
 2. **Rotate API keys monthly**
+
    ```
    # In .env
    ANTHROPIC_API_KEY=sk-ant-xxx  # Rotate every 30 days
    ```
 
 3. **Review audit logs daily**
+
    ```bash
    # Check for anomalies
    pnpm sowwy audit --recent --format json | jq '.[] | select(.action == "email.send")'
@@ -334,11 +354,12 @@ pnpm gateway:dev
    - Only enable autonomous mode after testing
 
 5. **Separate credentials for prod/dev**
+
    ```
    # development
    ANTHROPIC_API_KEY=sk-ant-dev-xxx
-   
-   # production  
+
+   # production
    ANTHROPIC_API_KEY=sk-ant-prod-xxx
    ```
 
