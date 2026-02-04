@@ -1,21 +1,21 @@
 /**
  * Sowwy Mission Control - Task Store Interface Foundation
- * 
+ *
  * ⚠️ DATA CONSISTENCY:
  * - All operations should be idempotent where possible
  * - Use transactions for multi-operation sequences
  * - Log before update (append-only audit)
- * 
+ *
  * ⚠️ PERFORMANCE:
  * - getNextReady() is called every poll - optimize this query
  * - Index on: status + priority, createdAt, category, personaOwner
  * - Connection pooling is essential for PostgreSQL
- * 
+ *
  * ⚠️ AUDIT REQUIREMENTS:
  * - Every state change is logged
  * - Include: who, what, when, why
  * - Never delete audit logs
- * 
+ *
  * ⚠️ TRANSACTION PATTERN:
  * For task completion:
  * 1. BEGIN transaction
@@ -37,18 +37,19 @@ export interface TaskStore {
   get(taskId: string): Promise<Task | null>;
   update(taskId: string, input: TaskUpdateInput): Promise<Task | null>;
   delete(taskId: string): Promise<boolean>;
-  
+
   // Query Operations
   list(filter?: TaskFilter): Promise<Task[]>;
   getNextReady(): Promise<Task | null>;
   getByStatus(status: string): Promise<Task[]>;
   getByCategory(category: string): Promise<Task[]>;
   getByPersona(persona: string): Promise<Task[]>;
-  
+
   // Priority Operations
   getHighestPriorityReady(): Promise<Task | null>;
+  getHighestPriorityBacklog(): Promise<Task | null>;
   getStuckTasks(olderThanMs: number): Promise<Task[]>;
-  
+
   // Count Operations
   count(filter?: TaskFilter): Promise<number>;
   countByStatus(): Promise<Record<string, number>>;

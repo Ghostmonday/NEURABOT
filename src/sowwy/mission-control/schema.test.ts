@@ -138,6 +138,7 @@ describe("Task Schema", () => {
     it("should validate valid transitions", () => {
       expect(isValidTransition(TaskStatus.BACKLOG, TaskStatus.READY)).toBe(true);
       expect(isValidTransition(TaskStatus.READY, TaskStatus.IN_PROGRESS)).toBe(true);
+      expect(isValidTransition(TaskStatus.READY, TaskStatus.WAITING_ON_HUMAN)).toBe(true);
       expect(isValidTransition(TaskStatus.IN_PROGRESS, TaskStatus.DONE)).toBe(true);
     });
 
