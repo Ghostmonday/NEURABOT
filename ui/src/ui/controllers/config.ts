@@ -32,6 +32,7 @@ export type ConfigState = {
   configActiveSection: string | null;
   configActiveSubsection: string | null;
   lastError: string | null;
+  showToast?: (type: "success" | "error" | "info" | "loading", message: string) => void;
 };
 
 export async function loadConfig(state: ConfigState) {
@@ -118,6 +119,7 @@ export async function saveConfig(state: ConfigState) {
     await state.client.request("config.set", { raw, baseHash });
     state.configFormDirty = false;
     await loadConfig(state);
+    state.showToast?.("success", "Config saved");
   } catch (err) {
     state.lastError = String(err);
   } finally {
@@ -148,6 +150,7 @@ export async function applyConfig(state: ConfigState) {
     });
     state.configFormDirty = false;
     await loadConfig(state);
+    state.showToast?.("success", "Config applied");
   } catch (err) {
     state.lastError = String(err);
   } finally {

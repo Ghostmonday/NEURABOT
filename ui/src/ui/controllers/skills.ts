@@ -10,6 +10,7 @@ export type SkillsState = {
   skillsBusyKey: string | null;
   skillEdits: Record<string, string>;
   skillMessages: SkillMessageMap;
+  showToast?: (type: "success" | "error" | "info" | "loading", message: string) => void;
 };
 
 export type SkillMessage = {
@@ -140,10 +141,12 @@ export async function installSkill(
       timeoutMs: 120000,
     });
     await loadSkills(state);
+    const successMsg = result?.message ?? "Skill installed";
     setSkillMessage(state, skillKey, {
       kind: "success",
-      message: result?.message ?? "Installed",
+      message: successMsg,
     });
+    state.showToast?.("success", successMsg);
   } catch (err) {
     const message = getErrorMessage(err);
     state.skillsError = message;
@@ -151,6 +154,7 @@ export async function installSkill(
       kind: "error",
       message,
     });
+    state.showToast?.("error", `Failed to install skill: ${message}`);
   } finally {
     state.skillsBusyKey = null;
   }

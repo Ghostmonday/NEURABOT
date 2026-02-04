@@ -39,6 +39,9 @@ export * from "./security/redact.js";
 // Integrations
 export * from "./integrations/circuit-breaker.js";
 
+// Self-Modification Protocol
+export * from "./self-modify/index.js";
+
 // Gateway - explicitly re-export types to avoid HealthStatus conflict with monitoring/metrics
 export * from "./extensions/foundation.js";
 export * from "./extensions/integration.js";

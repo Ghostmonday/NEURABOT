@@ -9,9 +9,9 @@ import type { UiSettings } from "./storage";
 import type { ThemeMode } from "./theme";
 import type { ThemeTransitionContext } from "./theme-transition";
 import type {
-  AgentsListResult,
-  AgentsFilesListResult,
   AgentIdentityResult,
+  AgentsFilesListResult,
+  AgentsListResult,
   ChannelsStatusSnapshot,
   ConfigSnapshot,
   CronJob,
@@ -36,6 +36,7 @@ export type AppViewState = {
   onboarding: boolean;
   basePath: string;
   connected: boolean;
+  connectionState: "connected" | "reconnecting" | "disconnected";
   theme: ThemeMode;
   themeResolved: "light" | "dark";
   hello: GatewayHelloOk | null;
@@ -129,6 +130,7 @@ export type AppViewState = {
   sessionsError: string | null;
   sessionsFilterActive: string;
   sessionsFilterLimit: string;
+  sessionsFilterText: string;
   sessionsIncludeGlobal: boolean;
   sessionsIncludeUnknown: boolean;
   cronLoading: boolean;
@@ -196,6 +198,23 @@ export type AppViewState = {
   handleToggleSkillEnabled: (key: string, enabled: boolean) => Promise<void>;
   handleUpdateSkillEdit: (key: string, value: string) => void;
   handleSaveSkillApiKey: (key: string, apiKey: string) => Promise<void>;
+  toasts: Array<{
+    id: string;
+    type: "success" | "error" | "info" | "loading";
+    message: string;
+    createdAt: number;
+  }>;
+  showToast: (type: "success" | "error" | "info" | "loading", message: string) => void;
+  dismissToast: (id: string) => void;
+  shortcutsHelpOpen: boolean;
+  commandPaletteOpen: boolean;
+  commandPaletteQuery: string;
+  getCommandPaletteCommands: () => Array<{
+    id: string;
+    label: string;
+    keywords: string[];
+    action: () => void;
+  }>;
   handleCronToggle: (jobId: string, enabled: boolean) => Promise<void>;
   handleCronRun: (jobId: string) => Promise<void>;
   handleCronRemove: (jobId: string) => Promise<void>;

@@ -7,12 +7,12 @@ import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals";
 import type { SkillMessage } from "./controllers/skills";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway";
-import type { Tab } from "./navigation";
 import type { ResolvedTheme, ThemeMode } from "./theme";
 import type {
-  AgentsListResult,
-  AgentsFilesListResult,
   AgentIdentityResult,
+  AgentsFilesListResult,
+  AgentsListResult,
+  ChannelsStatusSnapshot,
   ConfigSnapshot,
   ConfigUiHints,
   CronJob,
@@ -21,12 +21,11 @@ import type {
   HealthSnapshot,
   LogEntry,
   LogLevel,
+  NostrProfile,
   PresenceEntry,
-  ChannelsStatusSnapshot,
   SessionsListResult,
   SkillStatusReport,
   StatusSummary,
-  NostrProfile,
 } from "./types";
 import type { NostrProfileFormState } from "./views/channels.nostr-profile-form";
 import {
@@ -67,16 +66,23 @@ import {
   applySettings as applySettingsInternal,
   loadCron as loadCronInternal,
   loadOverview as loadOverviewInternal,
+  onPopState as onPopStateInternal,
   setTab as setTabInternal,
   setTheme as setThemeInternal,
-  onPopState as onPopStateInternal,
 } from "./app-settings";
 import {
   resetToolStream as resetToolStreamInternal,
   type ToolStreamEntry,
 } from "./app-tool-stream";
 import { resolveInjectedAssistantIdentity } from "./assistant-identity";
+import { loadAgents } from "./controllers/agents";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity";
+import { loadChannels } from "./controllers/channels";
+import { loadConfig } from "./controllers/config";
+import { loadLogs } from "./controllers/logs";
+import { loadSessions } from "./controllers/sessions";
+import { loadSkills } from "./controllers/skills";
+import { TAB_GROUPS, titleForTab, type Tab } from "./navigation";
 import { loadSettings, type UiSettings } from "./storage";
 import { type ChatAttachment, type ChatQueueItem, type CronFormState } from "./ui-types";
 
@@ -108,11 +114,21 @@ export class OpenClawApp extends LitElement {
   @state() tab: Tab = "chat";
   @state() onboarding = resolveOnboardingMode();
   @state() connected = false;
+  @state() connectionState: "connected" | "reconnecting" | "disconnected" = "disconnected";
   @state() theme: ThemeMode = this.settings.theme ?? "system";
   @state() themeResolved: ResolvedTheme = "dark";
   @state() hello: GatewayHelloOk | null = null;
   @state() lastError: string | null = null;
   @state() eventLog: EventLogEntry[] = [];
+  @state() toasts: Array<{
+    id: string;
+    type: "success" | "error" | "info" | "loading";
+    message: string;
+    createdAt: number;
+  }> = [];
+  private lastErrorToastId: string | null = null;
+  private errorToastDebounceTimer: number | null = null;
+  private toastTimers = new Map<string, number>();
   private eventLogBuffer: EventLogEntry[] = [];
   private toolStreamSyncTimer: number | null = null;
   private sidebarCloseTimer: number | null = null;
@@ -223,6 +239,7 @@ export class OpenClawApp extends LitElement {
   @state() sessionsError: string | null = null;
   @state() sessionsFilterActive = "";
   @state() sessionsFilterLimit = "120";
+  @state() sessionsFilterText = "";
   @state() sessionsIncludeGlobal = true;
   @state() sessionsIncludeUnknown = false;
 
@@ -288,6 +305,11 @@ export class OpenClawApp extends LitElement {
   private themeMedia: MediaQueryList | null = null;
   private themeMediaHandler: ((event: MediaQueryListEvent) => void) | null = null;
   private topbarObserver: ResizeObserver | null = null;
+  private keyboardHandler: ((e: KeyboardEvent) => void) | null = null;
+  private lastFocusedElement: HTMLElement | null = null;
+  @state() shortcutsHelpOpen = false;
+  @state() commandPaletteOpen = false;
+  @state() commandPaletteQuery = "";
 
   createRenderRoot() {
     return this;
@@ -296,6 +318,7 @@ export class OpenClawApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     handleConnected(this as unknown as Parameters<typeof handleConnected>[0]);
+    this.setupKeyboardShortcuts();
   }
 
   protected firstUpdated() {
@@ -303,12 +326,34 @@ export class OpenClawApp extends LitElement {
   }
 
   disconnectedCallback() {
+    this.teardownKeyboardShortcuts();
     handleDisconnected(this as unknown as Parameters<typeof handleDisconnected>[0]);
     super.disconnectedCallback();
   }
 
   protected updated(changed: Map<PropertyKey, unknown>) {
     handleUpdated(this as unknown as Parameters<typeof handleUpdated>[0], changed);
+
+    // Show toast when lastError changes (debounced)
+    if (changed.has("lastError")) {
+      const newError = this.lastError;
+      if (newError && newError !== this.lastErrorToastId) {
+        if (this.errorToastDebounceTimer !== null) {
+          window.clearTimeout(this.errorToastDebounceTimer);
+        }
+        this.errorToastDebounceTimer = window.setTimeout(() => {
+          this.lastErrorToastId = newError;
+          this.showToast("error", newError);
+          this.errorToastDebounceTimer = null;
+        }, 300);
+      } else if (!newError) {
+        this.lastErrorToastId = null;
+        if (this.errorToastDebounceTimer !== null) {
+          window.clearTimeout(this.errorToastDebounceTimer);
+          this.errorToastDebounceTimer = null;
+        }
+      }
+    }
   }
 
   connect() {
@@ -507,6 +552,271 @@ export class OpenClawApp extends LitElement {
     const newRatio = Math.max(0.4, Math.min(0.7, ratio));
     this.splitRatio = newRatio;
     this.applySettings({ ...this.settings, splitRatio: newRatio });
+  }
+
+  showToast(type: "success" | "error" | "info" | "loading", message: string) {
+    const id = generateUUID();
+    const createdAt = Date.now();
+    this.toasts = [...this.toasts.slice(-2), { id, type, message, createdAt }]; // Max 3 visible
+
+    // Auto-dismiss timers
+    if (type === "success") {
+      const timer = window.setTimeout(() => this.dismissToast(id), 5000);
+      this.toastTimers.set(id, timer);
+    } else if (type === "error") {
+      const timer = window.setTimeout(() => this.dismissToast(id), 8000);
+      this.toastTimers.set(id, timer);
+    }
+    // loading and info are indefinite (no auto-dismiss)
+  }
+
+  dismissToast(id: string) {
+    const timer = this.toastTimers.get(id);
+    if (timer !== undefined) {
+      window.clearTimeout(timer);
+      this.toastTimers.delete(id);
+    }
+    this.toasts = this.toasts.filter((t) => t.id !== id);
+  }
+
+  private setupKeyboardShortcuts() {
+    this.keyboardHandler = (e: KeyboardEvent) => {
+      // Ignore if focus is in text input/textarea/contenteditable
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+        return;
+      }
+
+      // Alt+1..9: Switch to tab by index
+      if (e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+        const num = parseInt(e.key, 10);
+        if (num >= 1 && num <= 9) {
+          e.preventDefault();
+          const allTabs: Tab[] = [];
+          for (const group of TAB_GROUPS) {
+            allTabs.push(...group.tabs);
+          }
+          const tabIndex = num - 1;
+          if (tabIndex < allTabs.length) {
+            this.setTab(allTabs[tabIndex]);
+          }
+          return;
+        }
+      }
+
+      // Ctrl+[/Ctrl+]: Previous/next tab
+      if (e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+        if (e.key === "[" || e.key === "]") {
+          e.preventDefault();
+          const allTabs: Tab[] = [];
+          for (const group of TAB_GROUPS) {
+            allTabs.push(...group.tabs);
+          }
+          const currentIndex = allTabs.indexOf(this.tab);
+          if (currentIndex === -1) {
+            return;
+          }
+          const direction = e.key === "[" ? -1 : 1;
+          const nextIndex = (currentIndex + direction + allTabs.length) % allTabs.length;
+          this.setTab(allTabs[nextIndex]);
+          return;
+        }
+      }
+
+      // r: Refresh current view
+      if (e.key === "r" && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+        e.preventDefault();
+        if (this.tab === "overview") {
+          void this.loadOverview();
+        } else if (this.tab === "channels") {
+          void loadChannels(this as unknown as Parameters<typeof loadChannels>[0], false);
+        } else if (this.tab === "sessions") {
+          void loadSessions(this as unknown as Parameters<typeof loadSessions>[0]);
+        } else if (this.tab === "logs") {
+          void loadLogs(this as unknown as Parameters<typeof loadLogs>[0]);
+        } else if (this.tab === "skills") {
+          void loadSkills(this as unknown as Parameters<typeof loadSkills>[0]);
+        } else if (this.tab === "agents") {
+          void loadAgents(this as unknown as Parameters<typeof loadAgents>[0]);
+        } else if (this.tab === "config") {
+          void loadConfig(this as unknown as Parameters<typeof loadConfig>[0]);
+        }
+        return;
+      }
+
+      // Cmd/Ctrl+Shift+K: Open command palette
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && e.key === "K") {
+        e.preventDefault();
+        this.commandPaletteOpen = true;
+        this.commandPaletteQuery = "";
+        // Focus will be handled in render
+        return;
+      }
+
+      // Esc: Close sidebar/modals/help/palette
+      if (e.key === "Escape" && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+        if (this.commandPaletteOpen) {
+          e.preventDefault();
+          this.commandPaletteOpen = false;
+          this.commandPaletteQuery = "";
+          if (this.lastFocusedElement) {
+            this.lastFocusedElement.focus();
+            this.lastFocusedElement = null;
+          }
+          return;
+        }
+        if (this.shortcutsHelpOpen) {
+          e.preventDefault();
+          this.shortcutsHelpOpen = false;
+          if (this.lastFocusedElement) {
+            this.lastFocusedElement.focus();
+            this.lastFocusedElement = null;
+          }
+          return;
+        }
+        if (this.sidebarOpen) {
+          e.preventDefault();
+          this.handleCloseSidebar();
+          return;
+        }
+        return;
+      }
+
+      // Ctrl+/ or Ctrl+Shift+F: Focus search field
+      if (
+        (e.ctrlKey && !e.altKey && !e.metaKey && e.key === "/") ||
+        (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && e.key === "F")
+      ) {
+        e.preventDefault();
+        const searchInput = document.querySelector<HTMLInputElement>(
+          'input[type="search"], input[placeholder*="Search"], input[placeholder*="Filter"]',
+        );
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+        return;
+      }
+
+      // Shift+/: Show shortcuts help
+      if (e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && e.key === "/") {
+        e.preventDefault();
+        if (!this.shortcutsHelpOpen) {
+          this.lastFocusedElement = document.activeElement as HTMLElement;
+        }
+        this.shortcutsHelpOpen = !this.shortcutsHelpOpen;
+        return;
+      }
+    };
+    document.addEventListener("keydown", this.keyboardHandler);
+  }
+
+  private teardownKeyboardShortcuts() {
+    if (this.keyboardHandler) {
+      document.removeEventListener("keydown", this.keyboardHandler);
+      this.keyboardHandler = null;
+    }
+  }
+
+  getCommandPaletteCommands(): Array<{
+    id: string;
+    label: string;
+    keywords: string[];
+    action: () => void;
+  }> {
+    const allTabs: Tab[] = [];
+    for (const group of TAB_GROUPS) {
+      allTabs.push(...group.tabs);
+    }
+
+    const commands: Array<{ id: string; label: string; keywords: string[]; action: () => void }> =
+      [];
+
+    // Tab navigation
+    for (const tab of allTabs) {
+      commands.push({
+        id: `tab-${tab}`,
+        label: `Go to ${titleForTab(tab)}`,
+        keywords: [tab, titleForTab(tab).toLowerCase()],
+        action: () => {
+          this.setTab(tab);
+          this.commandPaletteOpen = false;
+        },
+      });
+    }
+
+    // Refresh current view
+    commands.push({
+      id: "refresh",
+      label: "Refresh current view",
+      keywords: ["refresh", "reload"],
+      action: () => {
+        if (this.tab === "overview") {
+          void this.loadOverview();
+        } else if (this.tab === "channels") {
+          void loadChannels(this as unknown as Parameters<typeof loadChannels>[0], false);
+        } else if (this.tab === "sessions") {
+          void loadSessions(this as unknown as Parameters<typeof loadSessions>[0]);
+        } else if (this.tab === "logs") {
+          void loadLogs(this as unknown as Parameters<typeof loadLogs>[0]);
+        } else if (this.tab === "skills") {
+          void loadSkills(this as unknown as Parameters<typeof loadSkills>[0]);
+        } else if (this.tab === "agents") {
+          void loadAgents(this as unknown as Parameters<typeof loadAgents>[0]);
+        } else if (this.tab === "config") {
+          void loadConfig(this as unknown as Parameters<typeof loadConfig>[0]);
+        }
+        this.commandPaletteOpen = false;
+      },
+    });
+
+    // Toggle theme
+    commands.push({
+      id: "toggle-theme",
+      label: `Switch to ${this.themeResolved === "dark" ? "light" : "dark"} theme`,
+      keywords: ["theme", "dark", "light", "toggle"],
+      action: () => {
+        this.setTheme(this.themeResolved === "dark" ? "light" : "dark");
+        this.commandPaletteOpen = false;
+      },
+    });
+
+    // Toggle focus mode
+    commands.push({
+      id: "toggle-focus",
+      label: `${this.settings.chatFocusMode ? "Disable" : "Enable"} focus mode`,
+      keywords: ["focus", "mode"],
+      action: () => {
+        this.applySettings({
+          ...this.settings,
+          chatFocusMode: !this.settings.chatFocusMode,
+        });
+        this.commandPaletteOpen = false;
+      },
+    });
+
+    // New session (if in chat)
+    if (this.tab === "chat") {
+      commands.push({
+        id: "new-session",
+        label: "New chat session",
+        keywords: ["new", "session", "chat"],
+        action: () => {
+          this.sessionKey = `session-${Date.now()}`;
+          this.chatMessage = "";
+          this.resetToolStream();
+          this.applySettings({
+            ...this.settings,
+            sessionKey: this.sessionKey,
+            lastActiveSessionKey: this.sessionKey,
+          });
+          void this.loadAssistantIdentity();
+          this.commandPaletteOpen = false;
+        },
+      });
+    }
+
+    return commands;
   }
 
   render() {

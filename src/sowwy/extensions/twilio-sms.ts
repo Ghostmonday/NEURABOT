@@ -1,6 +1,7 @@
-import { Twilio } from "twilio";
+import pkg from "twilio";
 import type { Task } from "../mission-control/schema.js";
 import type { ExtensionFoundation, ExtensionLifecycle, PersonaExecutor } from "./integration.js";
+const { Twilio } = pkg;
 
 /**
  * Twilio SMS Extension for Sowwy

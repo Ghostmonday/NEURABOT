@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import type { AppViewState } from "./app-view-state";
 import type { ThemeMode } from "./theme";
@@ -12,10 +12,12 @@ import { iconForTab, pathForTab, titleForTab, type Tab } from "./navigation";
 
 export function renderTab(state: AppViewState, tab: Tab) {
   const href = pathForTab(tab, state.basePath);
+  const isActive = state.tab === tab;
   return html`
     <a
       href=${href}
-      class="nav-item ${state.tab === tab ? "active" : ""}"
+      class="nav-item ${isActive ? "active" : ""}"
+      aria-current=${isActive ? "page" : nothing}
       @click=${(event: MouseEvent) => {
         if (
           event.defaultPrevented ||

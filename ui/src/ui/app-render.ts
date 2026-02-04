@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import { ref } from "lit/directives/ref.js";
 import type { AppViewState } from "./app-view-state";
 import { parseAgentSessionKey } from "../../../src/routing/session-key.js";
 import { refreshChatAvatar } from "./app-chat";
@@ -12,19 +13,19 @@ import { loadChatHistory } from "./controllers/chat";
 import {
   applyConfig,
   loadConfig,
+  removeConfigFormValue,
   runUpdate,
   saveConfig,
   updateConfigFormValue,
-  removeConfigFormValue,
 } from "./controllers/config";
 import {
-  loadCronRuns,
-  toggleCronJob,
-  runCronJob,
-  removeCronJob,
   addCronJob,
+  loadCronRuns,
+  removeCronJob,
+  runCronJob,
+  toggleCronJob,
 } from "./controllers/cron";
-import { loadDebug, callDebugMethod } from "./controllers/debug";
+import { callDebugMethod, loadDebug } from "./controllers/debug";
 import {
   approveDevicePairing,
   loadDevices,
@@ -104,6 +105,23 @@ export function renderApp(state: AppViewState) {
     null;
 
   return html`
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="toast-container" role="status" aria-live="polite" aria-atomic="false">
+      ${state.toasts.map(
+        (toast) => html`
+          <div class="toast toast--${toast.type}" role="alert">
+            <span class="toast__message">${toast.message}</span>
+            <button
+              class="toast__close"
+              @click=${() => state.dismissToast(toast.id)}
+              aria-label="Dismiss notification"
+            >
+              ×
+            </button>
+          </div>
+        `,
+      )}
+    </div>
     <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
       <header class="topbar">
         <div class="topbar-left">
@@ -130,10 +148,16 @@ export function renderApp(state: AppViewState) {
           </div>
         </div>
         <div class="topbar-status">
-          <div class="pill">
-            <span class="statusDot ${state.connected ? "ok" : ""}"></span>
+          <div class="pill" title="${state.connected ? "Connected to gateway" : state.connectionState === "reconnecting" ? "Reconnecting to gateway" : "Disconnected from gateway"}">
+            <span class="statusDot ${state.connectionState === "connected" ? "ok" : state.connectionState === "reconnecting" ? "warn" : ""}"></span>
             <span>Health</span>
-            <span class="mono">${state.connected ? "OK" : "Offline"}</span>
+            <span class="mono">${
+              state.connectionState === "connected"
+                ? "OK"
+                : state.connectionState === "reconnecting"
+                  ? "Reconnecting"
+                  : "Offline"
+            }</span>
           </div>
           ${renderThemeToggle(state)}
         </div>
@@ -183,10 +207,10 @@ export function renderApp(state: AppViewState) {
           </div>
         </div>
       </aside>
-      <main class="content ${isChat ? "content--chat" : ""}">
+      <main id="main-content" class="content ${isChat ? "content--chat" : ""}">
         <section class="content-header">
           <div>
-            <div class="page-title">${titleForTab(state.tab)}</div>
+            <h1 class="page-title">${titleForTab(state.tab)}</h1>
             <div class="page-sub">${subtitleForTab(state.tab)}</div>
           </div>
           <div class="page-meta">
@@ -286,12 +310,14 @@ export function renderApp(state: AppViewState) {
                 error: state.sessionsError,
                 activeMinutes: state.sessionsFilterActive,
                 limit: state.sessionsFilterLimit,
+                filterText: state.sessionsFilterText,
                 includeGlobal: state.sessionsIncludeGlobal,
                 includeUnknown: state.sessionsIncludeUnknown,
                 basePath: state.basePath,
                 onFiltersChange: (next) => {
                   state.sessionsFilterActive = next.activeMinutes;
                   state.sessionsFilterLimit = next.limit;
+                  state.sessionsFilterText = next.filterText;
                   state.sessionsIncludeGlobal = next.includeGlobal;
                   state.sessionsIncludeUnknown = next.includeUnknown;
                 },
@@ -940,6 +966,240 @@ export function renderApp(state: AppViewState) {
       </main>
       ${renderExecApprovalPrompt(state)}
       ${renderGatewayUrlConfirmation(state)}
+      ${
+        state.shortcutsHelpOpen
+          ? html`
+              <div
+                class="modal-overlay"
+                @click=${() => {
+                  state.shortcutsHelpOpen = false;
+                  if (
+                    (state as unknown as { lastFocusedElement: HTMLElement | null })
+                      .lastFocusedElement
+                  ) {
+                    (
+                      (state as unknown as { lastFocusedElement: HTMLElement | null })
+                        .lastFocusedElement as HTMLElement
+                    ).focus();
+                    (
+                      state as unknown as { lastFocusedElement: HTMLElement | null }
+                    ).lastFocusedElement = null;
+                  }
+                }}
+                @keydown=${(e: KeyboardEvent) => {
+                  if (e.key === "Escape") {
+                    state.shortcutsHelpOpen = false;
+                    if (
+                      (state as unknown as { lastFocusedElement: HTMLElement | null })
+                        .lastFocusedElement
+                    ) {
+                      (
+                        (state as unknown as { lastFocusedElement: HTMLElement | null })
+                          .lastFocusedElement as HTMLElement
+                      ).focus();
+                      (
+                        state as unknown as { lastFocusedElement: HTMLElement | null }
+                      ).lastFocusedElement = null;
+                    }
+                  }
+                }}
+              >
+                <div
+                  class="modal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="shortcuts-title"
+                  @click=${(e: Event) => e.stopPropagation()}
+                >
+                  <div class="modal-header">
+                    <h2 id="shortcuts-title">Keyboard Shortcuts</h2>
+                    <button
+                      class="modal-close"
+                      @click=${() => {
+                        state.shortcutsHelpOpen = false;
+                        if (
+                          (state as unknown as { lastFocusedElement: HTMLElement | null })
+                            .lastFocusedElement
+                        ) {
+                          (
+                            (state as unknown as { lastFocusedElement: HTMLElement | null })
+                              .lastFocusedElement as HTMLElement
+                          ).focus();
+                          (
+                            state as unknown as { lastFocusedElement: HTMLElement | null }
+                          ).lastFocusedElement = null;
+                        }
+                      }}
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div class="modal-content">
+                    <div class="shortcuts-list">
+                      <div class="shortcut-item">
+                        <kbd>Alt</kbd> + <kbd>1</kbd> - <kbd>9</kbd>
+                        <span>Switch to tab by index</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>[</kbd> / <kbd>]</kbd>
+                        <span>Previous / Next tab</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>R</kbd>
+                        <span>Refresh current view</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>Esc</kbd>
+                        <span>Close sidebar / modals</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>/</kbd> or <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd>
+                        <span>Focus search field</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>Shift</kbd> + <kbd>/</kbd>
+                        <span>Show this help</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `
+          : nothing
+      }
+      ${
+        state.commandPaletteOpen
+          ? (() => {
+              const query = state.commandPaletteQuery.toLowerCase();
+              const allCommands = state.getCommandPaletteCommands();
+              const filtered = query
+                ? allCommands.filter(
+                    (cmd) =>
+                      cmd.keywords.some((kw) => kw.toLowerCase().includes(query)) ||
+                      cmd.label.toLowerCase().includes(query),
+                  )
+                : allCommands;
+              const selectedIndex = 0;
+
+              return html`
+                <div
+                  class="modal-overlay"
+                  @click=${() => {
+                    state.commandPaletteOpen = false;
+                    state.commandPaletteQuery = "";
+                    if (
+                      (state as unknown as { lastFocusedElement: HTMLElement | null })
+                        .lastFocusedElement
+                    ) {
+                      (
+                        (state as unknown as { lastFocusedElement: HTMLElement | null })
+                          .lastFocusedElement as HTMLElement
+                      ).focus();
+                      (
+                        state as unknown as { lastFocusedElement: HTMLElement | null }
+                      ).lastFocusedElement = null;
+                    }
+                  }}
+                  @keydown=${(e: KeyboardEvent) => {
+                    if (e.key === "Escape") {
+                      state.commandPaletteOpen = false;
+                      state.commandPaletteQuery = "";
+                      if (
+                        (state as unknown as { lastFocusedElement: HTMLElement | null })
+                          .lastFocusedElement
+                      ) {
+                        (
+                          (state as unknown as { lastFocusedElement: HTMLElement | null })
+                            .lastFocusedElement as HTMLElement
+                        ).focus();
+                        (
+                          state as unknown as { lastFocusedElement: HTMLElement | null }
+                        ).lastFocusedElement = null;
+                      }
+                    }
+                  }}
+                >
+                  <div
+                    class="modal modal--command-palette"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="palette-title"
+                    @click=${(e: Event) => e.stopPropagation()}
+                    @keydown=${(e: KeyboardEvent) => {
+                      if (e.key === "Enter" && filtered.length > 0) {
+                        e.preventDefault();
+                        filtered[selectedIndex]?.action();
+                      }
+                    }}
+                  >
+                    <div class="modal-header">
+                      <h2 id="palette-title">Command Palette</h2>
+                      <button
+                        class="modal-close"
+                        @click=${() => {
+                          state.commandPaletteOpen = false;
+                          state.commandPaletteQuery = "";
+                          if (
+                            (state as unknown as { lastFocusedElement: HTMLElement | null })
+                              .lastFocusedElement
+                          ) {
+                            (
+                              (state as unknown as { lastFocusedElement: HTMLElement | null })
+                                .lastFocusedElement as HTMLElement
+                            ).focus();
+                            (
+                              state as unknown as { lastFocusedElement: HTMLElement | null }
+                            ).lastFocusedElement = null;
+                          }
+                        }}
+                        aria-label="Close"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div class="modal-content">
+                      <input
+                        type="text"
+                        class="command-palette-input"
+                        .value=${state.commandPaletteQuery}
+                        @input=${(e: Event) => {
+                          state.commandPaletteQuery = (e.target as HTMLInputElement).value;
+                        }}
+                        placeholder="Type to search commands..."
+                        autofocus
+                        ${ref((el) => {
+                          if (el && state.commandPaletteOpen) {
+                            (el as HTMLInputElement).focus();
+                          }
+                        })}
+                      />
+                      <div class="command-palette-list" role="listbox">
+                        ${
+                          filtered.length === 0
+                            ? html`
+                                <div class="command-palette-empty">No commands found</div>
+                              `
+                            : filtered.map(
+                                (cmd, idx) => html`
+                                  <button
+                                    class="command-palette-item ${idx === selectedIndex ? "command-palette-item--selected" : ""}"
+                                    role="option"
+                                    @click=${() => cmd.action()}
+                                  >
+                                    <span class="command-palette-item__label">${cmd.label}</span>
+                                  </button>
+                                `,
+                              )
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            })()
+          : nothing
+      }
     </div>
   `;
 }

@@ -12,12 +12,14 @@ export type SessionsProps = {
   limit: string;
   includeGlobal: boolean;
   includeUnknown: boolean;
+  filterText: string;
   basePath: string;
   onFiltersChange: (next: {
     activeMinutes: string;
     limit: string;
     includeGlobal: boolean;
     includeUnknown: boolean;
+    filterText: string;
   }) => void;
   onRefresh: () => void;
   onPatch: (
@@ -83,8 +85,21 @@ function resolveThinkLevelPatchValue(value: string, isBinary: boolean): string |
   return value;
 }
 
+function matchesFilter(row: GatewaySessionRow, needle: string): boolean {
+  if (!needle) {
+    return true;
+  }
+  const haystack = [row.key, row.label ?? "", row.kind, row.displayName ?? ""]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(needle.toLowerCase());
+}
+
 export function renderSessions(props: SessionsProps) {
   const rows = props.result?.sessions ?? [];
+  const filterText = props.filterText.trim();
+  const filtered = filterText ? rows.filter((row) => matchesFilter(row, filterText)) : rows;
   return html`
     <section class="card">
       <div class="row" style="justify-content: space-between;">
@@ -92,12 +107,29 @@ export function renderSessions(props: SessionsProps) {
           <div class="card-title">Sessions</div>
           <div class="card-sub">Active session keys and per-session overrides.</div>
         </div>
-        <button class="btn" ?disabled=${props.loading} @click=${props.onRefresh}>
+        <button class="btn" ?disabled=${props.loading} @click=${props.onRefresh} aria-label="Refresh sessions">
           ${props.loading ? "Loading…" : "Refresh"}
         </button>
       </div>
 
       <div class="filters" style="margin-top: 14px;">
+        <label class="field" style="flex: 1;">
+          <span>Search</span>
+          <input
+            type="search"
+            .value=${props.filterText}
+            @input=${(e: Event) =>
+              props.onFiltersChange({
+                activeMinutes: props.activeMinutes,
+                limit: props.limit,
+                includeGlobal: props.includeGlobal,
+                includeUnknown: props.includeUnknown,
+                filterText: (e.target as HTMLInputElement).value,
+              })}
+            placeholder="Filter by key, label, or kind"
+            aria-label="Search sessions"
+          />
+        </label>
         <label class="field">
           <span>Active within (minutes)</span>
           <input
@@ -108,6 +140,7 @@ export function renderSessions(props: SessionsProps) {
                 limit: props.limit,
                 includeGlobal: props.includeGlobal,
                 includeUnknown: props.includeUnknown,
+                filterText: props.filterText,
               })}
           />
         </label>
@@ -121,6 +154,7 @@ export function renderSessions(props: SessionsProps) {
                 limit: (e.target as HTMLInputElement).value,
                 includeGlobal: props.includeGlobal,
                 includeUnknown: props.includeUnknown,
+                filterText: props.filterText,
               })}
           />
         </label>
@@ -135,6 +169,7 @@ export function renderSessions(props: SessionsProps) {
                 limit: props.limit,
                 includeGlobal: (e.target as HTMLInputElement).checked,
                 includeUnknown: props.includeUnknown,
+                filterText: props.filterText,
               })}
           />
         </label>
@@ -149,6 +184,7 @@ export function renderSessions(props: SessionsProps) {
                 limit: props.limit,
                 includeGlobal: props.includeGlobal,
                 includeUnknown: (e.target as HTMLInputElement).checked,
+                filterText: props.filterText,
               })}
           />
         </label>
@@ -162,6 +198,7 @@ export function renderSessions(props: SessionsProps) {
 
       <div class="muted" style="margin-top: 12px;">
         ${props.result ? `Store: ${props.result.path}` : ""}
+        ${filterText ? html` · ${filtered.length} of ${rows.length} shown` : ""}
       </div>
 
       <div class="table" style="margin-top: 16px;">
@@ -177,11 +214,11 @@ export function renderSessions(props: SessionsProps) {
           <div>Actions</div>
         </div>
         ${
-          rows.length === 0
+          filtered.length === 0
             ? html`
-                <div class="muted">No sessions found.</div>
+                <div class="muted">No sessions found${filterText ? " matching filter" : ""}.</div>
               `
-            : rows.map((row) =>
+            : filtered.map((row) =>
                 renderRow(row, props.basePath, props.onPatch, props.onDelete, props.loading),
               )
         }

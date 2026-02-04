@@ -1,8 +1,8 @@
 # Scout Role & Execution Specification
 
-**Version:** 1.0  
-**Date:** 2026-02-04  
-**Status:** Canonical  
+**Version:** 1.0
+**Date:** 2026-02-04
+**Status:** Canonical
 **Audience:** AI Agents, Human Operators, IDE Models
 
 ---

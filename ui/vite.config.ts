@@ -31,6 +31,23 @@ export default defineConfig(() => {
       outDir: path.resolve(here, "../dist/control-ui"),
       emptyOutDir: true,
       sourcemap: true,
+      // Performance optimizations
+      minify: "esbuild",
+      target: "es2022",
+      cssMinify: true,
+      // Better chunking strategy
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            "lit-core": ["lit", "lit/decorators.js"],
+            "lit-directives": ["lit/directives/repeat.js"],
+            markdown: ["marked", "dompurify"],
+          },
+        },
+      },
+      // Asset optimization
+      assetsInlineLimit: 4096, // Inline small assets
+      chunkSizeWarningLimit: 1000,
     },
     server: {
       host: true,

@@ -1,9 +1,11 @@
 import { html, nothing } from "lit";
+import { ref } from "lit/directives/ref.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import type { AssistantIdentity } from "../assistant-identity";
 import type { MessageGroup } from "../types/chat-types";
 import { toSanitizedMarkdownHtml } from "../markdown";
 import { renderCopyAsMarkdownButton } from "./copy-as-markdown";
+import { attachCopyButtonsToCodeBlocks } from "./copy-code-block";
 import {
   extractTextCached,
   extractThinkingCached,
@@ -265,14 +267,25 @@ function renderGroupedMessage(
       ${renderMessageImages(images)}
       ${
         reasoningMarkdown
-          ? html`<div class="chat-thinking">${unsafeHTML(
-              toSanitizedMarkdownHtml(reasoningMarkdown),
-            )}</div>`
+          ? html`<div class="chat-thinking" ${ref((el) => {
+              if (el) {
+                requestAnimationFrame(() => {
+                  attachCopyButtonsToCodeBlocks(el as HTMLElement);
+                });
+              }
+            })}>${unsafeHTML(toSanitizedMarkdownHtml(reasoningMarkdown))}</div>`
           : nothing
       }
       ${
         markdown
-          ? html`<div class="chat-text">${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
+          ? html`<div class="chat-text" ${ref((el) => {
+              if (el) {
+                // Attach copy buttons after DOM is ready
+                requestAnimationFrame(() => {
+                  attachCopyButtonsToCodeBlocks(el as HTMLElement);
+                });
+              }
+            })}>${unsafeHTML(toSanitizedMarkdownHtml(markdown))}</div>`
           : nothing
       }
       ${toolCards.map((card) => renderToolCardSidebar(card, onOpenSidebar))}

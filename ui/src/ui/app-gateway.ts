@@ -4,14 +4,13 @@ import type { ExecApprovalRequest } from "./controllers/exec-approval";
 import type { GatewayEventFrame, GatewayHelloOk } from "./gateway";
 import type { Tab } from "./navigation";
 import type { UiSettings } from "./storage";
-import type { AgentsListResult, PresenceEntry, HealthSnapshot, StatusSummary } from "./types";
+import type { AgentsListResult, HealthSnapshot, PresenceEntry, StatusSummary } from "./types";
 import { CHAT_SESSIONS_ACTIVE_MINUTES, flushChatQueueForEvent } from "./app-chat";
 import { applySettings, loadCron, refreshActiveTab, setLastActiveSessionKey } from "./app-settings";
 import { handleAgentEvent, resetToolStream, type AgentEventPayload } from "./app-tool-stream";
 import { loadAgents } from "./controllers/agents";
 import { loadAssistantIdentity } from "./controllers/assistant-identity";
-import { loadChatHistory } from "./controllers/chat";
-import { handleChatEvent, type ChatEventPayload } from "./controllers/chat";
+import { handleChatEvent, loadChatHistory, type ChatEventPayload } from "./controllers/chat";
 import { loadDevices } from "./controllers/devices";
 import {
   addExecApproval,
@@ -114,6 +113,9 @@ export function connectGateway(host: GatewayHost) {
   host.lastError = null;
   host.hello = null;
   host.connected = false;
+  (
+    host as unknown as { connectionState: "connected" | "reconnecting" | "disconnected" }
+  ).connectionState = "disconnected";
   host.execApprovalQueue = [];
   host.execApprovalError = null;
 
@@ -126,6 +128,9 @@ export function connectGateway(host: GatewayHost) {
     mode: "webchat",
     onHello: (hello) => {
       host.connected = true;
+      (
+        host as unknown as { connectionState: "connected" | "reconnecting" | "disconnected" }
+      ).connectionState = "connected";
       host.lastError = null;
       host.hello = hello;
       applySnapshot(host, hello);
@@ -143,9 +148,17 @@ export function connectGateway(host: GatewayHost) {
     },
     onClose: ({ code, reason }) => {
       host.connected = false;
+      const connectionState = host as unknown as {
+        connectionState: "connected" | "reconnecting" | "disconnected";
+      };
       // Code 1012 = Service Restart (expected during config saves, don't show as error)
       if (code !== 1012) {
-        host.lastError = `disconnected (${code}): ${reason || "no reason"}`;
+        connectionState.connectionState = "reconnecting";
+        const errorMsg = `disconnected (${code}): ${reason || "no reason"}`;
+        host.lastError = errorMsg;
+        // Toast will be shown via lastError watcher in updated()
+      } else {
+        connectionState.connectionState = "disconnected";
       }
     },
     onEvent: (evt) => handleGatewayEvent(host, evt),
