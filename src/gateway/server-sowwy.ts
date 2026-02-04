@@ -9,6 +9,8 @@ import type {
   GatewayRequestHandler,
   GatewayRequestHandlerOptions,
 } from "./server-methods/types.js";
+import { ExtensionFoundationImpl } from "../sowwy/extensions/foundation.js";
+import { ExtensionLoader } from "../sowwy/extensions/loader.js";
 import {
   createLanceDBIdentityStore,
   createPostgresStores,
@@ -206,6 +208,17 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
   scheduler.registerPersona(PersonaOwner.LegalOps, personaStub);
   scheduler.registerPersona(PersonaOwner.ChiefOfStaff, personaStub);
   scheduler.registerPersona(PersonaOwner.RnD, personaStub);
+
+  // Wire Extensions
+  const foundation = new ExtensionFoundationImpl(
+    scheduler,
+    smt,
+    identityStore,
+    stores.tasks,
+    stores.audit,
+  );
+  const loader = new ExtensionLoader(foundation);
+  await loader.load();
 
   return {
     sowwyHandlers,

@@ -129,6 +129,13 @@ export class SMTThrottler {
   }
 
   /**
+   * Alias for record()
+   */
+  recordUsage(operation: string): void {
+    this.record(operation);
+  }
+
+  /**
    * Get current utilization percentage
    */
   getUtilization(): number {

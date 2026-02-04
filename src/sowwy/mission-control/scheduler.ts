@@ -76,6 +76,19 @@ export interface TaskExecutionResult {
 // ============================================================================
 // Scheduler Class
 // ============================================================================
+// ============================================================================
+// Broadcaster Type
+// ============================================================================
+
+export type Broadcaster = (
+  event: string,
+  payload: unknown,
+  opts?: { dropIfSlow?: boolean },
+) => void;
+
+// ============================================================================
+// Scheduler Class
+// ============================================================================
 
 export class TaskScheduler {
   private config: SchedulerConfig;
@@ -87,6 +100,7 @@ export class TaskScheduler {
     string,
     (task: Task, context: string) => Promise<TaskExecutionResult>
   >;
+  private broadcaster: Broadcaster | null = null;
 
   constructor(
     taskStore: TaskStore,
@@ -105,6 +119,13 @@ export class TaskScheduler {
     this.identityStore = identityStore;
     this.smt = smt;
     this.personaExecutors = new Map();
+  }
+
+  /**
+   * Set the gateway broadcaster for notifications
+   */
+  setBroadcaster(broadcaster: Broadcaster): void {
+    this.broadcaster = broadcaster;
   }
 
   /**
@@ -256,6 +277,11 @@ export class TaskScheduler {
   }
 
   private async notifyHuman(task: Task): Promise<void> {
+    // Avoid duplicate notifications
+    if (task.status === "WAITING_ON_HUMAN") {
+      return;
+    }
+
     // Update task status to WAITING_ON_HUMAN
     await this.taskStore.update(task.taskId, {
       status: "WAITING_ON_HUMAN",
@@ -267,11 +293,33 @@ export class TaskScheduler {
       `[Scheduler] Human approval needed for task ${redactString(task.taskId)}: ${redactString(task.title)}`,
     );
 
-    // TODO: Integrate with notification channels:
-    // - SMS via Twilio extension
-    // - Email via Proton extension
-    // - WebChat via gateway
-    // For now, we rely on external monitoring/alerting to detect WAITING_ON_HUMAN status
+    // Broadcast to Chat Gateway if wired
+    if (this.broadcaster) {
+      // Construction a fake 'chat' event that looks like an assistant message
+      // Use a fixed runId for system notifications to keep them grouped if needed
+      const notificationRunId = `sowwy-notification-${task.taskId}`;
+      const sessionKey = "agent:main:main"; // Default main session
+
+      // Payload structure matches what server-chat.ts expects
+      const payload = {
+        runId: notificationRunId,
+        sessionKey,
+        seq: 0,
+        state: "final",
+        message: {
+          role: "assistant",
+          content: [
+            {
+              type: "text",
+              text: `⚠️ **APPROVAL REQUIRED**\n\n**Task**: ${task.title}\n**Category**: ${task.category}\n\nTo approve, please run: \`openclaw tasks approve ${task.taskId}\``,
+            },
+          ],
+          timestamp: Date.now(),
+        },
+      };
+
+      this.broadcaster("chat", payload);
+    }
   }
 
   private async promoteHighestPriorityBacklog(): Promise<Task | null> {

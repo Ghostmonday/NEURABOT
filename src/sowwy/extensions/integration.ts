@@ -11,13 +11,12 @@
 
 import type { IdentityFragment, SearchResult } from "../identity/fragments.js";
 // Import types from foundation modules
-import type {
-  Task,
-  TaskCreateInput,
-  TaskUpdateInput,
-  TaskStatus,
-} from "../mission-control/schema.js";
+import type { Task, TaskCreateInput, TaskUpdateInput } from "../mission-control/schema.js";
 import type { AuditLogEntry } from "../mission-control/store.js";
+export type ExtensionAuditLogEntry = Omit<
+  AuditLogEntry,
+  "id" | "createdAt" | "taskId" | "performedBy"
+>;
 
 // ============================================================================
 // Extension Foundation Interface
@@ -112,7 +111,7 @@ export interface PersonaExecutor {
     context: {
       identityContext: string;
       smt: { recordUsage(op: string): void };
-      audit: { log(entry: Omit<AuditLogEntry, "id" | "createdAt">): Promise<void> };
+      audit: { log(entry: ExtensionAuditLogEntry): Promise<void> };
     },
   ): Promise<ExecutorResult>;
 }

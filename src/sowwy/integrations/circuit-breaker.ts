@@ -28,8 +28,6 @@
  * - These numbers work for most APIs - don't lower them
  */
 
-import { SMTThrottler } from "../smt/throttler.js";
-
 // ============================================================================
 // Circuit Breaker States
 // ============================================================================
@@ -204,6 +202,21 @@ export class CircuitBreakerRegistry {
    */
   get(name: string): CircuitBreaker | undefined {
     return this.breakers.get(name);
+  }
+
+  /**
+   * Get or create a circuit breaker with default config
+   */
+  getOrCreate(name: string): CircuitBreaker {
+    let breaker = this.breakers.get(name);
+    if (!breaker) {
+      // Default operation that just fails until replaced, OR we assume it's just a wrapper
+      breaker = new CircuitBreaker(async () => {
+        throw new Error("No operation defined");
+      });
+      this.breakers.set(name, breaker);
+    }
+    return breaker;
   }
 
   /**

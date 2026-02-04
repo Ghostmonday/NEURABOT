@@ -23,6 +23,7 @@ export const TaskCategory = {
   ADMIN: "ADMIN",
   RESEARCH: "RESEARCH",
   RND: "RND",
+  SMS: "SMS",
 } as const;
 
 export type TaskCategory = (typeof TaskCategory)[keyof typeof TaskCategory];
@@ -98,6 +99,9 @@ export const TaskSchema = Type.Object({
   // SLA & ESCALATION: Time-based priority management
   slaHours: Type.Optional(Type.Number({ minimum: 0 })),
   escalationThreshold: Type.Optional(Type.Number({ minimum: 0 })),
+  // Extension metadata
+  command: Type.Optional(Type.String()),
+  payload: Type.Optional(Type.Any()),
   // Retry management
   retryCount: Type.Integer({ default: 0 }),
   maxRetries: Type.Integer({ default: 3 }),

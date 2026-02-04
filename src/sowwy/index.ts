@@ -40,7 +40,9 @@ export * from "./security/redact.js";
 export * from "./integrations/circuit-breaker.js";
 
 // Gateway - explicitly re-export types to avoid HealthStatus conflict with monitoring/metrics
+export * from "./extensions/foundation.js";
 export * from "./extensions/integration.js";
+export * from "./extensions/loader.js";
 export { registerSowwyRPCMethods } from "./gateway/rpc-methods.js";
 export type {
   GatewayContext,

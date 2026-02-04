@@ -494,6 +494,7 @@ export async function startGatewayServer(
     isNixMode,
   });
   if (sowwyBootstrap.scheduler) {
+    sowwyBootstrap.scheduler.setBroadcaster(broadcast);
     void sowwyBootstrap.scheduler.start();
     log.info("sowwy: task scheduler started");
   }

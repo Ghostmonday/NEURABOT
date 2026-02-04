@@ -6,7 +6,7 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.suggest.autoImports": true,
   "typescript.preferences.includePackageJsonAutoImports": "on",
-  
+
   // Editor Configuration
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "oxc.oxfmt",
@@ -22,13 +22,13 @@
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
-  
+
   // File Associations
   "files.associations": {
     "*.mjs": "javascript",
     "*.cjs": "javascript"
   },
-  
+
   // Exclude patterns
   "files.exclude": {
     "**/.git": true,
@@ -38,7 +38,7 @@
     "**/.build": true,
     "**/vendor": true
   },
-  
+
   // Search Configuration
   "search.exclude": {
     "**/node_modules": true,
@@ -48,7 +48,7 @@
     "**/vendor": true,
     "**/patches": true
   },
-  
+
   // TypeScript/JavaScript
   "[typescript]": {
     "editor.defaultFormatter": "oxc.oxfmt",
@@ -66,7 +66,7 @@
     "editor.defaultFormatter": "oxc.oxfmt",
     "editor.formatOnSave": true
   },
-  
+
   // JSON
   "[json]": {
     "editor.defaultFormatter": "oxc.oxfmt",
@@ -76,7 +76,7 @@
     "editor.defaultFormatter": "oxc.oxfmt",
     "editor.formatOnSave": true
   },
-  
+
   // Markdown
   "[markdown]": {
     "editor.wordWrap": "on",
@@ -86,25 +86,25 @@
       "other": "off"
     }
   },
-  
+
   // YAML
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml",
     "editor.formatOnSave": true
   },
-  
+
   // Shell Scripts
   "[shellscript]": {
     "editor.defaultFormatter": "timonwong.shellcheck",
     "editor.formatOnSave": true
   },
-  
+
   // Swift (for iOS/macOS apps)
   "[swift]": {
     "editor.formatOnSave": false,
     "editor.defaultFormatter": "vscode.swift"
   },
-  
+
   // Python
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
@@ -113,24 +113,24 @@
       "source.organizeImports": "explicit"
     }
   },
-  
+
   // Linting
   "oxlint.enable": true,
   "oxlint.typeAware": true,
-  
+
   // Terminal
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.fontSize": 14,
-  
+
   // Git
   "git.enableSmartCommit": true,
   "git.confirmSync": false,
   "git.autofetch": true,
-  
+
   // Extensions
   "eslint.enable": false,
   "prettier.enable": false,
-  
+
   // Workspace-specific
   "files.watcherExclude": {
     "**/.git/objects/**": true,
@@ -141,18 +141,18 @@
     "**/pnpm-lock.yaml": true,
     "**/vendor/**": true
   },
-  
+
   // Cursor-specific
   "cursor.chat.codeGeneration.enabled": true,
   "cursor.cpp.disabledLanguages": [],
-  
+
   // Testing
   "vitest.enable": true,
   "vitest.commandLine": "pnpm test",
   "vitest.nodeEnv": {
     "NODE_ENV": "test"
   },
-  
+
   // File Nesting
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
@@ -160,26 +160,27 @@
     "*.test.ts": "${capture}.test.tsx",
     "package.json": "package-lock.json, pnpm-lock.yaml, yarn.lock, .npmrc, .nvmrc, tsconfig.json, tsconfig.*.json"
   },
-  
+
   // Performance optimizations
   "typescript.disableAutomaticTypeAcquisition": false,
   "typescript.preferences.useLabelDetailsInCompletionEntries": true,
   "javascript.preferences.useLabelDetailsInCompletionEntries": true,
-  
+
   // File handling
   "files.autoSave": "onFocusChange",
   "files.encoding": "utf8",
   "files.eol": "\n",
-  
+
   // Breadcrumbs
   "breadcrumbs.enabled": true,
   "breadcrumbs.filePath": "on",
-  
+
   // Minimap
   "editor.minimap.enabled": true,
   "editor.minimap.maxColumn": 120,
-  
+
   // Code Lens
   "typescript.implementationsCodeLens": true,
-  "typescript.referencesCodeLens": true
+  "typescript.referencesCodeLens": true,
+  "vitest.disableWorkspaceWarning": true
 }

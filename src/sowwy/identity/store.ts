@@ -5,7 +5,13 @@
  * Read-only access for most modules; extraction pipeline is sole writer.
  */
 
-import { IdentityFragment, SearchOptions, SearchResult, IdentityCategory } from "./fragments.js";
+import {
+  IdentityFragment,
+  SearchOptions,
+  SearchResult,
+  type IdentityCategory,
+} from "./fragments.js";
+export type { IdentityCategory };
 
 // ============================================================================
 // Identity Store Interface
