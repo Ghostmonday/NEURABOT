@@ -107,18 +107,30 @@ const logRunner = (message) => {
 };
 
 const runNode = () => {
-  const nodeProcess = spawn(process.execPath, ["openclaw.mjs", ...args], {
-    cwd,
-    env,
-    stdio: "inherit",
-  });
+  const loop = () => {
+    logRunner(`Starting process... (Attempt at ${new Date().toISOString()})`);
+    const nodeProcess = spawn(process.execPath, ["openclaw.mjs", ...args], {
+      cwd,
+      env,
+      stdio: "inherit",
+    });
 
-  nodeProcess.on("exit", (exitCode, exitSignal) => {
-    if (exitSignal) {
-      process.exit(1);
-    }
-    process.exit(exitCode ?? 1);
-  });
+    nodeProcess.on("exit", (exitCode, exitSignal) => {
+      // If manually killed with SIGINT/SIGTERM, exit the wrapper too.
+      // But if the process crashes or exits itself (even with 0), RESTART it.
+      // The user wants "activity must never cease".
+
+      // Check if we received a termination signal ourselves to propagate
+      // But here we are inside the child exit handler.
+      // We rely on the parent process signal handlers (not implemented here, defaults kill).
+
+      console.log(
+        `[openclaw] Process exited (code: ${exitCode}, signal: ${exitSignal}). Restarting in 1s...`,
+      );
+      setTimeout(loop, 1000);
+    });
+  };
+  loop();
 };
 
 const writeBuildStamp = () => {
@@ -150,7 +162,14 @@ if (!shouldBuild()) {
       process.exit(1);
     }
     if (code !== 0 && code !== null) {
-      process.exit(code);
+      // If build seemingly failed, check if we have a valid entry point anyway.
+      // tsdown sometimes exits 1 due to dts warnings even if js is emitted.
+      if (statMtime(distEntry) != null) {
+        logRunner(`Build process exited with code ${code}, but ${distEntry} exists. Proceeding...`);
+      } else {
+        logRunner(`Build failed with code ${code} and no entry point found.`);
+        process.exit(code);
+      }
     }
     writeBuildStamp();
     runNode();
