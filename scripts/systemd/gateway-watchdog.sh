@@ -1,5 +1,16 @@
 #!/bin/bash
+# DEPRECATED: Use PM2 instead of manual watchdog scripts
+# See ecosystem.config.cjs for the new approach
 #
+# To use PM2:
+#   npx pm2 start ecosystem.config.cjs
+#   npx pm2 save
+#   npx pm2 startup
+#
+# This script is kept for reference only.
+# REPLACED BY PM2 - Exiting immediately to prevent conflicts.
+exit 0
+
 # OpenClaw Gateway Watchdog - 100% Uptime Guardian
 #
 # Features:
@@ -81,7 +92,7 @@ start_gateway() {
     local new_pid=\$!
     echo \$new_pid > "\$GATEWAY_PID_FILE"
     log "Started gateway \$new_pid"
-    
+
     # Verify it started
     sleep 2
     if kill -0 \$new_pid 2>/dev/null; then
@@ -108,17 +119,17 @@ while sleep ${OPENCLAW_CHECK_INTERVAL}; do
         fi
         continue
     fi
-    
+
     # Gateway down
     local count
     count=\$(get_restart_count)
-    
+
     if [ "\$count" -ge "\$MAX_RESTARTS" ]; then
         warn "Too many restarts (\$count), backing off for \$BACKOFF_MS ms"
         sleep \$((BACKOFF_MS / 1000))
         reset_restart
     fi
-    
+
     increment_restart
     count=\$(get_restart_count)
     log "Gateway down, restart attempt \$count/\$MAX_RESTARTS"
@@ -134,15 +145,15 @@ start() {
         echo "Watchdog already running ($(cat "$PID_FILE"))"
         return 0
     fi
-    
+
     # Kill stale processes
     [ -f "$PID_FILE" ] && kill "$(cat "$PID_FILE")" 2>/dev/null
     sleep 1
-    
+
     write_daemon
     nohup bash "$DAEMON_SCRIPT" &
     echo $! > "$PID_FILE"
-    
+
     echo "Watchdog started ($(cat "$PID_FILE"))"
     log "Manual start"
 }
@@ -161,13 +172,13 @@ status() {
     else
         echo "Watchdog: not running"
     fi
-    
+
     if [ -f "$GATEWAY_PID_FILE" ] && kill -0 "$(cat "$GATEWAY_PID_FILE")" 2>/dev/null; then
         echo "Gateway: $(cat "$GATEWAY_PID_FILE") (alive)"
     else
         echo "Gateway: not running"
     fi
-    
+
     if [ -f "$RESTART_LOG" ]; then
         echo "Restarts: $(cat "$RESTART_LOG")"
     fi

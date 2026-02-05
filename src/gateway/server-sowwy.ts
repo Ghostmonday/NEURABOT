@@ -26,6 +26,7 @@ import {
 } from "../sowwy/index.js";
 import { validateSowwyEnv } from "../sowwy/security/env-validator.js";
 import { redactString } from "../sowwy/security/redact.js";
+import { startWatchdog } from "../watchdog/heartbeat.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 
 const SOWWY_METHODS = [

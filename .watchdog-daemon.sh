@@ -1,4 +1,16 @@
 #!/bin/bash
+# DEPRECATED: Use PM2 instead of manual watchdog scripts
+# See ecosystem.config.cjs for the new approach
+#
+# To use PM2:
+#   npx pm2 start ecosystem.config.cjs
+#   npx pm2 save
+#   npx pm2 startup
+#
+# This script is kept for reference only.
+# REPLACED BY PM2 - Exiting immediately to prevent conflicts.
+exit 0
+
 cd "/home/amir/Projects/NEURABOT"
 exec >> "/home/amir/Projects/NEURABOT/.gateway-watchdog.log" 2>&1
 
@@ -30,7 +42,7 @@ start_gateway() {
     local new_pid=$!
     echo $new_pid > "$GATEWAY_PID_FILE"
     log "Started gateway $new_pid"
-    
+
     # Verify it started
     sleep 2
     if kill -0 $new_pid 2>/dev/null; then
@@ -57,17 +69,17 @@ while sleep 10; do
         fi
         continue
     fi
-    
+
     # Gateway down
     local count
     count=$(get_restart_count)
-    
+
     if [ "$count" -ge "$MAX_RESTARTS" ]; then
         warn "Too many restarts ($count), backing off for $BACKOFF_MS ms"
         sleep $((BACKOFF_MS / 1000))
         reset_restart
     fi
-    
+
     increment_restart
     count=$(get_restart_count)
     log "Gateway down, restart attempt $count/$MAX_RESTARTS"

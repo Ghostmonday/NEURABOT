@@ -1,4 +1,16 @@
 #!/bin/bash
+# DEPRECATED: Use PM2 instead of manual watchdog scripts
+# See ecosystem.config.cjs for the new approach
+#
+# To use PM2:
+#   npx pm2 start ecosystem.config.cjs
+#   npx pm2 save
+#   npx pm2 startup
+#
+# This script is kept for reference only.
+# REPLACED BY PM2 - Exiting immediately to prevent conflicts.
+exit 0
+
 # Watchdog cron job - ensures gateway never stops
 # Run every 5 minutes: */5 * * * * ~/Projects/NEURABOT/scripts/watchdog.sh
 
@@ -24,15 +36,15 @@ GATEWAY_STATUS=$(systemctl --user is-active openclaw-gateway 2>/dev/null)
 if [ "$GATEWAY_STATUS" != "active" ]; then
     log "Gateway dead - restarting..."
     send_telegram "⚠️ Gateway dead. Restarting..."
-    
+
     systemctl --user stop openclaw-gateway 2>/dev/null
     sleep 2
     pkill -9 openclaw-gateway 2>/dev/null
     sleep 1
-    
+
     systemctl --user start openclaw-gateway
     sleep 5
-    
+
     # Verify restart
     GATEWAY_STATUS=$(systemctl --user is-active openclaw-gateway 2>/dev/null)
     if [ "$GATEWAY_STATUS" == "active" ]; then

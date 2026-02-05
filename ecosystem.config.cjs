@@ -13,9 +13,9 @@
  *   pm2 startup
  *
  * TODO(setup): Run these commands to complete setup:
- *   1. npx pm2 install pm2-logrotate   # Prevent disk fill
- *   2. npx pm2 startup                  # Copy the sudo command it outputs and run it
- *   3. Set HEALTHCHECKS_URL below       # Dead Man's Switch
+ *   1. ✅ npx pm2 install pm2-logrotate   # Prevent disk fill (DONE)
+ *   2. ⚠️  npx pm2 startup                  # Copy the sudo command it outputs and run it (requires sudo password)
+ *   3. ⚠️  Set HEALTHCHECKS_URL below       # Dead Man's Switch (user must get URL from https://healthchecks.io)
  */
 
 module.exports = {
