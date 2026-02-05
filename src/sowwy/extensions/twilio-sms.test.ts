@@ -3,16 +3,18 @@ import type { Task } from "../mission-control/schema.js";
 import type { ExtensionFoundation } from "./integration.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";
 
-// Mock Twilio
+// Mock Twilio – default export must have Twilio so "const { Twilio } = pkg" works
 vi.mock("twilio", () => {
-  const MockTwilio = vi.fn().mockImplementation(() => ({
-    messages: {
-      create: vi.fn().mockResolvedValue({ sid: "MM123" }),
-    },
-  }));
+  function MockTwilio() {
+    return {
+      messages: {
+        create: vi.fn().mockResolvedValue({ sid: "MM123" }),
+      },
+    };
+  }
   return {
     Twilio: MockTwilio,
-    default: MockTwilio,
+    default: { Twilio: MockTwilio },
   };
 });
 

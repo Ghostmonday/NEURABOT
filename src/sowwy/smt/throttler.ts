@@ -187,6 +187,13 @@ export class SMTThrottler {
   }
 
   /**
+   * Get current state (read-only, for tests and debugging)
+   */
+  getState(): Readonly<SMTState> {
+    return { ...this.state };
+  }
+
+  /**
    * Reset the throttling window
    */
   reset(): void {

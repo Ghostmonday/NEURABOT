@@ -38,14 +38,18 @@ describe("SMTThrottler", () => {
     });
 
     it("should respect operation limits", () => {
+      // effective limit = floor(5 * 0.8) = 4, so we can do a few then hit limit
       const throttler = new SMTThrottler({
-        maxPrompts: 1,
+        maxPrompts: 5,
         windowMs: 60000,
       });
       expect(throttler.canProceed("test.operation")).toBe(true);
+      // effective limit = floor(5 * 0.8) = 4; use all 4
       throttler.recordUsage("test.operation");
-      // After recording usage, should still allow if under limit
-      expect(throttler.canProceed("test.operation")).toBe(true);
+      throttler.recordUsage("test.operation");
+      throttler.recordUsage("test.operation");
+      throttler.recordUsage("test.operation");
+      expect(throttler.canProceed("test.operation")).toBe(false);
     });
   });
 
