@@ -1,0 +1,35 @@
+[Unit]
+Description=OpenClaw Gateway Watchdog - Ensures 100% gateway uptime
+After=network.target
+Wants=network.target
+
+[Service]
+Type=forking
+User=amir
+Group=amir
+WorkingDirectory=/home/amir/Projects/NEURABOT
+ExecStart=/home/amir/Projects/NEURABOT/scripts/systemd/gateway-watchdog.sh start
+ExecStop=/home/amir/Projects/NEURABOT/scripts/systemd/gateway-watchdog.sh stop
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=no
+TimeoutStartSec=30
+TimeoutStopSec=10
+
+# Environment variables for watchdog behavior
+Environment=OPENCLAW_DIR=/home/amir/Projects/NEURABOT
+Environment=OPENCLAW_NODE=node
+Environment=OPENCLAW_CHECK_INTERVAL=10
+Environment=OPENCLAW_MAX_RESTARTS=5
+Environment=OPENCLAW_BACKOFF_MS=60000
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openclaw-watchdog
+
+# Resource limits
+MemoryMax=512M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

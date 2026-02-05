@@ -1,0 +1,8 @@
+{
+  "id": "hostinger",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
