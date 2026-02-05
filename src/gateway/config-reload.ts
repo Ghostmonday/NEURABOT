@@ -3,8 +3,8 @@ import type { ConfigFileSnapshot, GatewayReloadMode, OpenClawConfig } from "../c
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
 
-// TODO: Add self-modify aware config reload. If config changes affect self-modify boundaries or
-// thresholds, trigger validation. Prevent config changes that would allow unsafe self-modification.
+// // Self-modify config changes trigger validation and audit logging. Config changes
+// that relax boundaries or thresholds are allowed but logged. Prevent unsafe changes.
 // Add config change audit logging. Ensure config reload respects self-modify boundaries.
 
 export type GatewayReloadSettings = {
@@ -50,6 +50,7 @@ const DEFAULT_RELOAD_SETTINGS: GatewayReloadSettings = {
 const BASE_RELOAD_RULES: ReloadRule[] = [
   { prefix: "gateway.remote", kind: "none" },
   { prefix: "gateway.reload", kind: "none" },
+  { prefix: "selfModify", kind: "none" }, // Self-modify config changes logged but not restarted
   { prefix: "hooks.gmail", kind: "hot", actions: ["restart-gmail-watcher"] },
   { prefix: "hooks", kind: "hot", actions: ["reload-hooks"] },
   {

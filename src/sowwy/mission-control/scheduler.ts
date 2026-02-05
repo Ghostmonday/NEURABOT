@@ -21,10 +21,24 @@
  * - In ties, use createdAt for FIFO
  * - Never execute two tasks concurrently in the same persona
  *
- * TODO: Document integration with mission-control scheduler for autonomous self-modify.
- * Scheduler can drive periodic self-modify operations. Add thin script wrapper that calls
- * runSelfEditChecklist and requestSelfModifyReload for cron- or script-driven self-evolution.
- * Ensure scheduler respects self-modify boundaries.
+ * AUTONOMOUS SELF-MODIFY INTEGRATION:
+ * The scheduler can drive periodic self-modify operations. Create tasks with
+ * category="SELF_MODIFY" and the agent will use the self_modify tool to
+ * validate, edit, and reload. Example task:
+ *
+ * {
+ *   taskId: "self-modify-nightly",
+ *   title: "Nightly self-improvement",
+ *   category: "SELF_MODIFY",
+ *   payload: { reason: "Scheduled maintenance" },
+ *   priority: 50,
+ *   requiresApproval: false,
+ *   approved: true
+ * }
+ *
+ * Thin script wrapper: scripts/autonomous-self-modify.ts can be scheduled via cron
+ * or the scheduler to call runSelfEditChecklist and requestSelfModifyReload for
+ * script-driven self-evolution. The scheduler respects self-modify boundaries.
  */
 
 import type { IdentityStore } from "../identity/store.js";

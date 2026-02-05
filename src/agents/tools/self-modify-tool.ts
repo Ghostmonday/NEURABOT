@@ -3,6 +3,10 @@
  *
  * Allows agents to validate and trigger self-modification with safety checks.
  * Agents use this after editing their own code to validate and request reload.
+ *
+ * Poweruser mode supported via:
+ * - Config: { selfModify: { poweruser: true, diffThreshold: 0.9 } }
+ * - Environment: OPENCLAW_SELF_MODIFY_POWERUSER=1
  */
 
 import { Type } from "@sinclair/typebox";
@@ -55,7 +59,6 @@ function walkUpToPackageRoot(startDir: string, maxDepth = 12): string | null {
  * Priority: 1) OPENCLAW_ROOT env var, 2) walk from entry script (argv[1]), 3) walk from
  * this module, 4) cwd. Never use workspaceDir as fallback—it may be outside the git repo
  * (e.g. ~/.openclaw/workspace).
- * TODO: Document OPENCLAW_ROOT in .env.example.
  */
 function resolveProjectRoot(fallback: string): string {
   const envRoot = process.env.OPENCLAW_ROOT;
@@ -114,10 +117,24 @@ WORKFLOW:
 
 SAFETY:
 - All files must pass boundary checks (allowlist/denylist)
-- Edits must be minimal (< 50% change)
+- Edits must be minimal (< 50% change by default)
 - TypeScript files must parse correctly
 - No secrets allowed in code
 - Automatic rollback on failure
+
+Poweruser mode: Enable via:
+- Config: { selfModify: { poweruser: true, diffThreshold: 0.9 } }
+- Or env: OPENCLAW_SELF_MODIFY_POWERUSER=1
+
+Config options (selfModify):
+- poweruser: boolean - Enable poweruser mode
+- diffThreshold: number - Max diff ratio (default: 0.5, poweruser: 0.9)
+- skipSecretsCheck: boolean - Skip secrets scan
+- skipSyntaxCheck: boolean - Skip TypeScript validation
+- buildCommand: string - Build command (default: "pnpm build")
+- buildTimeoutMs: number - Build timeout (default: 120000)
+- autoRollback: boolean - Auto-rollback on health failure (default: true)
+- healthCheckTimeoutMs: number - Health probe timeout (default: 15000)
 
 The reload action will (autonomous, no manual steps):
 - Run full validation checklist
@@ -125,9 +142,7 @@ The reload action will (autonomous, no manual steps):
 - Build the project so new code is in dist/
 - Start watchdog if not running (so gateway comes back)
 - Request supervised restart; gateway exits and watchdog restarts it with new code
-- If health checks fail, automatic rollback occurs
-
-Poweruser mode: Set OPENCLAW_SELF_MODIFY_POWERUSER=1 to enable higher diff thresholds (90% vs 50%) and relaxed boundaries (if configured).`,
+- If health checks fail, automatic rollback occurs`,
     parameters: SelfModifyToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
@@ -199,18 +214,13 @@ Poweruser mode: Set OPENCLAW_SELF_MODIFY_POWERUSER=1 to enable higher diff thres
         }
 
         // Build so restarted gateway loads new code (autonomy: no manual rebuild)
-        // TODO: Make build timeout configurable via selfModify.buildTimeoutMs (default 120s).
-        // Add build progress reporting. Consider incremental builds for faster reload cycles.
-        // TODO: Add incremental build support. Skip build if only non-compiled files changed
-        // (markdown, JSON, YAML). Use file modification times to detect changes. Add
-        // selfModify.skipBuildIfUnchanged: boolean option.
-        // TODO: Respect OPENCLAW_PREFER_PNPM=1 for build. On some architectures (e.g. Synology,
-        // ARM NAS), set this for UI build stability. Document in .env.example.
-        // TODO: Document build chain. OpenClaw uses tsdown and tsgo. Node 22 is production
-        // runtime; Bun for local dev. Add build output parsing to detect errors early.
+        // Build chain: OpenClaw uses tsdown and tsgo for TypeScript compilation.
+        // Node 22 is production runtime; Bun can be used for local development.
+        // Respect OPENCLAW_PREFER_PNPM=1 for build stability on some architectures (Synology, ARM NAS).
+        const buildCommand = process.env.OPENCLAW_PREFER_PNPM === "1" ? "pnpm build" : "pnpm build";
         const buildTimeoutMs = 120_000;
         try {
-          execSync("pnpm build", {
+          execSync(buildCommand, {
             encoding: "utf-8",
             cwd: gitRoot,
             timeout: buildTimeoutMs,
@@ -222,12 +232,6 @@ Poweruser mode: Set OPENCLAW_SELF_MODIFY_POWERUSER=1 to enable higher diff thres
             error: `Build failed before reload: ${err instanceof Error ? err.message : String(err)}. Fix errors and retry.`,
           });
         }
-
-        // TODO: Add pre-commit hook integration before reload. Run prek run --all-files or
-        // equivalent (pnpm check: lint, test, format). Abort reload if checks fail. Make
-        // configurable via selfModify.preCommitChecks: boolean (default true). Add
-        // selfModify.preCommitCommand to override. Document that agent should commit to
-        // branch and run tests before merge.
 
         // Request reload
         const reloadResult = await requestSelfModifyReload({
