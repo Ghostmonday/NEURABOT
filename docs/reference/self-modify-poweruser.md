@@ -4,7 +4,65 @@ A comprehensive guide to **Poweruser** configuration, self-modification logic, p
 
 **Note:** OpenClaw/Clawdbot do not ship a formal "Poweruser mode" label. The `self_modify` tool (validate + reload) is always available when using `createOpenClawTools()`; this guide describes how to relax boundaries and thresholds and how to harden the environment for full autonomous operation.
 
-<!-- TODO: Update documentation with implementation status. Mark completed features with checkmarks. Document new config options (`selfModify.*`, `gateway.sessionTimeout`, etc.). Add examples for poweruser mode setup. Include troubleshooting guide for common self-modify issues. Add deployment roadmap checklist. Document environment variables (`OPENCLAW_ROOT`, `OPENCLAW_SELF_MODIFY_POWERUSER`, `OPENCLAW_PREFER_PNPM`). -->
+---
+
+## Implementation Status (Last Updated: 2026-02-04)
+
+### ✅ Completed Features
+
+| Feature                                                | Status  | Notes                                  |
+| ------------------------------------------------------ | ------- | -------------------------------------- |
+| Self-modify tool (`validate` + `reload`)               | ✅ Done | `src/agents/tools/self-modify-tool.ts` |
+| Path boundaries (allow/deny)                           | ✅ Done | `src/sowwy/self-modify/boundaries.ts`  |
+| Validation checklist (boundary, diff, syntax, secrets) | ✅ Done | `src/sowwy/self-modify/checklist.ts`   |
+| Git rollback capture                                   | ✅ Done | `git rev-parse HEAD` in reload flow    |
+| Build process integration                              | ✅ Done | `pnpm build` before restart            |
+| Gateway restart (SIGUSR1)                              | ✅ Done | `src/sowwy/self-modify/reload.ts`      |
+| Watchdog support                                       | ✅ Done | Supports systemd, launchctl, manual    |
+| Telegram auto-restart on clean exit                    | ✅ Done | Fixed 2026-02-04                       |
+
+### 🚧 In Progress
+
+| Feature                           | Status         | Notes                                                |
+| --------------------------------- | -------------- | ---------------------------------------------------- |
+| Environment-driven diff threshold | 🚧 Pending     | Requires `OPENCLAW_SELF_MODIFY_POWERUSER` env var    |
+| Batch validation (multi-file)     | 🚧 Working     | Already supported in checklist, needs agent workflow |
+| Overseer (hourly maintenance)     | 🚧 Not Started | Requires Sowwy scheduler integration                 |
+| Foundry (crystallization)         | 🚧 Not Started | Pattern tracking → TypeScript generation             |
+
+### ❌ Not Implemented
+
+| Feature                               | Status             | Notes                                  |
+| ------------------------------------- | ------------------ | -------------------------------------- |
+| Poweruser diff threshold bypass       | ❌ Not Implemented | Needs env var + checklist modification |
+| Auto-rollback on health check failure | ❌ Not Implemented | Requires watchdog integration          |
+| Dead man's switch                     | ❌ Not Implemented | Needs implementation                   |
+
+---
+
+## Configuration Reference
+
+### Self-Modify Configuration Options
+
+| Config Key                    | Type     | Default                  | Poweruser Value | Purpose                   |
+| ----------------------------- | -------- | ------------------------ | --------------- | ------------------------- |
+| `selfModify.validatePath`     | function | `validateSelfModifyPath` | -               | Boundary validation       |
+| `selfModify.diffThreshold`    | number   | 0.5                      | 0.9 (with env)  | Max % change per file     |
+| `selfModify.skipSecretsCheck` | boolean  | false                    | false           | Skip secrets scan         |
+| `gateway.sessionTimeout`      | number   | 120000                   | 300000          | Session timeout (ms)      |
+| `gateway.healthCheckTimeout`  | number   | 15000                    | 30000           | Health probe timeout (ms) |
+
+### Environment Variables
+
+| Variable                         | Required | Default        | Poweruser Value | Purpose                      |
+| -------------------------------- | -------- | -------------- | --------------- | ---------------------------- |
+| `OPENCLAW_ROOT`                  | No       | process.cwd()  | Project root    | Git/build directory          |
+| `OPENCLAW_SELF_MODIFY_POWERUSER` | No       | unset          | "1"             | Enable higher diff threshold |
+| `OPENCLAW_SKIP_CHANNELS`         | No       | unset          | "1"             | Skip channel loading         |
+| `OPENCLAW_GATEWAY_TOKEN`         | No       | auto-generated | -               | Gateway RPC auth             |
+| `OPENCLAW_PREFER_PNPM`           | No       | unset          | "1"             | Prefer pnpm for builds       |
+
+---
 
 ---
 
@@ -239,3 +297,111 @@ Boundaries are not currently overridden by env; they are fixed in `boundaries.ts
 - Tool registration: `src/agents/openclaw-tools.ts` (no feature flag; tool always included).
 
 By cross-referencing this guide with the codebase—especially `self-modify-tool.ts` and `reload.ts`—operators can align their Poweruser or Full Autonomous setup with the actual implementation and run a secure, resilient, self-evolving control plane.
+
+---
+
+## Appendix A: Implementation Status (2026-02-04)
+
+### ✅ Completed Features
+
+| Feature                                  | Status  | Notes                                  |
+| ---------------------------------------- | ------- | -------------------------------------- |
+| Self-modify tool (`validate` + `reload`) | ✅ Done | `src/agents/tools/self-modify-tool.ts` |
+| Path boundaries (allow/deny)             | ✅ Done | `src/sowwy/self-modify/boundaries.ts`  |
+| Validation checklist                     | ✅ Done | Boundary, diff, syntax, secrets checks |
+| Git rollback capture                     | ✅ Done | `git rev-parse HEAD` in reload flow    |
+| Build process integration                | ✅ Done | `pnpm build` before restart            |
+| Gateway restart (SIGUSR1)                | ✅ Done | `src/sowwy/self-modify/reload.ts`      |
+| Telegram auto-restart                    | ✅ Done | Fixed 2026-02-04                       |
+
+### 🚧 In Progress
+
+| Feature                           | Status         | Notes                                      |
+| --------------------------------- | -------------- | ------------------------------------------ |
+| Environment-driven diff threshold | 🚧 Pending     | Needs `OPENCLAW_SELF_MODIFY_POWERUSER` env |
+| Batch validation                  | 🚧 Working     | Supported in checklist                     |
+| Overseer                          | 🚧 Not Started | Requires Sowwy scheduler                   |
+| Foundry crystallization           | 🚧 Not Started | Pattern tracking → TypeScript              |
+
+### ❌ Not Implemented
+
+| Feature                      | Status                         | Notes |
+| ---------------------------- | ------------------------------ | ----- |
+| Poweruser diff bypass        | ❌ Needs env var + code change |
+| Auto-rollback on health fail | ❌ Needs watchdog integration  |
+| Dead man's switch            | ❌ Not implemented             |
+
+---
+
+## Appendix B: Troubleshooting Guide
+
+### Common Issues
+
+| Issue                    | Symptom                | Solution                       |
+| ------------------------ | ---------------------- | ------------------------------ |
+| "bad revision 'HEAD'"    | Git fails in workspace | Set `OPENCLAW_ROOT` to project |
+| "File not in allowlist"  | Boundary fails         | Check `boundaries.ts` patterns |
+| "Diff ratio exceeds 50%" | Edit too large         | Break into smaller edits       |
+| TypeScript syntax error  | Build fails            | Fix syntax before reload       |
+| Gateway won't restart    | SIGUSR1 not handled    | Check watchdog running         |
+| Bot stops silently       | Telegram clean exit    | Fixed 2026-02-04               |
+
+### Diagnostic Commands
+
+```bash
+# Gateway status
+openclaw gateway status
+
+# Check boundaries
+grep -A20 "SELF_MODIFY_DENY" src/sowwy/self-modify/boundaries.ts
+
+# Git HEAD
+git rev-parse HEAD
+
+# Gateway logs
+tail -50 ~/.openclaw/logs/gateway.log
+```
+
+---
+
+## Appendix C: Deployment Roadmap
+
+### Phase 1: Foundation (Day 1)
+
+- [ ] Deploy gateway on VPS/dedicated machine
+- [ ] Configure `~/.openclaw/openclaw.json`
+- [ ] Set up messaging channel (Telegram/Signal)
+- [ ] Test send/receive
+- [ ] Configure watchdog
+
+### Phase 2: Autonomy Prep (Day 2)
+
+- [ ] Review path boundaries
+- [ ] Decide which paths to unlock
+- [ ] Test small self-modify
+- [ ] Verify rollback
+- [ ] Document workflow
+
+### Phase 3: Poweruser (Day 3)
+
+- [ ] Increase diff threshold
+- [ ] Set `OPENCLAW_SELF_MODIFY_POWERUSER=1`
+- [ ] Configure session timeouts
+- [ ] Set up external watchdog
+- [ ] Test batch workflow
+
+### Phase 4: Advanced (Week 2)
+
+- [ ] Implement Overseer
+- [ ] Set up Foundry
+- [ ] Configure model failover
+- [ ] Implement dead man's switch
+- [ ] Automated health checks
+
+### Phase 5: Hardening (Ongoing)
+
+- [ ] Docker containerization
+- [ ] Network egress filtering
+- [ ] Audit logging
+- [ ] Backup procedures
+- [ ] Disaster recovery testing
