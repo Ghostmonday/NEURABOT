@@ -25,6 +25,7 @@ import type {
   Task,
   TaskCreateInput,
   TaskFilter,
+  TaskOutcome,
   TaskUpdateInput,
 } from "../mission-control/schema.js";
 import type { AuditLogEntry, DecisionLogEntry, SowwyStores } from "../mission-control/store.js";
@@ -215,7 +216,7 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
     ): Promise<Task | null> => {
       const task = await stores.tasks.update(taskId, {
         status: "DONE",
-        outcome: outcome as any,
+        outcome: outcome as TaskOutcome,
         decisionSummary: summary,
         confidence,
       });

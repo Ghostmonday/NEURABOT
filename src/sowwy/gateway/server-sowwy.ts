@@ -10,12 +10,13 @@ import type { IdentityStore } from "../identity/store.js";
 import type { TaskScheduler } from "../mission-control/scheduler.js";
 import type {
   AuditStore,
-  TaskStore,
-  DecisionStore,
   DecisionLogEntry,
+  DecisionStore,
+  TaskStore,
 } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 import type { GatewayContext } from "./rpc-methods.js";
+import { PersonaOwner } from "../mission-control/schema.js";
 // Persona executors
 import { createChiefOfStaffPersonaSkill } from "../personas/cos-skill.js";
 import { createDevPersonaSkill } from "../personas/dev-skill.js";
@@ -105,7 +106,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
 
   // Register Dev persona
   const devExecutor = createDevPersonaSkill();
-  scheduler.registerPersona("Dev" as any, async (task, context) => {
+  scheduler.registerPersona(PersonaOwner.Dev, async (task, context) => {
     if (!devExecutor.canHandle(task)) {
       throw new Error(`Dev executor cannot handle task ${task.taskId}`);
     }
@@ -122,7 +123,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
 
   // Register LegalOps persona
   const legalOpsExecutor = createLegalOpsPersonaSkill();
-  scheduler.registerPersona("LegalOps" as any, async (task, context) => {
+  scheduler.registerPersona(PersonaOwner.LegalOps, async (task, context) => {
     if (!legalOpsExecutor.canHandle(task)) {
       throw new Error(`LegalOps executor cannot handle task ${task.taskId}`);
     }
@@ -139,7 +140,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
 
   // Register ChiefOfStaff persona
   const cosExecutor = createChiefOfStaffPersonaSkill();
-  scheduler.registerPersona("ChiefOfStaff" as any, async (task, context) => {
+  scheduler.registerPersona(PersonaOwner.ChiefOfStaff, async (task, context) => {
     if (!cosExecutor.canHandle(task)) {
       throw new Error(`ChiefOfStaff executor cannot handle task ${task.taskId}`);
     }
@@ -156,7 +157,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
 
   // Register RnD persona
   const rndExecutor = createRnDPersonaSkill();
-  scheduler.registerPersona("RnD" as any, async (task, context) => {
+  scheduler.registerPersona(PersonaOwner.RnD, async (task, context) => {
     if (!rndExecutor.canHandle(task)) {
       throw new Error(`RnD executor cannot handle task ${task.taskId}`);
     }

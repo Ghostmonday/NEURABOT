@@ -152,26 +152,26 @@ interface ExtensionConfig {
 /**
  * Example: How an extension registers with the foundation
  */
-async function registerExtension(
+async function _registerExtension(
   foundation: ExtensionFoundation,
-  config: ExtensionConfig,
+  _config: ExtensionConfig,
 ): Promise<void> {
   // 1. Register circuit breaker for external API
-  const twilioBreaker = foundation.registerCircuitBreaker("twilio");
+  foundation.registerCircuitBreaker("twilio");
 
   // 2. Register persona executor
   foundation.registerPersonaExecutor("Dev", {
     persona: "Dev",
     canHandle: (task) => task.category === "DEV",
-    execute: async (task, context) => {
+    execute: async (_task, _context) => {
       // Implementation here
       return { success: true, outcome: "COMPLETED", summary: "Done", confidence: 1.0 };
     },
   });
 
   // 3. Use identity store (read-only)
-  const identity = await foundation.getIdentityStore();
-  const goals = await identity.search("project goals", { limit: 5 });
+  const identity = foundation.getIdentityStore();
+  await identity.search("project goals", { limit: 5 });
 }
 
 // ============================================================================

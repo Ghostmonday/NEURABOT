@@ -7,7 +7,7 @@
  * - Config → Sowwy config
  */
 
-import { redactString, safeStringify } from "../security/redact.js";
+import { safeStringify } from "../security/redact.js";
 
 // ============================================================================
 // Migration Types

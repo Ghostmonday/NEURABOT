@@ -109,7 +109,9 @@ function computeDiffRatio(old: string, new_: string): number {
   const oldLines = old.split("\n").length;
   const newLines = new_.split("\n").length;
   const maxLines = Math.max(oldLines, newLines);
-  if (maxLines === 0) return 0;
+  if (maxLines === 0) {
+    return 0;
+  }
   return Math.abs(newLines - oldLines) / maxLines;
 }
 
@@ -134,7 +136,7 @@ async function checkTypeScriptSyntax(
     let ts: typeof import("typescript");
     try {
       ts = await import("typescript");
-    } catch (importErr) {
+    } catch {
       // TypeScript not available at runtime - skip syntax check
       // This is NOT a syntax error, just a runtime limitation
       console.warn(`[checklist] TypeScript not available, skipping syntax check for ${filePath}`);

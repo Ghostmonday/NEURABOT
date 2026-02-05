@@ -5,7 +5,7 @@
  */
 
 import { IdentityContext } from "../identity/store.js";
-import { Task, TaskCategory, PersonaOwner } from "../mission-control/schema.js";
+import { PersonaOwner, Task, TaskCategory } from "../mission-control/schema.js";
 import { getPersonaSkill, PERSONA_PRIORITY, PersonaType } from "./priority.js";
 
 // ============================================================================
@@ -80,6 +80,7 @@ export class PersonaRouter {
       ADMIN: "ChiefOfStaff",
       RESEARCH: "RnD",
       RND: "RnD",
+      SMS: "ChiefOfStaff",
     };
     return mapping[category];
   }

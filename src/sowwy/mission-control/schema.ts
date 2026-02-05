@@ -157,6 +157,7 @@ export const TaskFilter = Type.Object({
   status: Type.Optional(Type.Enum(TaskStatus)),
   category: Type.Optional(Type.Enum(TaskCategory)),
   personaOwner: Type.Optional(Type.Enum(PersonaOwner)),
+  priorityMin: Type.Optional(Type.Number()),
   requiresApproval: Type.Optional(Type.Boolean()),
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 1000 })),
   offset: Type.Optional(Type.Integer({ minimum: 0 })),

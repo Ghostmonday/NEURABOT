@@ -21,9 +21,15 @@ type CompiledGlob =
  */
 function compileGlob(pattern: string): CompiledGlob {
   const normalized = pattern.trim();
-  if (!normalized) return { kind: "exact", value: "" };
-  if (normalized === "**" || normalized === "**/*") return { kind: "all" };
-  if (!normalized.includes("*")) return { kind: "exact", value: normalized };
+  if (!normalized) {
+    return { kind: "exact", value: "" };
+  }
+  if (normalized === "**" || normalized === "**/*") {
+    return { kind: "all" };
+  }
+  if (!normalized.includes("*")) {
+    return { kind: "exact", value: normalized };
+  }
 
   // Convert glob to regex:
   // - ** matches any path segments (including /)
@@ -39,8 +45,12 @@ function compileGlob(pattern: string): CompiledGlob {
 
 function matchGlob(filePath: string, pattern: string): boolean {
   const compiled = compileGlob(pattern);
-  if (compiled.kind === "all") return true;
-  if (compiled.kind === "exact") return filePath === compiled.value;
+  if (compiled.kind === "all") {
+    return true;
+  }
+  if (compiled.kind === "exact") {
+    return filePath === compiled.value;
+  }
   return compiled.value.test(filePath);
 }
 

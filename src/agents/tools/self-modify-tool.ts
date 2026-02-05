@@ -8,7 +8,7 @@
 import { Type } from "@sinclair/typebox";
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateSelfModifyPath } from "../../sowwy/self-modify/boundaries.js";
 import { runSelfEditChecklist } from "../../sowwy/self-modify/checklist.js";
@@ -35,35 +35,55 @@ const SelfModifyToolSchema = Type.Object({
   ),
 });
 
+function walkUpToPackageRoot(startDir: string, maxDepth = 12): string | null {
+  let dir = startDir;
+  for (let i = 0; i < maxDepth; i++) {
+    if (existsSync(join(dir, "package.json"))) {
+      return dir;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) {
+      break;
+    }
+    dir = parent;
+  }
+  return null;
+}
+
 /**
  * Resolves the project root directory for git operations.
- * Priority: 1) OPENCLAW_ROOT env var, 2) Walk up from this file to find package.json, 3) Fallback to cwd
+ * Priority: 1) OPENCLAW_ROOT, 2) walk from entry script (argv[1]), 3) walk from this module, 4) cwd.
+ * We never use workspaceDir—it is often outside the repo (e.g. ~/.openclaw/workspace).
  */
 function resolveProjectRoot(fallback: string): string {
-  // 1. Check environment variable
   const envRoot = process.env.OPENCLAW_ROOT;
   if (envRoot && existsSync(join(envRoot, "package.json"))) {
     return envRoot;
   }
 
-  // 2. Walk up from this file's directory to find package.json
-  try {
-    const currentDir = dirname(fileURLToPath(import.meta.url));
-    let dir = currentDir;
-    for (let i = 0; i < 10; i++) {
-      const pkgPath = join(dir, "package.json");
-      if (existsSync(pkgPath)) {
-        return dir;
+  // Entry script (e.g. dist/index.js) is inside the project when gateway runs as `node dist/index.js gateway`
+  const argv1 = process.argv[1];
+  if (argv1) {
+    try {
+      const entryDir = dirname(pathResolve(argv1));
+      const fromArgv = walkUpToPackageRoot(entryDir);
+      if (fromArgv) {
+        return fromArgv;
       }
-      const parent = dirname(dir);
-      if (parent === dir) break; // Reached filesystem root
-      dir = parent;
+    } catch {
+      // ignore
     }
-  } catch {
-    // import.meta.url might not work in all contexts
   }
 
-  // 3. Fallback
+  try {
+    const fromModule = walkUpToPackageRoot(dirname(fileURLToPath(import.meta.url)));
+    if (fromModule) {
+      return fromModule;
+    }
+  } catch {
+    // import.meta.url may not work in all contexts
+  }
+
   return fallback;
 }
 
@@ -72,8 +92,9 @@ export function createSelfModifyTool(opts?: {
   /** Project root directory for git operations (defaults to auto-detected or process.cwd() if not provided) */
   projectDir?: string;
 }): AnyAgentTool {
-  // Use projectDir for git operations, with smart detection as fallback
-  const gitRoot = opts?.projectDir ?? resolveProjectRoot(opts?.workspaceDir ?? process.cwd());
+  // Use projectDir for git operations, with smart detection as fallback.
+  // Don't use workspaceDir as fallback—it may be outside the git repo (e.g. ~/.openclaw/workspace).
+  const gitRoot = opts?.projectDir ?? resolveProjectRoot(process.cwd());
 
   return {
     label: "Self Modify",

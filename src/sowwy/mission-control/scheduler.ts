@@ -26,7 +26,7 @@ import type { IdentityStore } from "../identity/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 import type { TaskStore } from "./store.js";
 import { redactError, redactString } from "../security/redact.js";
-import { Task, PersonaOwner, TaskStatus } from "./schema.js";
+import { PersonaOwner, Task, TaskOutcome, TaskStatus } from "./schema.js";
 
 // ============================================================================
 // Scheduler Config
@@ -226,7 +226,7 @@ export class TaskScheduler {
       // Update task
       await this.taskStore.update(task.taskId, {
         status: "DONE",
-        outcome: result.outcome as any,
+        outcome: result.outcome as TaskOutcome,
         decisionSummary: result.summary,
         confidence: result.confidence,
       });
@@ -250,7 +250,7 @@ export class TaskScheduler {
       await this.taskStore.update(task.taskId, {
         status: "BLOCKED",
         outcome: "BLOCKED",
-        decisionSummary: `Failed after ${task.maxRetries} retries: ${error}`,
+        decisionSummary: `Failed after ${task.maxRetries} retries: ${String(error)}`,
       });
       this.state.tasksFailed++;
     } else {
@@ -360,8 +360,8 @@ export class TaskScheduler {
     };
 
     // Run immediately, then on interval
-    checkStuckTasks();
-    setInterval(checkStuckTasks, intervalMs);
+    void checkStuckTasks();
+    setInterval(() => void checkStuckTasks(), intervalMs);
 
     console.log("[Scheduler] Stuck task detection started"); // No secrets in this log
   }

@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach } from "vitest";
-import { SMTThrottler, DEFAULT_SMT_CONFIG, UNTHROTTLED_OPERATIONS } from "./throttler.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import { SMTThrottler, UNTHROTTLED_OPERATIONS } from "./throttler.js";
 
 describe("SMTThrottler", () => {
   let throttler: SMTThrottler;

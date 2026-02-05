@@ -60,7 +60,7 @@ function createStubEmbeddingProvider(dimensions = 384): {
   };
 }
 
-function getUserId(opts: GatewayRequestHandlerOptions): string {
+function getUserId(_opts: GatewayRequestHandlerOptions): string {
   // Gateway context doesn't expose sessionKey/identity in connect params
   // Use a default user ID for gateway-initiated requests
   return "gateway";

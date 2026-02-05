@@ -19,8 +19,8 @@ export class ExtensionLoader {
     for (const extension of this.extensions) {
       try {
         await extension.initialize(this.foundation);
-      } catch (error) {
-        console.error(`Failed to initialize extension: ${error}`);
+      } catch (error: unknown) {
+        console.error(`Failed to initialize extension: ${String(error)}`);
       }
     }
   }

@@ -147,7 +147,7 @@ export function redactError(error: unknown): unknown {
     redacted.name = error.name;
     redacted.stack = error.stack ? redactString(error.stack) : undefined;
     if (error.cause) {
-      (redacted as any).cause = redactError(error.cause);
+      (redacted as Error & { cause?: unknown }).cause = redactError(error.cause);
     }
     return redacted;
   }
@@ -166,7 +166,7 @@ export function safeStringify(obj: unknown, space?: number): string {
   try {
     const redacted = redactObject(obj);
     return JSON.stringify(redacted, null, space);
-  } catch (err) {
+  } catch {
     return "[REDACTED: stringify failed]";
   }
 }

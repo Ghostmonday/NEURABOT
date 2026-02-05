@@ -16,21 +16,14 @@
  * - This is ONLY for testing/development
  */
 
+import { Task, TaskCreateInput, TaskFilter, TaskUpdateInput, calculatePriority } from "./schema.js";
 import {
-  Task,
-  TaskCreateInput,
-  TaskUpdateInput,
-  TaskFilter,
-  TaskStatus,
-  calculatePriority,
-} from "./schema.js";
-import {
-  TaskStore,
+  AuditLogEntry,
   AuditStore,
+  DecisionLogEntry,
   DecisionStore,
   SowwyStores,
-  AuditLogEntry,
-  DecisionLogEntry,
+  TaskStore,
 } from "./store.js";
 
 // ============================================================================
@@ -116,8 +109,9 @@ export class InMemoryTaskStore implements TaskStore {
       if (filter.personaOwner) {
         tasks = tasks.filter((t) => t.personaOwner === filter.personaOwner);
       }
-      if (filter.priorityMin !== undefined) {
-        tasks = tasks.filter((t) => t.urgency * t.importance >= filter.priorityMin!);
+      const priorityMin = filter.priorityMin;
+      if (priorityMin !== undefined) {
+        tasks = tasks.filter((t) => t.urgency * t.importance >= priorityMin);
       }
       if (filter.requiresApproval !== undefined) {
         tasks = tasks.filter((t) => t.requiresApproval === filter.requiresApproval);
@@ -197,7 +191,7 @@ export class InMemoryTaskStore implements TaskStore {
   private refreshCache(): void {
     const ready = Array.from(this.tasks.values())
       .filter((t) => t.status === "READY")
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         const priorityA = a.urgency * a.importance;
         const priorityB = b.urgency * b.importance;
         return priorityB - priorityA; // Higher priority first

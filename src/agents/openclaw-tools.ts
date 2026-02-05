@@ -143,7 +143,7 @@ export function createOpenClawTools(options?: {
     ...(imageTool ? [imageTool] : []),
     createSelfModifyTool({
       workspaceDir: options?.workspaceDir,
-      projectDir: options?.projectDir ?? process.cwd(),
+      projectDir: options?.projectDir,
     }),
   ];
 

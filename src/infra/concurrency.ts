@@ -22,7 +22,7 @@ export async function runWithConcurrency<T, R>(
     return [];
   }
 
-  const results: R[] = new Array(items.length);
+  const results: R[] = Array.from({ length: items.length });
   const executing: Array<Promise<void>> = [];
   let index = 0;
 
@@ -45,18 +45,11 @@ export async function runWithConcurrency<T, R>(
       // Wait for one to complete if we've hit concurrency limit
       if (executing.length >= concurrency) {
         await Promise.race(executing);
-        // Remove completed promises
-        executing.splice(
-          executing.findIndex((p) => {
-            // Check if promise is resolved
-            let resolved = false;
-            p.then(() => {
-              resolved = true;
-            });
-            return resolved;
-          }),
-          1,
+        // Remove completed promises (race resolves with index of first to settle)
+        const firstSettledIndex = await Promise.race(
+          executing.map((p, i) => p.then(() => i).catch(() => i)),
         );
+        void executing.splice(firstSettledIndex, 1);
       }
     }
   };
@@ -92,7 +85,7 @@ export class ConcurrencyQueue<T, R> {
   async add(item: T): Promise<R> {
     return new Promise<R>((resolve, reject) => {
       this.queue.push({ item, resolve, reject });
-      this.process();
+      void this.process();
     });
   }
 
@@ -114,7 +107,7 @@ export class ConcurrencyQueue<T, R> {
       reject(error);
     } finally {
       this.executing--;
-      this.process(); // Process next item
+      void this.process(); // Process next item
     }
   }
 

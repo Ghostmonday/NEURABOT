@@ -305,7 +305,7 @@ export class LanceDBIdentityStore implements IdentityStore {
 
     // Convert distance to similarity score and filter
     const mapped = results
-      .map((row: any) => {
+      .map((row: IdentityFragmentRow & { _distance?: number }) => {
         const distance = row._distance ?? 0;
         // Convert L2 distance to similarity: sim = 1 / (1 + d)
         const score = 1 / (1 + distance);
@@ -455,7 +455,7 @@ export class LanceDBIdentityStore implements IdentityStore {
    */
   async close(): Promise<void> {
     if (this.db) {
-      await this.db.close();
+      this.db.close();
       this.db = null;
       this.table = null;
       this.initPromise = null;

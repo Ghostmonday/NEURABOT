@@ -251,7 +251,7 @@ export class PostgresMemoryStore {
         [category, limit],
       );
 
-      return result.rows.map(this.rowToMemoryEntry);
+      return result.rows.map((row) => this.rowToMemoryEntry(row));
     } finally {
       client.release();
     }

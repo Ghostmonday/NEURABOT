@@ -9,9 +9,9 @@ const { Twilio } = pkg;
  * Provides sms.send capability via Twilio API.
  */
 export class TwilioSMSExtension implements ExtensionLifecycle {
-  private client: Twilio | null = null;
+  private client: InstanceType<typeof Twilio> | null = null;
   private foundation: ExtensionFoundation | null = null;
-  private breaker: any = null;
+  private breaker: { execute: <T>(fn: () => Promise<T>) => Promise<T> } | null = null;
 
   async initialize(foundation: ExtensionFoundation): Promise<void> {
     this.foundation = foundation;
@@ -89,13 +89,13 @@ export class TwilioSMSExtension implements ExtensionLifecycle {
             summary: `SMS sent successfully to ${to}. SID: ${result.sid}`,
             confidence: 1.0,
           };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return {
             success: false,
             outcome: "FAILED",
             summary: `Failed to send SMS to ${to}`,
             confidence: 0,
-            error: error.message,
+            error: error instanceof Error ? error.message : String(error),
           };
         }
       },

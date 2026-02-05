@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  getPersonaPriority,
   canOverride,
   getHighestPriority,
-  getPersonaSkill,
   getPersonaCategory,
-  type PersonaType,
+  getPersonaPriority,
+  getPersonaSkill,
 } from "./priority.js";
 
 describe("Persona Priority", () => {

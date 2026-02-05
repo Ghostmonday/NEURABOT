@@ -1,4 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { createOpenClawTools } from "../agents/openclaw-tools.js";
 import {
   filterToolsByPolicy,
@@ -33,6 +35,30 @@ import { getBearerToken, getHeader } from "./http-utils.js";
 
 const DEFAULT_BODY_BYTES = 2 * 1024 * 1024;
 const MEMORY_TOOL_NAMES = new Set(["memory_search", "memory_get"]);
+
+/** Resolve project root from entry script (argv[1]) so self-modify git runs in repo, not workspace. */
+function resolveProjectDirFromArgv(): string | undefined {
+  const argv1 = process.argv[1];
+  if (!argv1) {
+    return undefined;
+  }
+  try {
+    let dir = path.dirname(path.resolve(argv1));
+    for (let i = 0; i < 12; i++) {
+      if (existsSync(path.join(dir, "package.json"))) {
+        return dir;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) {
+        break;
+      }
+      dir = parent;
+    }
+  } catch {
+    // ignore
+  }
+  return undefined;
+}
 
 type ToolsInvokeBody = {
   tool?: unknown;
@@ -210,12 +236,14 @@ export async function handleToolsInvokeHttpRequest(
     ? resolveSubagentToolPolicy(cfg)
     : undefined;
 
-  // Build tool list (core + plugin tools).
+  // Build tool list (core + plugin tools). Pass projectDir so self-modify git runs in repo, not workspace.
+  const projectDir = resolveProjectDirFromArgv();
   const allTools = createOpenClawTools({
     agentSessionKey: sessionKey,
     agentChannel: messageChannel ?? undefined,
     agentAccountId: accountId,
     config: cfg,
+    projectDir,
     pluginToolAllowlist: collectExplicitAllowlist([
       profilePolicy,
       providerProfilePolicy,

@@ -59,17 +59,21 @@ function collectFiles(dir: string, base: string): string[] {
     const full = join(dir, e.name);
     const rel = relative(base, full);
     if (e.isDirectory) {
-      if (SKIP_DIRS.has(e.name)) continue;
+      if (SKIP_DIRS.has(e.name)) {
+        continue;
+      }
       out.push(...collectFiles(full, base));
     } else {
       const ext = e.name.includes(".") ? "." + e.name.split(".").pop()!.toLowerCase() : "";
-      if (CODE_EXTS.has(ext)) out.push(rel);
+      if (CODE_EXTS.has(ext)) {
+        out.push(rel);
+      }
     }
   }
   return out;
 }
 
-const files = collectFiles(ROOT, ROOT).sort();
+const files = collectFiles(ROOT, ROOT).toSorted();
 const stream = createWriteStream(OUT, { encoding: "utf-8" });
 
 const outBasename = process.argv[3] ? process.argv[3].replace(/^.*[/\\]/, "") : "BOTCODE.md";

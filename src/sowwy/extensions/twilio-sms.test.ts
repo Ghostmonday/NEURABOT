@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Task } from "../mission-control/schema.js";
+import type { ExtensionFoundation } from "./integration.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";
 
 // Mock Twilio
@@ -16,21 +18,30 @@ vi.mock("twilio", () => {
 
 describe("TwilioSMSExtension", () => {
   let extension: TwilioSMSExtension;
-  let mockFoundation: any;
-  let mockBreaker: any;
-  let mockExecutor: any;
+  let mockFoundation: ExtensionFoundation;
+  let mockBreaker: { execute: (fn: () => Promise<unknown>) => Promise<unknown> };
+  let mockExecutor: {
+    execute: (
+      task: Task,
+      context: { audit: { log: (e: unknown) => Promise<void> } },
+    ) => Promise<unknown>;
+  };
+  let registerCircuitBreaker: ReturnType<typeof vi.fn>;
+  let registerPersonaExecutor: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     extension = new TwilioSMSExtension();
     mockBreaker = {
-      execute: vi.fn().mockImplementation((op) => op()),
+      execute: vi.fn().mockImplementation((op: () => Promise<unknown>) => op()),
     };
+    registerCircuitBreaker = vi.fn().mockReturnValue(mockBreaker);
+    registerPersonaExecutor = vi.fn().mockImplementation((_p: string, e: unknown) => {
+      mockExecutor = e as typeof mockExecutor;
+    });
     mockFoundation = {
-      registerCircuitBreaker: vi.fn().mockReturnValue(mockBreaker),
-      registerPersonaExecutor: vi.fn().mockImplementation((p, e) => {
-        mockExecutor = e;
-      }),
-    };
+      registerCircuitBreaker,
+      registerPersonaExecutor,
+    } as unknown as ExtensionFoundation;
 
     process.env.TWILIO_ACCOUNT_SID = "AC123";
     process.env.TWILIO_AUTH_TOKEN = "token123";
@@ -39,9 +50,9 @@ describe("TwilioSMSExtension", () => {
 
   it("initializes and registers executors", async () => {
     await extension.initialize(mockFoundation);
-    expect(mockFoundation.registerCircuitBreaker).toHaveBeenCalledWith("twilio");
-    expect(mockFoundation.registerPersonaExecutor).toHaveBeenCalledWith("Dev", expect.anything());
-    expect(mockFoundation.registerPersonaExecutor).toHaveBeenCalledWith("Sowwy", expect.anything());
+    expect(registerCircuitBreaker).toHaveBeenCalledWith("twilio");
+    expect(registerPersonaExecutor).toHaveBeenCalledWith("Dev", expect.anything());
+    expect(registerPersonaExecutor).toHaveBeenCalledWith("Sowwy", expect.anything());
   });
 
   it("sends SMS successfully", async () => {
@@ -51,11 +62,11 @@ describe("TwilioSMSExtension", () => {
       taskId: "t1",
       command: "sms.send",
       payload: { to: "+0987654321", body: "Hello from Sowwy" },
-    } as any;
+    } as unknown as Task;
 
     const mockContext = {
       audit: { log: vi.fn().mockResolvedValue(undefined) },
-    } as any;
+    };
 
     const result = await mockExecutor.execute(mockTask, mockContext);
 
@@ -71,11 +82,11 @@ describe("TwilioSMSExtension", () => {
       taskId: "t1",
       command: "sms.send",
       payload: { body: "Missing to" },
-    } as any;
+    } as unknown as Task;
 
     const mockContext = {
       audit: { log: vi.fn() },
-    } as any;
+    };
 
     const result = await mockExecutor.execute(mockTask, mockContext);
 

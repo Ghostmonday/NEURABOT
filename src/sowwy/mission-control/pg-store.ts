@@ -19,25 +19,25 @@
 
 import { Pool, type PoolClient } from "pg";
 import type {
-  TaskStore,
-  AuditStore,
   AuditLogEntry,
-  DecisionStore,
+  AuditStore,
   DecisionLogEntry,
+  DecisionStore,
+  TaskStore,
 } from "./store.js";
-import { redactError, redactString } from "../security/redact.js";
+import { redactError } from "../security/redact.js";
 import {
-  Task,
-  TaskCreateInput,
-  TaskUpdateInput,
-  TaskFilter,
-  TaskStatus,
-  TaskCategory,
-  PersonaOwner,
-  TaskOutcome,
-  validateTaskState,
   isValidTransition,
+  PersonaOwner,
   PRIORITY_WEIGHTS,
+  Task,
+  TaskCategory,
+  TaskCreateInput,
+  TaskFilter,
+  TaskOutcome,
+  TaskStatus,
+  TaskUpdateInput,
+  validateTaskState,
 } from "./schema.js";
 
 // ============================================================================
@@ -51,6 +51,60 @@ export interface PostgresConfig {
   password: string;
   database: string;
   max?: number; // Connection pool size
+}
+
+/** PG query result row shape (snake_case) for tasks table */
+interface TaskRow {
+  task_id: string;
+  title: string;
+  description?: string;
+  category: string;
+  persona_owner: string;
+  status: string;
+  outcome?: string;
+  decision_summary?: string;
+  confidence?: string;
+  urgency: number;
+  importance: number;
+  risk: number;
+  stress_cost: number;
+  requires_approval: boolean;
+  approved: boolean;
+  approved_by?: string;
+  due_by?: string;
+  sla_hours?: string;
+  escalation_threshold?: string;
+  retry_count: number;
+  max_retries: number;
+  last_retry_at?: string;
+  dependencies: string[] | string;
+  context_links: Record<string, string> | string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  run_id?: string;
+}
+
+/** PG query result row shape for audit_log table */
+interface AuditRow {
+  id: string;
+  task_id: string;
+  action: string;
+  details: Record<string, unknown> | string;
+  performed_by: string;
+  created_at: string;
+}
+
+/** PG query result row shape for decision_log table */
+interface DecisionRow {
+  id: string;
+  task_id: string;
+  decision: string;
+  reasoning: string;
+  confidence: string;
+  persona_used: string;
+  outcome: string;
+  created_at: string;
 }
 
 // ============================================================================
@@ -222,7 +276,7 @@ export class PostgresTaskStore implements TaskStore {
         ],
       );
 
-      const task = this.rowToTask(result.rows[0]);
+      const task = this.rowToTask(result.rows[0] as TaskRow);
 
       // Audit log creation
       await this.auditStore.append(
@@ -255,7 +309,7 @@ export class PostgresTaskStore implements TaskStore {
       return null;
     }
 
-    return this.rowToTask(result.rows[0]);
+    return this.rowToTask(result.rows[0] as TaskRow);
   }
 
   /**
@@ -346,7 +400,7 @@ export class PostgresTaskStore implements TaskStore {
       `;
 
       const result = await client.query(updateQuery, values);
-      const updatedTask = this.rowToTask(result.rows[0]);
+      const updatedTask = this.rowToTask(result.rows[0] as TaskRow);
 
       // Validate task state after update
       validateTaskState(updatedTask);
@@ -424,7 +478,7 @@ export class PostgresTaskStore implements TaskStore {
     values.push(limit, offset);
 
     const result = await this.pool.query(query, values);
-    return result.rows.map((row) => this.rowToTask(row));
+    return result.rows.map((row) => this.rowToTask(row as TaskRow));
   }
 
   /**
@@ -447,7 +501,7 @@ export class PostgresTaskStore implements TaskStore {
       return null;
     }
 
-    return this.rowToTask(result.rows[0]);
+    return this.rowToTask(result.rows[0] as TaskRow);
   }
 
   /**
@@ -473,7 +527,7 @@ export class PostgresTaskStore implements TaskStore {
       return null;
     }
 
-    return this.rowToTask(result.rows[0]);
+    return this.rowToTask(result.rows[0] as TaskRow);
   }
 
   /**
@@ -498,7 +552,7 @@ export class PostgresTaskStore implements TaskStore {
       return null;
     }
 
-    return this.rowToTask(result.rows[0]);
+    return this.rowToTask(result.rows[0] as TaskRow);
   }
 
   /**
@@ -510,7 +564,7 @@ export class PostgresTaskStore implements TaskStore {
       [status],
     );
 
-    return result.rows.map((row) => this.rowToTask(row));
+    return result.rows.map((row) => this.rowToTask(row as TaskRow));
   }
 
   /**
@@ -522,7 +576,7 @@ export class PostgresTaskStore implements TaskStore {
       [category],
     );
 
-    return result.rows.map((row) => this.rowToTask(row));
+    return result.rows.map((row) => this.rowToTask(row as TaskRow));
   }
 
   /**
@@ -534,7 +588,7 @@ export class PostgresTaskStore implements TaskStore {
       [persona],
     );
 
-    return result.rows.map((row) => this.rowToTask(row));
+    return result.rows.map((row) => this.rowToTask(row as TaskRow));
   }
 
   /**
@@ -553,7 +607,7 @@ export class PostgresTaskStore implements TaskStore {
       [threshold],
     );
 
-    return result.rows.map((row) => this.rowToTask(row));
+    return result.rows.map((row) => this.rowToTask(row as TaskRow));
   }
 
   /**
@@ -629,7 +683,7 @@ export class PostgresTaskStore implements TaskStore {
 
   // Private helpers
 
-  private rowToTask(row: any): Task {
+  private rowToTask(row: TaskRow): Task {
     return {
       taskId: row.task_id,
       title: row.title,
@@ -655,7 +709,7 @@ export class PostgresTaskStore implements TaskStore {
       retryCount: row.retry_count,
       maxRetries: row.max_retries,
       lastRetryAt: row.last_retry_at ? new Date(row.last_retry_at).toISOString() : undefined,
-      dependencies: row.dependencies || [],
+      dependencies: Array.isArray(row.dependencies) ? row.dependencies : [],
       contextLinks:
         typeof row.context_links === "string"
           ? JSON.parse(row.context_links)
@@ -694,11 +748,11 @@ class PostgresAuditStore implements AuditStore {
     if (client) {
       // Use existing transaction
       const result = await client.query(query, values);
-      return this.rowToAuditEntry(result.rows[0]);
+      return this.rowToAuditEntry(result.rows[0] as AuditRow);
     } else {
       // New transaction
       const result = await this.pool.query(query, values);
-      return this.rowToAuditEntry(result.rows[0]);
+      return this.rowToAuditEntry(result.rows[0] as AuditRow);
     }
   }
 
@@ -708,7 +762,7 @@ class PostgresAuditStore implements AuditStore {
       [taskId],
     );
 
-    return result.rows.map((row) => this.rowToAuditEntry(row));
+    return result.rows.map((row) => this.rowToAuditEntry(row as AuditRow));
   }
 
   async getRecent(limit: number): Promise<AuditLogEntry[]> {
@@ -717,10 +771,10 @@ class PostgresAuditStore implements AuditStore {
       [limit],
     );
 
-    return result.rows.map((row) => this.rowToAuditEntry(row));
+    return result.rows.map((row) => this.rowToAuditEntry(row as AuditRow));
   }
 
-  private rowToAuditEntry(row: any): AuditLogEntry {
+  private rowToAuditEntry(row: AuditRow): AuditLogEntry {
     return {
       id: row.id,
       taskId: row.task_id,
@@ -769,7 +823,7 @@ class PostgresDecisionStore implements DecisionStore {
       [taskId],
     );
 
-    return result.rows.map((row) => this.rowToDecisionEntry(row));
+    return result.rows.map((row) => this.rowToDecisionEntry(row as DecisionRow));
   }
 
   async getRecent(limit: number): Promise<DecisionLogEntry[]> {
@@ -778,10 +832,10 @@ class PostgresDecisionStore implements DecisionStore {
       [limit],
     );
 
-    return result.rows.map((row) => this.rowToDecisionEntry(row));
+    return result.rows.map((row) => this.rowToDecisionEntry(row as DecisionRow));
   }
 
-  private rowToDecisionEntry(row: any): DecisionLogEntry {
+  private rowToDecisionEntry(row: DecisionRow): DecisionLogEntry {
     return {
       id: row.id,
       taskId: row.task_id,

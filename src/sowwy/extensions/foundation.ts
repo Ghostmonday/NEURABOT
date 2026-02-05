@@ -1,6 +1,7 @@
 import type { IdentityCategory, IdentityStore } from "../identity/store.js";
 import type { TaskScheduler } from "../mission-control/scheduler.js";
-import type { AuditStore, TaskStore } from "../mission-control/store.js";
+import type { PersonaOwner, TaskCreateInput, TaskUpdateInput } from "../mission-control/schema.js";
+import type { AuditLogEntry, AuditStore, TaskStore } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 import type { ExtensionFoundation, PersonaExecutor } from "./integration.js";
 import { CircuitBreakerRegistry } from "../integrations/circuit-breaker.js";
@@ -33,7 +34,7 @@ export class ExtensionFoundationImpl implements ExtensionFoundation {
 
   registerPersonaExecutor(persona: string, executor: PersonaExecutor): void {
     // Wrap PersonaExecutor into the scheduler's expected format
-    this.scheduler.registerPersona(persona as any, async (task, context) => {
+    this.scheduler.registerPersona(persona as PersonaOwner, async (task, context) => {
       if (!executor.canHandle(task)) {
         throw new Error(`Executor for ${persona} cannot handle task ${task.taskId}`);
       }
@@ -46,7 +47,10 @@ export class ExtensionFoundationImpl implements ExtensionFoundation {
             await this.auditStore.append({
               taskId: task.taskId,
               action: entry.action,
-              details: { ...entry.details, message: (entry as any).message },
+              details: {
+                ...entry.details,
+                message: (entry as { message?: string }).message,
+              },
               performedBy: "system",
             });
           },
@@ -66,21 +70,21 @@ export class ExtensionFoundationImpl implements ExtensionFoundation {
 
   getTaskStore() {
     return {
-      create: (input: any) => this.taskStore.create(input),
-      update: (taskId: string, input: any) => this.taskStore.update(taskId, input),
+      create: (input: TaskCreateInput) => this.taskStore.create(input),
+      update: (taskId: string, input: TaskUpdateInput) => this.taskStore.update(taskId, input),
       get: (taskId: string) => this.taskStore.get(taskId),
     };
   }
 
-  async logAudit(entry: any): Promise<void> {
+  async logAudit(entry: Omit<AuditLogEntry, "id" | "createdAt" | "performedBy">): Promise<void> {
     await this.auditStore.append({ ...entry, performedBy: "system" });
   }
 
   triggerSchedulerTick(): void {
-    this.scheduler.triggerTick();
+    void this.scheduler.triggerTick();
   }
 
-  pauseScheduler(reason: string): void {
+  pauseScheduler(_reason: string): void {
     this.smt.pause(); // Or scheduler-specific pause if exists
   }
 
