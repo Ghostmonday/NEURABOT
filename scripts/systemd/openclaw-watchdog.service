@@ -1,0 +1,27 @@
+[Unit]
+Description=OpenClaw Gateway Watchdog
+After=network.target
+
+[Service]
+Type=forking
+User=amir
+Group=amir
+WorkingDirectory=/home/amir/Projects/NEURABOT
+ExecStart=/home/amir/Projects/NEURABOT/scripts/systemd/gateway-watchdog.sh start
+ExecStop=/home/amir/Projects/NEURABOT/scripts/systemd/gateway-watchdog.sh stop
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=no
+TimeoutStartSec=10
+TimeoutStopSec=10
+
+# Environment
+Environment=OPENCLAW_DIR=/home/amir/Projects/NEURABOT
+Environment=OPENCLAW_CHECK_INTERVAL=30
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openclaw-watchdog
+
+[Install]
+WantedBy=multi-user.target
