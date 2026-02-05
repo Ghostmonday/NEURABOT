@@ -1,3 +1,6 @@
+// TODO: Add selfModify.poweruser config option as alternative to env var. Support both
+// OPENCLAW_SELF_MODIFY_POWERUSER=1 and { selfModify: { poweruser: true } }. Prefer config
+// over env for production deployments.
 export {
   createConfigIO,
   loadConfig,

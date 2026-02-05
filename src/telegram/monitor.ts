@@ -180,7 +180,8 @@ export async function monitorTelegramProvider(opts: MonitorTelegramOpts = {}) {
       try {
         // runner.task() returns a promise that resolves when the runner stops
         await runner.task();
-        return;
+        // Don't return - let the loop continue and restart the runner
+        restartAttempts = 0; // Reset attempts on successful completion
       } catch (err) {
         if (opts.abortSignal?.aborted) {
           throw err;

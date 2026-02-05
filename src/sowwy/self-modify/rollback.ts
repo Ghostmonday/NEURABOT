@@ -18,6 +18,12 @@ export interface RollbackConfig {
   maxConsecutiveFailures: number; // Default: 2
 }
 
+// TODO: Make rollback config configurable via selfModify.rollback config section. Allow
+// per-environment tuning: healthCheckTimeoutMs (default 30000), maxConsecutiveFailures
+// (default 2), rollbackStrategy ('file-scoped' | 'full-checkout' | 'git-reset').
+// TODO: Tune rollback config based on reliability formula. Default healthCheckTimeoutMs:
+// 30000 (30s) should allow for recovery time < T_max. Default maxConsecutiveFailures: 2
+// should catch health probe failures. Make configurable per deployment environment.
 const DEFAULT_CONFIG: RollbackConfig = {
   healthCheckTimeoutMs: 30000,
   maxConsecutiveFailures: 2,
@@ -60,6 +66,9 @@ export async function checkSelfModifyRollback(
   }
 
   // Health check failed - rollback
+  // TODO: Add rollback strategy selection. Support 'file-scoped' (current), 'full-checkout'
+  // (git checkout <commit>), and 'git-reset' (git reset --hard). Add dry-run mode to preview
+  // rollback changes. Log rollback operations to audit trail.
   console.log(`[SelfModify] Rolling back to ${before.rollbackCommit}`);
   try {
     execSync(`git checkout ${before.rollbackCommit} -- ${before.files.join(" ")}`, {
@@ -73,6 +82,14 @@ export async function checkSelfModifyRollback(
   }
 }
 
+// TODO: Enhance health check to probe multiple endpoints: gateway health, channel
+// connectivity, model availability. Add configurable health check endpoints:
+// selfModify.healthCheck.endpoints array. Implement exponential backoff for health probes.
+// Add support for custom health check scripts via selfModify.healthCheck.script.
+// TODO: Implement reliability formula: R = P(health probe success | new config) ×
+// P(recovery time < T_max). Track health probe success rate over time. Measure recovery
+// time distribution. Use formula to tune healthCheckTimeoutMs and maxConsecutiveFailures.
+// Add reliability metrics to health snapshot.
 async function waitForHealthy(timeoutMs: number): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {

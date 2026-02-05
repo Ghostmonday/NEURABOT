@@ -1,3 +1,5 @@
+# TODO: Add Docker security hardening (see Dockerfile.sandbox). Use non-root user,
+# read-only root where possible, capability dropping.
 FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive

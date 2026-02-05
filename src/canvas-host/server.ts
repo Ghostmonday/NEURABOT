@@ -433,6 +433,10 @@ export async function createCanvasHostHandler(
   };
 }
 
+// Canvas host is HTTP file server on separate port (default 18793), serving
+// /___openclaw__/canvas/ for node WebViews. Separates WebSocket control plane from media
+// delivery. Binds to gateway bind host (LAN or Tailnet) so nodes can reach it.
+// TODO: Add canvasHost.port config option for custom port. Document OPENCLAW_SKIP_CANVAS_HOST=1.
 export async function startCanvasHost(opts: CanvasHostServerOpts): Promise<CanvasHostServer> {
   if (isDisabledByEnv() && opts.allowInTests !== true) {
     return { port: 0, rootDir: "", close: async () => {} };

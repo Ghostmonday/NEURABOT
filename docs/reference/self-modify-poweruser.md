@@ -1,46 +1,59 @@
-# Self-Modify Poweruser & Full Autonomous Configuration
+# Technical Verification and Implementation Framework for OpenClaw Autonomous Control Planes
 
-This guide synthesizes how to unlock **Poweruser**-style behavior for self-modification: broader edit boundaries, larger diffs, optional batch validation, and environment-driven overrides. OpenClaw/Clawdbot do not ship a formal "Poweruser mode" label; this document describes the existing self-modify stack and the file/env changes needed for full autonomous operation.
+A comprehensive guide to **Poweruser** configuration, self-modification logic, path boundaries, signal-based reloads, and infrastructure resilience. The architectural evolution of the OpenClaw ecosystem—through Clawdbot and Moltbot—represents a shift from a simple tool-calling agent to a persistent, stateful control plane capable of managing diverse communication channels and orchestrating complex workflows autonomously. For the advanced operator, "Poweruser" and "Full Autonomous" configurations are a commitment to a self-evolving system: path boundaries, diff thresholds, signal-based reloads, and safety watchdogs must be understood and tuned. This document merges implementation verification against the codebase with architectural and operational guidance.
 
----
+**Note:** OpenClaw/Clawdbot do not ship a formal "Poweruser mode" label. The `self_modify` tool (validate + reload) is always available when using `createOpenClawTools()`; this guide describes how to relax boundaries and thresholds and how to harden the environment for full autonomous operation.
 
-## 1. Official documentation and "Poweruser" / Full Autonomous
-
-- **OpenClaw/Clawdbot** do not define a named "Poweruser" or "Full Autonomous" mode in official docs.
-- **Elevated Mode** (`/elevated on`) is the closest built-in: it runs on the gateway host and maintains exec approvals. See [docs.clawd.bot/tools/elevated](https://docs.clawd.bot/tools/elevated).
-- **Advanced settings** (automation rules, resource allocation, model customization) are documented under [Advanced Settings](https://getclawdbot.org/docs/advanced-settings) and [Gateway configuration examples](https://docs.clawd.bot/gateway/configuration-examples).
-- Self-modify is **agent-tool driven**: the `self_modify` tool (validate + reload) is always available when using `createOpenClawTools()`; there is no separate "poweruser" feature flag in the core repo.
+<!-- TODO: Update documentation with implementation status. Mark completed features with checkmarks. Document new config options (`selfModify.*`, `gateway.sessionTimeout`, etc.). Add examples for poweruser mode setup. Include troubleshooting guide for common self-modify issues. Add deployment roadmap checklist. Document environment variables (`OPENCLAW_ROOT`, `OPENCLAW_SELF_MODIFY_POWERUSER`, `OPENCLAW_PREFER_PNPM`). -->
 
 ---
 
-## 2. Modifying path boundaries (`src/sowwy/self-modify/boundaries.ts`)
+## 1. Architectural foundations of the OpenClaw gateway
 
-Boundaries are the only gatekeeper for self-edit: **deny rules win over allow rules**.
+The primary component is the **Gateway**, a centralized orchestrator (TypeScript) that maintains the WebSocket control plane and manages persistent connections to channels (Telegram, WhatsApp, Discord, Slack, Signal). The gateway is designed for 24/7 operation, typically on a VPS or a dedicated local machine (e.g. Mac Mini). It acts as a single source of truth for multi-agent routing, tool streaming, and media processing.
 
-### Current deny list (blocks editing)
+### Network models and bind configurations
 
-- `src/infra/**` — infrastructure
-- `src/gateway/**` — gateway
-- `src/cli/**` — CLI
-- `src/security/**` — security
+The network architecture is **loopback-first**. The default binds the gateway to `ws://127.0.0.1:18789`. For Poweruser configurations requiring remote access, use a non-loopback bind **only** with strict authentication (gateway token or password).
+
+| Parameter                | Default   | Poweruser / autonomous    | Significance                                        |
+| ------------------------ | --------- | ------------------------- | --------------------------------------------------- |
+| `gateway.bind`           | 127.0.0.1 | tailnet or 0.0.0.0        | Remote node pairing and cross-device orchestration. |
+| `gateway.auth.mode`      | token     | password                  | Required for Funnel/Serve; encrypted RPC.           |
+| `gateway.port`           | 18789     | user-defined (e.g. 18795) | Port obfuscation and multiple gateway instances.    |
+| `gateway.trustedProxies` | None      | ["127.0.0.1", "10.0.0.1"] | Correct IP resolution behind Nginx or Caddy.        |
+
+The **Canvas host** is an HTTP file server on a separate port (default 18793), serving `/___openclaw__/canvas/` for node WebViews. This separates the WebSocket control plane from media delivery.
+
+### Official documentation
+
+- **Elevated Mode** (`/elevated on`): runs on the gateway host and maintains exec approvals. See [docs.clawd.bot/tools/elevated](https://docs.clawd.bot/tools/elevated).
+- **Advanced settings**: [Advanced Settings](https://getclawdbot.org/docs/advanced-settings), [Gateway configuration examples](https://docs.clawd.bot/gateway/configuration-examples).
+
+---
+
+## 2. Poweruser configuration: path boundaries and diff thresholds
+
+### Filesystem boundary management
+
+Boundaries are the only gatekeeper for self-edit: **deny rules take precedence over allow rules**. The implementation lives in `src/sowwy/self-modify/boundaries.ts`.
+
+**Current deny list (blocks editing):**
+
+- `src/infra/**`, `src/gateway/**`, `src/cli/**`, `src/security/**`
 - `**/*.env*`, `**/secrets/**`, `**/credentials/**`
 - `render.yaml`, `Dockerfile*`, `.github/**`
 - `package.json`, `pnpm-lock.yaml`
 - `src/sowwy/self-modify/boundaries.ts` (no self-unlock)
 
-### Unlocking `src/infra` and `src/security` for autonomous editing
-
-**Option A – Remove from deny list (maximum autonomy, higher risk)**
-
-Edit `src/sowwy/self-modify/boundaries.ts`:
+**Unlocking `src/infra` and `src/security`:** Deny is evaluated first; adding paths only to the allow list has no effect while they remain in the deny list. Remove the corresponding entries from `SELF_MODIFY_DENY`:
 
 ```ts
 export const SELF_MODIFY_DENY = [
-  // Optional: keep infra/gateway/cli if you want to restrict
-  // "src/infra/**",
-  // "src/gateway/**",
-  // "src/cli/**",
-  // "src/security/**",
+  // "src/infra/**",   // removed for poweruser
+  "src/gateway/**",
+  "src/cli/**",
+  // "src/security/**", // removed for poweruser
   "**/*.env*",
   "**/secrets/**",
   "**/credentials/**",
@@ -53,191 +66,176 @@ export const SELF_MODIFY_DENY = [
 ] as const;
 ```
 
-**Option B – Remove only the deny entries you want to unlock**
+**Safety:** Use least-privilege volume mounts in containers (`:ro` for sensitive dirs, `:rw` only for project/extensions). Never expose `~/.ssh/` or `~/.aws/` to the agent.
 
-In the current implementation **deny is evaluated first**; allow is checked only if no deny rule matched. So to allow `src/infra` or `src/security` you must **remove** those patterns from `SELF_MODIFY_DENY`. Adding them only to `SELF_MODIFY_ALLOW` does nothing while they are still in the deny list.
+### Increasing diff thresholds for autonomous refactoring
 
-Minimal change to unlock both `src/infra` and `src/security`:
+The checklist in `src/sowwy/self-modify/checklist.ts` rejects edits where the **line-based diff ratio** is ≥ 50%.
 
-```ts
-export const SELF_MODIFY_DENY = [
-  // "src/infra/**",   // removed for poweruser
-  "src/gateway/**",
-  "src/cli/**",
-  // "src/security/**", // removed for poweruser
-  "**/*.env*",
-  // ... rest unchanged
-] as const;
-```
-
----
-
-## 3. Increasing minimal-diff ratio (`src/sowwy/self-modify/checklist.ts`)
-
-The checklist rejects edits where the **line-based diff ratio** is ≥ 50%.
-
-- **Location:** `runSelfEditChecklist` → per-file diff check.
 - **Formula:** `computeDiffRatio(old, new)` = `|newLines - oldLines| / max(oldLines, newLines)`.
-- **Threshold:** `isMinimal = diffRatio < 0.5` (i.e. &lt; 50%).
+- **Threshold:** `isMinimal = diffRatio < 0.5`.
 
-### Hardcoding a higher threshold (e.g. 80%)
-
-In `src/sowwy/self-modify/checklist.ts`:
+**Hardcoded higher threshold (e.g. 80%):**
 
 ```ts
-// 2. Diff check (changes are minimal, not full overwrites)
-const MINIMAL_DIFF_THRESHOLD = 0.8; // Allow up to 80% change (poweruser)
-for (const file of files) {
-  const diffRatio = computeDiffRatio(file.oldContent, file.newContent);
-  const isMinimal = diffRatio < MINIMAL_DIFF_THRESHOLD;
-  // ...
-}
+const MINIMAL_DIFF_THRESHOLD = 0.8;
+const isMinimal = diffRatio < MINIMAL_DIFF_THRESHOLD;
 ```
 
-### Making it environment-driven (poweruser flag)
-
-At top of file:
+**Environment-driven (poweruser flag):**
 
 ```ts
 const MINIMAL_DIFF_THRESHOLD = process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1" ? 0.9 : 0.5;
 ```
 
-Then in the loop use `diffRatio < MINIMAL_DIFF_THRESHOLD` instead of `< 0.5`. Set `OPENCLAW_SELF_MODIFY_POWERUSER=1` in `.env` or the gateway environment to allow up to 90% change per file.
+Set `OPENCLAW_SELF_MODIFY_POWERUSER=1` in `.env` or the gateway environment to allow larger per-file changes. Use version control (git) and pre-commit/CI gates so the agent commits to a branch and runs tests before merge.
 
 ---
 
-## 4. Batch validation and multi-file reload
+## 3. Foundry: self-writing meta-extension (ecosystem context)
 
-- **Current behavior:** The self-modify tool already accepts **multiple files** in one `reload` call. `runSelfEditChecklist(files)` runs boundary, diff, syntax, and secrets checks **over the whole array**; all must pass for the reload to proceed. So validation is already batch at the checklist level.
-- **"One file at a time"** in practice usually means either:
-  - The agent edits one file per turn and then calls reload with one entry, or
-  - The 50% per-file diff limit forces smaller, incremental edits per file.
+**Foundry** is an "agent that builds agents" in the OpenClaw ecosystem: a meta-extension that observes behavior, researches documentation, and writes new capabilities. It turns repeated successful tool sequences into static TypeScript tools ("crystallization").
 
-To get **batch behavior** without code changes:
+| Phase    | Activity                                                                      | Outcome                                   |
+| -------- | ----------------------------------------------------------------------------- | ----------------------------------------- |
+| Observe  | Monitor goal, tool sequence, outcome, duration.                               | Raw behavioral data for pattern matching. |
+| Research | Search docs for tool registration APIs.                                       | Context-aware code generation templates.  |
+| Learn    | Track success rates; identify crystallization candidates (e.g. 5 runs, 70%+). | Refined knowledge of what works.          |
+| Write    | Generate TypeScript with type safety and error handling.                      | New extension code in `extensions/`.      |
+| Deploy   | Trigger gateway restart via SIGUSR1 to load new tools.                        | New capabilities available immediately.   |
 
-1. Have the agent collect several edits (e.g. from multiple write/edit tool calls).
-2. Call `self_modify` once with `action: "reload"` and `modifiedFiles: [ { path, oldContent, newContent }, ... ]` for all modified files.
-
-No change is required in `checklist.ts` or `self-modify-tool.ts` for multi-file validation; the only change that might be desired is **reporting** (e.g. returning which file failed which check in a structured way), which is already present via `checklistResult.checks` and `blockingErrors`.
-
----
-
-## 5. Environment variables and hidden flags
-
-### Existing env vars relevant to self-modify and gateway
-
-| Variable                                               | Purpose                                                                                                 |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `OPENCLAW_ROOT`                                        | Project root for self-modify tool (git/build); used in `resolveProjectRoot()` in `self-modify-tool.ts`. |
-| `OPENCLAW_SKIP_CHANNELS`                               | Skip channel loading (e.g. `gateway:dev`).                                                              |
-| `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD` | Gateway auth.                                                                                           |
-| `OPENCLAW_SKIP_CRON`                                   | Disable cron (tests).                                                                                   |
-| `.env` (Sowwy)                                         | `SOWWY_*` for Postgres, LanceDB, SMT, scheduler, kill switch, approvals (see `.env.example`).           |
-
-### Not present today (suggested for Poweruser)
-
-- **Boundaries:** No env var currently overrides allow/deny lists; they are fixed in `boundaries.ts`.
-- **Checklist threshold:** The 50% diff threshold is hardcoded; see section 3 for adding e.g. `OPENCLAW_SELF_MODIFY_POWERUSER`.
-- **Bypass manual coordination:** Reload is already autonomous from the agent’s perspective (validate → build → request SIGUSR1 restart). Human "coordination" is only implied by tool policy (who can call `self_modify`) and approval flows (e.g. exec approvals), not by a flag in the self-modify module.
-
-To add a simple poweruser bypass (e.g. skip diff check when env is set), you could in `checklist.ts`:
-
-```ts
-const skipDiffCheck = process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1";
-// In the diff check loop:
-const isMinimal = skipDiffCheck || diffRatio < 0.5;
-```
-
-(Use only in trusted environments.)
+Crystallization reduces token use, latency, and the risk of the LLM forgetting patterns. Foundry may include an "Overseer" (e.g. hourly) to prune stale patterns and track performance. Marketplace dynamics (e.g. HTTP 402, USDC/Solana) are ecosystem-specific and not part of the core gateway codebase.
 
 ---
 
-## 6. Community scripts and autonomous loops in `src/agents/`
+## 4. Batch validation, reload flow, and signal management
 
-- There are **no** community-contributed scripts in this repo that implement a dedicated "task scheduler for self-modification" or an "autonomous self-modify loop" inside `src/agents/`.
-- **Sowwy** provides a mission-control **scheduler** (`src/sowwy/mission-control/scheduler.ts`) and task store for persona/task execution; it does not drive the `self_modify` tool directly.
-- **Cron** (`src/agents/tools/cron-tool.ts`) can run recurring tasks; an agent could in principle run a cron job that invokes code calling the same validation/reload logic, but that would require a small integration layer (e.g. a script that uses the gateway RPC or the same checklist/reload functions).
+### Batch validation and multi-file reload
 
-A minimal "self-evolution loop" could be implemented as:
+The self-modify tool **already accepts multiple files** in one `reload` call. `runSelfEditChecklist(files)` runs boundary, diff, syntax, and secrets checks over the whole array; all must pass. To use batch behavior: have the agent collect several edits, then call `self_modify` once with `action: "reload"` and `modifiedFiles: [ { path, oldContent, newContent }, ... ]`.
 
-1. A scheduled task (cron or Sowwy task) that triggers an agent run with a prompt like "review and self-improve within boundaries."
-2. The agent uses `self_modify` (validate + edit + reload) as it does in chat; no change to `self-modify-tool.ts` is required for that.
-3. Optionally, a thin script in `scripts/` or a small module in `src/agents/` that calls `runSelfEditChecklist` and `requestSelfModifyReload` (from `src/sowwy/self-modify/`) with a list of file changes, for use from cron or another runner.
-
----
-
-## 7. Programmatically triggering reload (`self-modify-tool.ts`)
-
-The reload action is triggered by the **agent** calling the `self_modify` tool with:
-
-- `action: "reload"`
-- `reason: string`
-- `modifiedFiles: Array<{ path, oldContent, newContent }>`
-
-Flow inside the tool:
+### Reload flow (codebase-accurate)
 
 1. Validate every path with `validateSelfModifyPath(file.path)`.
-2. Run `runSelfEditChecklist(modifiedFiles)` (boundary, diff, syntax, secrets, no self-boundary edit).
+2. Run `runSelfEditChecklist(modifiedFiles)`.
 3. Capture rollback commit: `git rev-parse HEAD` in `projectDir` (or `OPENCLAW_ROOT`).
 4. Run `pnpm build` in project root (timeout 120s).
-5. Call `requestSelfModifyReload({ reason, modifiedFiles: paths, rollbackCommit, validationPassed: true })`.
+5. Call `requestSelfModifyReload({ reason, modifiedFiles, rollbackCommit, validationPassed: true })` in `src/sowwy/self-modify/reload.ts`.
 
-To trigger reload **programmatically** from your own code (e.g. a script or another service):
+Reload writes a restart sentinel and uses **authorized SIGUSR1**: `authorizeGatewaySigusr1Restart(500)` and `scheduleGatewaySigusr1Restart({ delayMs: 500, reason })` (see `src/infra/restart.ts`). This ensures only an authenticated, validation-passed path can trigger a restart.
 
-- **Option A – Use the tool:** Instantiate the tool and call `execute` with the same schema (e.g. from a Node script that imports `createSelfModifyTool` and runs in the same process as the gateway). This reuses all validation and build logic.
-- **Option B – Call the protocol directly:** Import `runSelfEditChecklist` and `requestSelfModifyReload` from `src/sowwy/self-modify/`, run your own validation and build, then call `requestSelfModifyReload`. You must still write the restart sentinel and authorize SIGUSR1 (as in `reload.ts`).
+### Signal and restart hardening
 
-Example (pseudo-code) for Option B:
-
-```ts
-import { runSelfEditChecklist } from "./sowwy/self-modify/checklist.js";
-import { requestSelfModifyReload } from "./sowwy/self-modify/reload.js";
-// ... after building and capturing rollbackCommit:
-const result = await runSelfEditChecklist(modifiedFiles);
-if (result.passed) {
-  await requestSelfModifyReload({
-    reason: "automated overhaul",
-    modifiedFiles: modifiedFiles.map((f) => f.path),
-    rollbackCommit,
-    validationPassed: true,
-  });
-}
-```
-
-The watchdog (or launchctl/systemd) restarts the gateway after SIGUSR1; on startup, `checkSelfModifyRollback` in `server.impl.ts` runs and performs rollback if health checks fail.
+- **Race conditions:** When SIGUSR1 is received, the daemon must await child process exit (e.g. signal-cli) before starting a new instance; otherwise config file locks and orphaned processes can occur. Use async stop logic with a hard SIGKILL fallback (e.g. 3s timeout).
+- **AbortError:** Catch unhandled rejections from cancelled fetches during shutdown so the process does not exit(1) and confuse systemd/launchctl.
+- **Config gating:** Authorized restarts prevent unauthenticated entities from forcing a reload to bypass security or audits.
 
 ---
 
-## 8. Poweruser configuration guide – summary
+## 5. Autonomous safety: watchdogs and automated rollback
 
-### File modifications
+### Dead man's switch and rollback
 
-| File                                  | Change                                                                                                                                                                   |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/sowwy/self-modify/boundaries.ts` | Remove `src/infra/**` and/or `src/security/**` from `SELF_MODIFY_DENY` to allow editing those trees (see section 2).                                                     |
-| `src/sowwy/self-modify/checklist.ts`  | Replace `diffRatio < 0.5` with a constant or env-driven threshold (e.g. `OPENCLAW_SELF_MODIFY_POWERUSER=1` → 0.9). Optionally add `skipDiffCheck` when poweruser is set. |
+Before applying self-modifications, the system captures the current git commit for rollback. After reload, a watchdog (or the gateway’s own startup logic) checks health. If the gateway does not become healthy within a window (e.g. 15–30s), **automatic rollback** restores the last known good state.
 
-### Environment setup
+**Reliability (conceptual):**
+\(R = P(\text{health probe success} \mid \text{new config}) \times P(\text{recovery time} < T\_{\max})\)
 
-- **Project root:** Set `OPENCLAW_ROOT` to the repo root so self-modify and build run in the correct directory (especially when the process cwd is not the repo).
-- **Poweruser diff threshold (if implemented):** In `.env` or gateway env:
-  `OPENCLAW_SELF_MODIFY_POWERUSER=1`
-- **Sowwy (optional):** Use `.env` for `SOWWY_*` (Postgres, SMT, scheduler). For less human coordination, set `SOWWY_REQUIRE_APPROVAL=false` and `SOWWY_KILL_SWITCH=false` only in dev/trusted environments.
+Implementation: `src/sowwy/self-modify/rollback.ts` and `checkSelfModifyRollback` in `server.impl.ts` (startup). Config: `healthCheckTimeoutMs`, `maxConsecutiveFailures` in rollback config.
+
+### Failure modes and mitigations
+
+| Failure mode       | Detection logic                             | Mitigation                                           |
+| ------------------ | ------------------------------------------- | ---------------------------------------------------- |
+| Invalid config     | Gateway fails to bind to port after reload. | Automatic rollback to backup / git checkout.         |
+| Stuck session      | Session state "processing" for >400s.       | Kill session; auto-restart gateway if threshold met. |
+| Channel crash      | getUpdates timeout (e.g. Telegram polling). | External watchdog script triggers restart.           |
+| Ollama unreachable | Discovery probe fails for local LLM.        | watch-ollama.sh or similar restarts service.         |
+
+External watchdogs (e.g. cron every 2 minutes) can check channel status and restart the gateway if critical integrations are unresponsive.
+
+---
+
+## 6. Host hardening and identity protection
+
+- **Docker:** Use non-root, read-only root filesystem where possible (`--read-only`), `--security-opt=no-new-privileges`, and capability dropping (`--cap-drop=ALL` then add only what’s needed, e.g. `NET_BIND_SERVICE`). Use `Dockerfile.sandbox` / `Dockerfile.sandbox-browser` for isolated tool execution and browsing.
+- **Network egress:** Restrict to required APIs (OpenAI, Anthropic, Composio, etc.) via a host-side proxy (e.g. Squid) and allowlist to reduce exfiltration risk.
+- **Identity:** Hardening protects the host, not the user’s identity. Use brokered auth (e.g. Composio) with minimal scopes and full audit logging instead of storing raw OAuth tokens locally.
+
+---
+
+## 7. Reliability: sessions, timeouts, and model failover
+
+- **Session timeout:** Use `gateway.sessionTimeout` (e.g. 120_000 ms) so a single long-running LLM call does not block the event loop indefinitely. Configure detection to auto-restart the gateway if a threshold of stuck sessions (e.g. 3+) is reached.
+- **Model failover:** Configure the synthetic model catalog to fail over to the next profile when one times out or hits rate limits, so the agent remains responsive during API instability.
+
+---
+
+## 8. Build chain, pre-commit, and memory
+
+- **Build:** OpenClaw uses **tsdown** and **tsgo** for TypeScript. Node 22 is the supported production runtime; Bun can be used for local dev. On some architectures (e.g. Synology, ARM NAS), set `OPENCLAW_PREFER_PNPM=1` for UI build stability.
+- **Pre-commit (prek):** For an agent that modifies its own source, run the same checks as CI (`pnpm lint`, `pnpm test`, format) before deploy. Abort deployment if the agent’s changes fail these gates.
+- **Memory:** Short-term context is in-memory (lost on restart); long-term memory persists. Context pruning (e.g. for Anthropic) and vector search/RAG depend on configuration. "Crystallized" patterns (Foundry-generated code) are hard-coded behavior with zero token cost.
+
+---
+
+## 9. Environment variables (codebase reference)
+
+| Variable                               | Purpose                                                                      |
+| -------------------------------------- | ---------------------------------------------------------------------------- |
+| `OPENCLAW_ROOT`                        | Project root for self-modify (git/build); used in `self-modify-tool.ts`.     |
+| `OPENCLAW_SELF_MODIFY_POWERUSER`       | Suggested: set to `1` to use higher diff threshold if implemented.           |
+| `OPENCLAW_SKIP_CHANNELS`               | Skip channel loading (e.g. gateway:dev).                                     |
+| `OPENCLAW_GATEWAY_TOKEN` / `_PASSWORD` | Gateway auth.                                                                |
+| `OPENCLAW_PREFER_PNPM`                 | Prefer pnpm for builds on some platforms.                                    |
+| `.env` (Sowwy)                         | `SOWWY_*` for Postgres, LanceDB, SMT, scheduler, approvals (`.env.example`). |
+
+Boundaries are not currently overridden by env; they are fixed in `boundaries.ts`. The 50% diff threshold is hardcoded unless you add the `OPENCLAW_SELF_MODIFY_POWERUSER` check (see section 2).
+
+---
+
+## 10. Programmatic reload and community patterns
+
+**Triggering reload:** The agent calls the `self_modify` tool with `action: "reload"`, `reason`, and `modifiedFiles`. From your own code you can either instantiate `createSelfModifyTool` and call `execute`, or import `runSelfEditChecklist` and `requestSelfModifyReload` from `src/sowwy/self-modify/`, run validation and build, then call `requestSelfModifyReload` (and ensure the sentinel and SIGUSR1 authorization are handled as in `reload.ts`).
+
+**Autonomous loops:** The core repo does not include a dedicated "self-modify scheduler" in `src/agents/`. Sowwy’s mission-control scheduler (`src/sowwy/mission-control/scheduler.ts`) and the cron tool (`src/agents/tools/cron-tool.ts`) can drive periodic tasks; an agent run prompted to "review and self-improve within boundaries" can use `self_modify` (validate → edit → reload) as in chat. A thin script can call `runSelfEditChecklist` and `requestSelfModifyReload` for cron- or script-driven self-evolution.
+
+---
+
+## 11. Strategic deployment roadmap
+
+1. **Environment:** Deploy a VPS (e.g. Ubuntu 24.04, 8GB RAM). Install Node 22+ and pnpm. Configure hardened Docker for the gateway and sandboxes.
+2. **Configuration and auth:** Set gateway password/token and bind to Tailscale or a controlled network. Use `dmPolicy="pairing"` so only authorized users can interact.
+3. **Boundary unlocking:** Adjust `boundaries.ts` (and optionally workspace/config) to allow project and extension dirs; exclude sensitive system paths. Use Docker volume mounts with `:ro` / `:rw` as appropriate.
+4. **Foundry (optional):** Install and configure Foundry for crystallization; set the Overseer interval if available.
+5. **Watchdog:** Run an external watchdog to monitor gateway health and channel connectivity; ensure rollback and "dead man’s switch" behavior are active for self-modifications.
+6. **CI/CD gating:** Ensure the agent runs prek (or equivalent lint/test/format) before applying code changes; use git for versioning and rollback.
+
+---
+
+## 12. Summary and quick reference
+
+### File modifications (codebase)
+
+| File                                  | Change                                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `src/sowwy/self-modify/boundaries.ts` | Remove `src/infra/**` and/or `src/security/**` from `SELF_MODIFY_DENY` to allow editing.     |
+| `src/sowwy/self-modify/checklist.ts`  | Replace `diffRatio < 0.5` with a constant or env-driven threshold (e.g. 0.9 when poweruser). |
 
 ### Operational checklist
 
-1. Ensure the gateway runs with a **watchdog** (launchctl, systemd, or supervisor) so that after SIGUSR1 the process restarts.
-2. Ensure **health checks** and rollback timeout are acceptable (see `rollback.ts`: `healthCheckTimeoutMs`, `maxConsecutiveFailures`).
-3. Do not remove the protection that blocks editing `src/sowwy/self-modify/boundaries.ts` (no self-unlock).
-4. Use a **branch or backup** when enabling infra/security editing or very high diff thresholds so you can revert if needed.
+1. Run the gateway under a **watchdog** (launchctl, systemd, supervisor) so it restarts after SIGUSR1.
+2. Keep **health check** and rollback timeout appropriate (`rollback.ts`).
+3. **Do not** allow editing `src/sowwy/self-modify/boundaries.ts` (no self-unlock).
+4. Use a **branch or backup** when enabling infra/security editing or very high diff thresholds.
 
-### Quick reference – key locations
+### Key code locations
 
 - Boundaries: `src/sowwy/self-modify/boundaries.ts` (`SELF_MODIFY_ALLOW`, `SELF_MODIFY_DENY`, `validateSelfModifyPath`).
-- Checklist: `src/sowwy/self-modify/checklist.ts` (`runSelfEditChecklist`, `computeDiffRatio`, 50% threshold).
+- Checklist: `src/sowwy/self-modify/checklist.ts` (`runSelfEditChecklist`, `computeDiffRatio`).
 - Tool: `src/agents/tools/self-modify-tool.ts` (`createSelfModifyTool`, actions `validate` and `reload`).
-- Reload protocol: `src/sowwy/self-modify/reload.ts` (`requestSelfModifyReload`).
-- Rollback: `src/sowwy/self-modify/rollback.ts` and `server.impl.ts` (startup rollback check).
-- Tool registration: `src/agents/openclaw-tools.ts` (`createSelfModifyTool` in the tools array); no feature flag—always included.
+- Reload: `src/sowwy/self-modify/reload.ts` (`requestSelfModifyReload`).
+- Rollback: `src/sowwy/self-modify/rollback.ts`; startup check in `server.impl.ts`.
+- Tool registration: `src/agents/openclaw-tools.ts` (no feature flag; tool always included).
 
-With these changes and env settings, you get a Poweruser-style setup: broader paths, larger per-file diffs, and optional env-driven bypasses, while keeping rollback and checklist safety in place.
+By cross-referencing this guide with the codebase—especially `self-modify-tool.ts` and `reload.ts`—operators can align their Poweruser or Full Autonomous setup with the actual implementation and run a secure, resilient, self-evolving control plane.

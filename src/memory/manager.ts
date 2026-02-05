@@ -23,8 +23,8 @@ import { resolveUserPath } from "../utils.js";
 import { runGeminiEmbeddingBatches, type GeminiBatchRequest } from "./batch-gemini.js";
 import {
   OPENAI_BATCH_ENDPOINT,
-  type OpenAiBatchRequest,
   runOpenAiEmbeddingBatches,
+  type OpenAiBatchRequest,
 } from "./batch-openai.js";
 import { DEFAULT_GEMINI_EMBEDDING_MODEL } from "./embeddings-gemini.js";
 import { DEFAULT_OPENAI_EMBEDDING_MODEL } from "./embeddings-openai.js";
@@ -44,14 +44,22 @@ import {
   isMemoryPath,
   listMemoryFiles,
   normalizeExtraMemoryPaths,
+  parseEmbedding,
   type MemoryChunk,
   type MemoryFileEntry,
-  parseEmbedding,
 } from "./internal.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
 import { ensureMemoryIndexSchema } from "./memory-schema.js";
 import { loadSqliteVecExtension } from "./sqlite-vec.js";
 import { requireNodeSqlite } from "./sqlite.js";
+
+// TODO: Add context pruning for Anthropic models. Implement token-based pruning when
+// context approaches limits. Add memory.pruning.strategy config ('token-based' |
+// 'time-based' | 'importance-based'). Add vector search/RAG integration for long-term
+// memory retrieval.
+// TODO: Enhance memory persistence. Support multiple backends (LanceDB, Postgres,
+// in-memory). Add memory compaction to remove stale entries. Implement memory
+// versioning for rollback support.
 
 type MemoryIndexMeta = {
   model: string;

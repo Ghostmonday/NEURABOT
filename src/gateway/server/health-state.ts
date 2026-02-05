@@ -60,6 +60,12 @@ export function setBroadcastHealthUpdate(fn: ((snap: HealthSummary) => void) | n
   broadcastHealthUpdate = fn;
 }
 
+// TODO: Enhance health check to include channel connectivity probes. Check each channel's
+// getUpdates timeout status. Add channelHealth section to health snapshot with per-channel
+// status. Include model availability checks (synthetic catalog, Ollama discovery).
+// TODO: Add configurable health check intervals: gateway.healthCheck.intervalMs (default 30s),
+// gateway.healthCheck.probeTimeoutMs (default 5s). Add health check failure threshold:
+// gateway.healthCheck.maxConsecutiveFailures (default 3) to trigger alerts/restarts.
 export async function refreshGatewayHealthSnapshot(opts?: { probe?: boolean }) {
   if (!healthRefresh) {
     healthRefresh = (async () => {

@@ -251,7 +251,7 @@ export type GatewaySecurityConfig = {
 };
 
 export type GatewayConfig = {
-  /** Single multiplexed port for Gateway WS + HTTP (default: 18789). */
+  /** Single multiplexed port for Gateway WS + HTTP (default: 18789). Poweruser may use custom port (e.g. 18795) for port obfuscation or multiple instances. */
   port?: number;
   /**
    * Explicit gateway mode. When set to "remote", local gateway start is disabled.
@@ -271,6 +271,7 @@ export type GatewayConfig = {
   /** Custom IP address for bind="custom" mode. Fallback: 0.0.0.0. */
   customBindHost?: string;
   controlUi?: GatewayControlUiConfig;
+  /** Gateway auth. Use auth.mode 'password' for Funnel/Serve encrypted RPC. */
   auth?: GatewayAuthConfig;
   tailscale?: GatewayTailscaleConfig;
   remote?: GatewayRemoteConfig;
@@ -286,4 +287,8 @@ export type GatewayConfig = {
    * `x-real-ip`) to determine the client IP for local pairing and HTTP checks.
    */
   trustedProxies?: string[];
+  // TODO: Add gateway.sessionTimeout config option (default 120_000 ms). Implement
+  // session timeout detection that kills sessions stuck in 'processing' state for
+  // >timeout. Add gateway.stuckSessionThreshold (default 3) to auto-restart gateway
+  // if threshold exceeded.
 };

@@ -200,7 +200,11 @@ WAKE MODES (for wake action):
 - "next-heartbeat" (default): Wake on next heartbeat
 - "now": Wake immediately
 
-Use jobId as the canonical identifier; id is accepted for compatibility. Use contextMessages (0-10) to add previous messages as context to the job text.`,
+Use jobId as the canonical identifier; id is accepted for compatibility. Use contextMessages (0-10) to add previous messages as context to the job text.
+
+Autonomous self-modify: Schedule periodic self-improvement with cron.add (sessionTarget:
+isolated, payload.kind: agentTurn, message: "Review and self-improve within boundaries").
+Agent runs can use self_modify (validate → edit → reload) as in chat.`,
     parameters: CronToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;

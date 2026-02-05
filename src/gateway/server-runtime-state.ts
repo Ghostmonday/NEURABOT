@@ -71,6 +71,7 @@ export async function createGatewayRuntimeState(params: {
   chatAbortControllers: Map<string, ChatAbortControllerEntry>;
 }> {
   let canvasHost: CanvasHostHandler | null = null;
+  // Canvas host should bind to same host as gateway (loopback, LAN, or Tailnet).
   if (params.canvasHostEnabled) {
     try {
       const handler = await createCanvasHostHandler({

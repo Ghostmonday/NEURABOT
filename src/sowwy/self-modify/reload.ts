@@ -46,6 +46,8 @@ export async function requestSelfModifyReload(
   });
 
   // Authorize and schedule restart
+  // TODO: Make delay configurable via selfModify.reloadDelayMs config option (default 500ms).
+  // Consider exponential backoff for consecutive reloads to prevent restart storms.
   authorizeGatewaySigusr1Restart(500); // 500ms delay for cleanup
   scheduleGatewaySigusr1Restart({
     delayMs: 500,
@@ -54,3 +56,7 @@ export async function requestSelfModifyReload(
 
   return { scheduled: true };
 }
+
+// TODO: Add pre-reload validation hook system. Allow extensions/plugins to register
+// validators that run before reload (e.g., check for active sessions, pending operations).
+// Return validation errors to prevent unsafe reloads.

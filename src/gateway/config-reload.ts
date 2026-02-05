@@ -1,7 +1,11 @@
 import chokidar from "chokidar";
-import type { OpenClawConfig, ConfigFileSnapshot, GatewayReloadMode } from "../config/config.js";
+import type { ConfigFileSnapshot, GatewayReloadMode, OpenClawConfig } from "../config/config.js";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { getActivePluginRegistry } from "../plugins/runtime.js";
+
+// TODO: Add self-modify aware config reload. If config changes affect self-modify boundaries or
+// thresholds, trigger validation. Prevent config changes that would allow unsafe self-modification.
+// Add config change audit logging. Ensure config reload respects self-modify boundaries.
 
 export type GatewayReloadSettings = {
   mode: GatewayReloadMode;

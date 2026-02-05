@@ -27,6 +27,10 @@ export type RestartSentinelStats = {
   durationMs?: number | null;
 };
 
+// TODO: Enhance sentinel with more metadata. Include file hashes for change detection. Add reload
+// reason categorization ('self-modify', 'config-change', 'manual'). Include timestamp and
+// user/agent identifier. Add sentinel cleanup for old entries (>7 days). Track rollback commit
+// hash in sentinel.
 export type RestartSentinelPayload = {
   kind: "config-apply" | "update" | "restart";
   status: "ok" | "error" | "skipped";

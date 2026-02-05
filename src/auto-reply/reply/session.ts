@@ -14,14 +14,14 @@ import {
   type GroupKeyResolution,
   loadSessionStore,
   resolveChannelResetConfig,
-  resolveThreadFlag,
-  resolveSessionResetPolicy,
-  resolveSessionResetType,
   resolveGroupSessionKey,
   resolveSessionFilePath,
   resolveSessionKey,
+  resolveSessionResetPolicy,
+  resolveSessionResetType,
   resolveSessionTranscriptPath,
   resolveStorePath,
+  resolveThreadFlag,
   type SessionEntry,
   type SessionScope,
   updateSessionStore,
@@ -91,6 +91,9 @@ function forkSessionFromParent(params: {
   }
 }
 
+// TODO: Add stuck session detection. Track session state transitions and age. If session
+// is 'processing' for >400s (or gateway.sessionTimeout), mark as stuck and log diagnostic
+// event. If stuckSessionCount >= gateway.stuckSessionThreshold, trigger gateway restart.
 export async function initSessionState(params: {
   ctx: MsgContext;
   cfg: OpenClawConfig;

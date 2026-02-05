@@ -1,3 +1,6 @@
+// TODO: Enhance OAuth token security. Use brokered auth (Composio) with minimal scopes.
+// Add full audit logging for OAuth operations. Encrypt tokens at rest. Add token rotation
+// support. Never store raw OAuth tokens in logs or config files.
 export type AuthProfileConfig = {
   provider: string;
   /**

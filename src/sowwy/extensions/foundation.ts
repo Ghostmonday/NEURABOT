@@ -8,6 +8,10 @@ import { CircuitBreakerRegistry } from "../integrations/circuit-breaker.js";
 
 /**
  * Implementation of ExtensionFoundation
+ * TODO: Add Foundry observation layer. Track tool sequence patterns, success rates, and
+ * outcomes. Identify crystallization candidates (5+ runs, 70%+ success). Generate
+ * TypeScript tool code from successful patterns. Register new tools via extension loader.
+ * Trigger gateway reload after tool registration.
  */
 export class ExtensionFoundationImpl implements ExtensionFoundation {
   private circuitBreakers = new CircuitBreakerRegistry();

@@ -229,6 +229,8 @@ export function logSessionStateChange(
   markActivity();
 }
 
+// TODO: Use gateway.sessionTimeout for stuck threshold (e.g. 400s or 120_000 ms). When
+// stuckSessionCount >= gateway.stuckSessionThreshold (default 3), trigger gateway restart.
 export function logSessionStuck(params: SessionRef & { state: SessionStateValue; ageMs: number }) {
   const state = getSessionState(params);
   diag.warn(

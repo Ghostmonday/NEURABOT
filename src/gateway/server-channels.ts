@@ -61,6 +61,10 @@ export type ChannelManager = {
 };
 
 // Channel docking: lifecycle hooks (`plugin.gateway`) flow through this manager.
+// TODO: Add channel crash detection. Monitor getUpdates timeouts for polling channels
+// (Telegram). Track connection state changes. If channel disconnects unexpectedly or times
+// out repeatedly, log diagnostic event and trigger channel restart. Add
+// channel.maxConsecutiveFailures config (default 3).
 export function createChannelManager(opts: ChannelManagerOptions): ChannelManager {
   const { loadConfig, channelLogs, channelRuntimeEnvs } = opts;
 

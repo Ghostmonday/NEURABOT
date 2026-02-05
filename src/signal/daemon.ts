@@ -93,6 +93,8 @@ export function spawnSignalDaemon(opts: SignalDaemonOpts): SignalDaemonHandle {
 
   return {
     pid: child.pid ?? undefined,
+    // TODO: Wait for graceful exit with timeout (3s) before SIGKILL. Ensure stop() is
+    // called during gateway shutdown. Track process to prevent orphaned signal-cli instances.
     stop: () => {
       if (!child.killed) {
         child.kill("SIGTERM");

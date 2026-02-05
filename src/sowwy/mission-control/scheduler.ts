@@ -20,6 +20,11 @@
  * - Tasks are picked by priority score (calculatePriority)
  * - In ties, use createdAt for FIFO
  * - Never execute two tasks concurrently in the same persona
+ *
+ * TODO: Document integration with mission-control scheduler for autonomous self-modify.
+ * Scheduler can drive periodic self-modify operations. Add thin script wrapper that calls
+ * runSelfEditChecklist and requestSelfModifyReload for cron- or script-driven self-evolution.
+ * Ensure scheduler respects self-modify boundaries.
  */
 
 import type { IdentityStore } from "../identity/store.js";

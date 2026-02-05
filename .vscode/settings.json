@@ -182,5 +182,6 @@
   // Code Lens
   "typescript.implementationsCodeLens": true,
   "typescript.referencesCodeLens": true,
-  "vitest.disableWorkspaceWarning": true
+  "vitest.disableWorkspaceWarning": true,
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

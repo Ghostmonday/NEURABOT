@@ -19,6 +19,10 @@ interface CheckResult {
   message: string;
 }
 
+// TODO: Batch validation already accepts multiple files. Enhance with parallel validation
+// for large file batches. Use Promise.all for independent checks (syntax, secrets). Add
+// progress reporting for long-running validations. Add validation caching for unchanged
+// files. Document batch behavior: all files must pass all checks.
 export async function runSelfEditChecklist(
   files: Array<{ path: string; oldContent: string; newContent: string }>,
 ): Promise<ChecklistResult> {
@@ -39,6 +43,10 @@ export async function runSelfEditChecklist(
   }
 
   // 2. Diff check (changes are minimal, not full overwrites)
+  // TODO: Implement environment-driven diff threshold. Use
+  // process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1" ? 0.9 : 0.5 to allow larger changes
+  // (90%) in poweruser mode. Consider making threshold configurable via config file:
+  // selfModify.diffThreshold (default 0.5, poweruser 0.9).
   for (const file of files) {
     const diffRatio = computeDiffRatio(file.oldContent, file.newContent);
     const isMinimal = diffRatio < 0.5; // Less than 50% change
@@ -104,6 +112,9 @@ export async function runSelfEditChecklist(
   };
 }
 
+// TODO: Enhance diff ratio calculation to consider semantic changes, not just line count.
+// Consider using AST-based diffing for TypeScript files to detect meaningful vs cosmetic
+// changes. Add support for character-based diff ratio as alternative metric.
 function computeDiffRatio(old: string, new_: string): number {
   // Simple line-based diff ratio
   const oldLines = old.split("\n").length;

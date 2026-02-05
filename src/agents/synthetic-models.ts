@@ -1,5 +1,8 @@
 import type { ModelDefinitionConfig } from "../config/types.js";
 
+// TODO: Add dynamic model catalog updates. Allow runtime registration of new models without
+// restart. Add model discovery endpoint for Foundry to register crystallized models. Support
+// model versioning and A/B testing.
 export const SYNTHETIC_BASE_URL = "https://api.synthetic.new/anthropic";
 export const SYNTHETIC_DEFAULT_MODEL_ID = "hf:MiniMaxAI/MiniMax-M2.1";
 export const SYNTHETIC_DEFAULT_MODEL_REF = `synthetic/${SYNTHETIC_DEFAULT_MODEL_ID}`;

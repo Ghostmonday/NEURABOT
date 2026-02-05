@@ -41,6 +41,9 @@ export async function runGatewayLoop(params: {
       params.runtime.exit(0);
     }, 5000);
 
+    // TODO: Await child process exit (e.g. signal-cli) before starting new instance to
+    // avoid config file locks and orphaned processes. Use async stop with SIGKILL
+    // fallback (3s timeout).
     void (async () => {
       try {
         await server?.close({
@@ -87,6 +90,9 @@ export async function runGatewayLoop(params: {
   process.on("SIGINT", onSigint);
   process.on("SIGUSR1", onSigusr1);
 
+  // TODO: Add watchdog installation helper. Create systemd timer or launchd plist for
+  // watchdog. Provide openclaw watchdog install command to set up cron/systemd. Include
+  // watchdog status check in openclaw status.
   try {
     // Keep process alive; SIGUSR1 triggers an in-process restart (no supervisor required).
     // SIGTERM/SIGINT still exit after a graceful shutdown.

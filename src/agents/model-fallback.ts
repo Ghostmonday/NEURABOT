@@ -73,6 +73,9 @@ function buildAllowedModelKeys(
   return keys.size > 0 ? keys : null;
 }
 
+// TODO: Add model health tracking. Monitor model response times, error rates, and
+// availability. Prefer healthy models in failover order. Add modelHealth to health
+// snapshot. Implement model cooldown periods after failures.
 function resolveImageFallbackCandidates(params: {
   cfg: OpenClawConfig | undefined;
   defaultProvider: string;
@@ -220,6 +223,10 @@ function resolveFallbackCandidates(params: {
   return candidates;
 }
 
+// TODO: Enhance failover to include synthetic model catalog rotation. When primary model
+// times out or hits rate limits, automatically fail over to next model in
+// agents.defaults.model.fallbacks. Add exponential backoff for failed models. Track model
+// success rates for intelligent failover ordering.
 export async function runWithModelFallback<T>(params: {
   cfg: OpenClawConfig | undefined;
   provider: string;

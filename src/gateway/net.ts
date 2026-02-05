@@ -116,6 +116,9 @@ export function isLocalGatewayAddress(ip: string | undefined): boolean {
 
 /**
  * Resolves gateway bind host with fallback strategy.
+ * TODO: For poweruser/autonomous configs requiring remote access, use non-loopback bind
+ * (tailnet or 0.0.0.0) ONLY with strict authentication (gateway token or password).
+ * Document gateway.trustedProxies for correct IP resolution behind Nginx/Caddy.
  *
  * Modes:
  * - loopback: 127.0.0.1 (rarely fails, but handled gracefully)

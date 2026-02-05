@@ -37,6 +37,9 @@ export function isGatewaySigusr1RestartExternallyAllowed() {
   return sigusr1ExternalAllowed;
 }
 
+// TODO: Add rate limiting for SIGUSR1 restarts. Track restart frequency and reject if too
+// many restarts occur within time window (e.g., >3 restarts in 60s). Log restart attempts
+// to audit trail. Add maxRestartsPerMinute config option.
 export function authorizeGatewaySigusr1Restart(delayMs = 0) {
   const delay = Math.max(0, Math.floor(delayMs));
   const expiresAt = Date.now() + delay + SIGUSR1_AUTH_GRACE_MS;
@@ -176,6 +179,9 @@ export type ScheduledRestart = {
   mode: "emit" | "signal";
 };
 
+// TODO: Add race condition protection. Ensure only one restart is scheduled at a time.
+// Cancel pending restart if new restart is requested. Add restart queue for batched
+// operations. Implement restart deduplication (skip if same reason within time window).
 export function scheduleGatewaySigusr1Restart(opts?: {
   delayMs?: number;
   reason?: string;
@@ -192,6 +198,9 @@ export function scheduleGatewaySigusr1Restart(opts?: {
   authorizeGatewaySigusr1Restart(delayMs);
   const pid = process.pid;
   const hasListener = process.listenerCount("SIGUSR1") > 0;
+  // TODO: Add AbortError handling for cancelled fetches during shutdown. Wrap fetch
+  // operations in try-catch to prevent process.exit(1) on unhandled rejections. Add
+  // graceful shutdown timeout with SIGKILL fallback (3s hard limit).
   setTimeout(() => {
     try {
       if (hasListener) {

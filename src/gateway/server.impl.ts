@@ -34,6 +34,9 @@ import {
 import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
+// TODO: Call checkSelfModifyRollback() early in startup sequence, before channel
+// initialization. If rollback occurred, log warning and continue startup. Add startup
+// health check that runs after all services are initialized.
 import { checkSelfModifyRollback } from "../sowwy/self-modify/rollback.js";
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
@@ -218,7 +221,9 @@ export async function startGatewayServer(
   }
   setGatewaySigusr1RestartPolicy({ allowExternal: cfgAtStart.commands?.restart === true });
 
-  // Check for self-modify rollback before initializing services
+  // Check for self-modify rollback before initializing services.
+  // TODO: Add startup rollback check: if (rollbackResult.rolledBack) log.warn(...).
+  // Place after config load but before channel startup (current location is correct).
   const rollbackResult = await checkSelfModifyRollback();
   if (rollbackResult.rolledBack) {
     log.info(`[Gateway] Rolled back self-modification: ${rollbackResult.reason}`);
@@ -592,6 +597,9 @@ export async function startGatewayServer(
     httpServers,
   });
 
+  // TODO: Add startup health verification. After gateway starts, run health checks to
+  // ensure all services are operational. If health checks fail, trigger automatic
+  // rollback if self-modify restart was recent (<5 minutes).
   return {
     close: async (opts) => {
       if (diagnosticsEnabled) {

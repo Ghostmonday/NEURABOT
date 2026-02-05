@@ -52,8 +52,10 @@ function walkUpToPackageRoot(startDir: string, maxDepth = 12): string | null {
 
 /**
  * Resolves the project root directory for git operations.
- * Priority: 1) OPENCLAW_ROOT, 2) walk from entry script (argv[1]), 3) walk from this module, 4) cwd.
- * We never use workspaceDir—it is often outside the repo (e.g. ~/.openclaw/workspace).
+ * Priority: 1) OPENCLAW_ROOT env var, 2) walk from entry script (argv[1]), 3) walk from
+ * this module, 4) cwd. Never use workspaceDir as fallback—it may be outside the git repo
+ * (e.g. ~/.openclaw/workspace).
+ * TODO: Document OPENCLAW_ROOT in .env.example.
  */
 function resolveProjectRoot(fallback: string): string {
   const envRoot = process.env.OPENCLAW_ROOT;
@@ -123,7 +125,9 @@ The reload action will (autonomous, no manual steps):
 - Build the project so new code is in dist/
 - Start watchdog if not running (so gateway comes back)
 - Request supervised restart; gateway exits and watchdog restarts it with new code
-- If health checks fail, automatic rollback occurs`,
+- If health checks fail, automatic rollback occurs
+
+Poweruser mode: Set OPENCLAW_SELF_MODIFY_POWERUSER=1 to enable higher diff thresholds (90% vs 50%) and relaxed boundaries (if configured).`,
     parameters: SelfModifyToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
@@ -195,6 +199,15 @@ The reload action will (autonomous, no manual steps):
         }
 
         // Build so restarted gateway loads new code (autonomy: no manual rebuild)
+        // TODO: Make build timeout configurable via selfModify.buildTimeoutMs (default 120s).
+        // Add build progress reporting. Consider incremental builds for faster reload cycles.
+        // TODO: Add incremental build support. Skip build if only non-compiled files changed
+        // (markdown, JSON, YAML). Use file modification times to detect changes. Add
+        // selfModify.skipBuildIfUnchanged: boolean option.
+        // TODO: Respect OPENCLAW_PREFER_PNPM=1 for build. On some architectures (e.g. Synology,
+        // ARM NAS), set this for UI build stability. Document in .env.example.
+        // TODO: Document build chain. OpenClaw uses tsdown and tsgo. Node 22 is production
+        // runtime; Bun for local dev. Add build output parsing to detect errors early.
         const buildTimeoutMs = 120_000;
         try {
           execSync("pnpm build", {
@@ -209,6 +222,12 @@ The reload action will (autonomous, no manual steps):
             error: `Build failed before reload: ${err instanceof Error ? err.message : String(err)}. Fix errors and retry.`,
           });
         }
+
+        // TODO: Add pre-commit hook integration before reload. Run prek run --all-files or
+        // equivalent (pnpm check: lint, test, format). Abort reload if checks fail. Make
+        // configurable via selfModify.preCommitChecks: boolean (default true). Add
+        // selfModify.preCommitCommand to override. Document that agent should commit to
+        // branch and run tests before merge.
 
         // Request reload
         const reloadResult = await requestSelfModifyReload({

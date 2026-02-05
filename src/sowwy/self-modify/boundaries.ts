@@ -78,6 +78,9 @@ export const SELF_MODIFY_ALLOW = [
   "src/**/templates/**",
 ] as const;
 
+// POWERUSER MODE: To allow editing of `src/infra/**` and `src/security/**`, remove the
+// corresponding entries from this deny list. Deny rules take precedence over allow rules,
+// so paths must be removed from deny before they can be added to allow.
 export const SELF_MODIFY_DENY = [
   // Infrastructure (NEVER touch)
   "src/infra/**",
@@ -109,6 +112,9 @@ export interface SelfModifyValidation {
   matchedRule?: string;
 }
 
+// TODO: Add environment variable override support for poweruser mode. Check
+// process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1" to conditionally relax boundaries.
+// Consider adding OPENCLAW_SELF_MODIFY_ALLOW_OVERRIDE for runtime boundary adjustments.
 export function validateSelfModifyPath(filePath: string): SelfModifyValidation {
   // Deny rules take precedence
   for (const pattern of SELF_MODIFY_DENY) {

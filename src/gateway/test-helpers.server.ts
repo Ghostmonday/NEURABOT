@@ -28,9 +28,9 @@ import {
   sessionStoreSaveDelayMs,
   setTestConfigRoot,
   testIsNixMode,
-  testTailscaleWhois,
   testState,
   testTailnetIPv4,
+  testTailscaleWhois,
 } from "./test-helpers.mocks.js";
 
 // Preload the gateway server module once per worker.

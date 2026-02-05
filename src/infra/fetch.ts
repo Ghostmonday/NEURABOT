@@ -1,3 +1,7 @@
+// TODO: Add network egress restrictions. Support proxy configuration for API calls
+// (OpenAI, Anthropic, Composio). Add allowlist for required APIs. Document Squid proxy
+// setup for host-side filtering. Add network.proxy and network.allowedDomains config options.
+
 type FetchWithPreconnect = typeof fetch & {
   preconnect: (url: string, init?: { credentials?: RequestCredentials }) => void;
 };

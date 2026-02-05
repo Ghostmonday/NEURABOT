@@ -141,6 +141,8 @@ export function createOpenClawTools(options?: {
     ...(webSearchTool ? [webSearchTool] : []),
     ...(webFetchTool ? [webFetchTool] : []),
     ...(imageTool ? [imageTool] : []),
+    // self_modify is always included when using createOpenClawTools(); no feature flag.
+    // Pass projectDir to override git root detection.
     createSelfModifyTool({
       workspaceDir: options?.workspaceDir,
       projectDir: options?.projectDir,

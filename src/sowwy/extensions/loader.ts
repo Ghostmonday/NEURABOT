@@ -5,6 +5,9 @@ import { TwilioSMSExtension } from "./twilio-sms.js";
  * Extension Loader
  *
  * Manages the lifecycle of all Sowwy extensions.
+ * TODO: Add Foundry Overseer scheduler (hourly). Prune stale patterns, track performance
+ * metrics. Generate extension code in extensions/foundry-crystallized/. Add HTTP 402
+ * marketplace support for tool distribution (future).
  */
 export class ExtensionLoader {
   private extensions: ExtensionLifecycle[] = [];
