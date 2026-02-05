@@ -149,7 +149,7 @@ importers:
         specifier: ^5.4.624
         version: 5.4.624
       pg:
-        specifier: ^8.11.0
+        specifier: ^8.18.0
         version: 8.18.0
       playwright-core:
         specifier: 1.58.1

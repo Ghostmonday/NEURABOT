@@ -11,6 +11,7 @@ import { createGatewayTool } from "./tools/gateway-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
 import { createMessageTool } from "./tools/message-tool.js";
 import { createNodesTool } from "./tools/nodes-tool.js";
+import { createSelfModifyTool } from "./tools/self-modify-tool.js";
 import { createSessionStatusTool } from "./tools/session-status-tool.js";
 import { createSessionsHistoryTool } from "./tools/sessions-history-tool.js";
 import { createSessionsListTool } from "./tools/sessions-list-tool.js";
@@ -38,6 +39,8 @@ export function createOpenClawTools(options?: {
   agentDir?: string;
   sandboxRoot?: string;
   workspaceDir?: string;
+  /** Project root directory for git operations in self-modify tool (optional) */
+  projectDir?: string;
   sandboxed?: boolean;
   config?: OpenClawConfig;
   pluginToolAllowlist?: string[];
@@ -138,6 +141,10 @@ export function createOpenClawTools(options?: {
     ...(webSearchTool ? [webSearchTool] : []),
     ...(webFetchTool ? [webFetchTool] : []),
     ...(imageTool ? [imageTool] : []),
+    createSelfModifyTool({
+      workspaceDir: options?.workspaceDir,
+      projectDir: options?.projectDir ?? process.cwd(),
+    }),
   ];
 
   const pluginTools = resolvePluginTools({

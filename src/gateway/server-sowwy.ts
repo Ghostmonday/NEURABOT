@@ -12,6 +12,7 @@ import type {
 import { ExtensionFoundationImpl } from "../sowwy/extensions/foundation.js";
 import { ExtensionLoader } from "../sowwy/extensions/loader.js";
 import {
+  createInMemoryStores,
   createLanceDBIdentityStore,
   createPostgresStores,
   PersonaOwner,
@@ -126,16 +127,14 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
   }
 
   const pgHost = env.postgres?.host;
-  if (!pgHost) {
-    return {
-      sowwyHandlers: {},
-      sowwyMethodNames: [],
-      scheduler: null,
-      stores: null,
-    };
-  }
+  let stores: SowwyStores;
 
-  const stores = await createPostgresStores(env.postgres!);
+  if (!pgHost || process.env.SOWWY_DB_TYPE === "memory") {
+    console.warn("⚠️ Using In-Memory Store (Data will be lost on restart)");
+    stores = createInMemoryStores();
+  } else {
+    stores = await createPostgresStores(env.postgres!);
+  }
 
   const stubEmbedder = createStubEmbeddingProvider(384);
   const identityStore = await createLanceDBIdentityStore({

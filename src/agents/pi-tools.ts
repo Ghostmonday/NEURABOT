@@ -121,6 +121,8 @@ export function createOpenClawCodingTools(options?: {
   sessionKey?: string;
   agentDir?: string;
   workspaceDir?: string;
+  /** Project root directory for git operations in self-modify tool (defaults to process.cwd() if not provided) */
+  projectDir?: string;
   config?: OpenClawConfig;
   abortSignal?: AbortSignal;
   /**
@@ -331,6 +333,7 @@ export function createOpenClawCodingTools(options?: {
       sandboxRoot,
       workspaceDir: options?.workspaceDir,
       sandboxed: !!sandbox,
+      projectDir: options?.projectDir,
       config: options?.config,
       pluginToolAllowlist: collectExplicitAllowlist([
         profilePolicy,
