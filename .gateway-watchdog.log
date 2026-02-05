@@ -530,3 +530,196 @@ If the gateway is supervised, stop it with: openclaw gateway stop
     at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
     at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
     at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:10.879Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:15.885Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:20.886Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:25.889Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:30.896Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:35.899Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:40.902Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:45.905Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:50.906Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:57:55.909Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:00.910Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:05.912Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:10.913Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:15.918Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:20.921Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:25.923Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:30.925Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:34.907Z [agent/embedded] read tool called without path: toolCallId=call_function_facmb5zy9o2y_1 argsType=object
+2026-02-05T09:58:35.927Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:40.929Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:45.934Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:50.936Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:58:55.937Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:00.940Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:05.942Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:10.946Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:15.949Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:20.951Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:25.953Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:30.959Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:35.960Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:40.962Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:45.967Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)

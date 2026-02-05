@@ -1,13 +1,15 @@
 import type { ExtensionFoundation, ExtensionLifecycle } from "./integration.js";
+import { startOverseer, stopOverseer } from "./overseer/index.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";
 
 /**
  * Extension Loader
  *
  * Manages the lifecycle of all Sowwy extensions.
- * TODO: Add Foundry Overseer scheduler (hourly). Prune stale patterns, track performance
- * metrics. Generate extension code in extensions/foundry-crystallized/. Add HTTP 402
- * marketplace support for tool distribution (future).
+ * Foundry Overseer: Hourly scheduler for autonomous self-improvement.
+ * - Prunes stale patterns (unused > 7 days)
+ * - Tracks tool sequence success rates
+ * - Crystallizes high-value patterns (>80% success) to extensions/foundry-crystallized/
  */
 export class ExtensionLoader {
   private extensions: ExtensionLifecycle[] = [];
@@ -26,9 +28,13 @@ export class ExtensionLoader {
         console.error(`Failed to initialize extension: ${String(error)}`);
       }
     }
+
+    // Start Foundry Overseer for autonomous self-improvement
+    startOverseer();
   }
 
   async shutdown(): Promise<void> {
+    stopOverseer();
     for (const extension of this.extensions) {
       await extension.shutdown();
     }
@@ -41,3 +47,5 @@ export class ExtensionLoader {
     }
   }
 }
+
+export { recordPattern, getPatternSuccessRate, getOverseerStatus } from "./overseer/index.js";
