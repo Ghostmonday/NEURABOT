@@ -115,6 +115,11 @@ export interface SowwyBootstrapResult {
  * Validates all environment variables and redacts secrets from errors.
  */
 export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
+  // NOTE: Watchdog starts here. If you see "[Watchdog] Watchdog system started" in logs,
+  // the heartbeat is active. Configure HEALTHCHECKS_URL in ecosystem.config.cjs for
+  // external "Dead Man's Switch" monitoring.
+  startWatchdog();
+
   // Validate environment variables (fails fast with clear errors)
   let env: ReturnType<typeof validateSowwyEnv>;
   try {

@@ -1,6 +1,9 @@
 # OpenClaw Watchdog - Boot Persistence Guide
 
-## Quick Install
+> ⚠️ **DEPRECATED**: Use PM2 instead. See `/ecosystem.config.cjs`
+> PM2 is more stable and industry-standard. Run: `npx pm2 start ecosystem.config.cjs`
+
+## Quick Install (Legacy - Not Recommended)
 
 ```bash
 # Copy service file

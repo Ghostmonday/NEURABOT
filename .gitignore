@@ -84,3 +84,4 @@ CODECAT.md
 *.log
 *.pid
 *-watchdog.log
+logs/
