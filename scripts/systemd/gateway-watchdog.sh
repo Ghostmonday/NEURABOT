@@ -184,3 +184,28 @@ case "$1" in
     restart) stop; sleep 1; start ;;
     *) echo "Usage: $0 {start|stop|status|restart}" ;;
 esac
+
+# ============================================================================
+# SYSTEMD INSTALLATION (for boot persistence)
+# ============================================================================
+#
+# To enable automatic start on boot:
+#
+#   1. Copy service file to systemd directory:
+#      sudo cp /home/amir/Projects/NEURABOT/scripts/systemd/openclaw-watchdog.service /etc/systemd/system/
+#
+#   2. Reload systemd:
+#      sudo systemctl daemon-reload
+#
+#   3. Enable and start:
+#      sudo systemctl enable openclaw-watchdog
+#      sudo systemctl start openclaw-watchdog
+#
+#   4. Check status:
+#      sudo systemctl status openclaw-watchdog
+#
+# To disable:
+#      sudo systemctl stop openclaw-watchdog
+#      sudo systemctl disable openclaw-watchdog
+#
+# ============================================================================

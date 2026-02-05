@@ -1677,3 +1677,337 @@ If the gateway is supervised, stop it with: openclaw gateway stop
     at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
     at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
     at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:31.128Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:32.881Z [gateway] signal SIGTERM received
+[2026-02-05T02:17:32-08:00] CLI: Manual stop
+2026-02-05T10:17:32.882Z [gateway] received SIGTERM; shutting down
+2026-02-05T10:17:32.888Z [gmail-watcher] gmail watcher stopped
+2026-02-05T10:17:33.222Z [ws] webchat disconnected code=1012 reason=service restart conn=6b5002c4-e67b-426d-97b5-3c29bd9aea09
+2026-02-05T10:17:33.223Z [ws] webchat disconnected code=1012 reason=service restart conn=bea6b681-51b5-44c3-9f53-38812c846ac4
+[2026-02-05T02:17:34-08:00] Watchdog started (interval: 10s, max restarts: 5)
+[2026-02-05T02:17:34-08:00] Started gateway 337554
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:17:36.316Z [PostgresTaskStore] Schema initialization failed: AggregateError [ECONNREFUSED]: 
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PostgresTaskStore.initializeSchema (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15439:18)
+2026-02-05T10:17:36.320Z Twilio SMS Extension: Initialized successfully.
+2026-02-05T10:17:36.321Z [Overseer] Starting (interval: 3600000ms)
+2026-02-05T10:17:36.322Z [Overseer] Starting cycle 3
+2026-02-05T10:17:36.322Z [Overseer] Pruned 0 stale patterns
+2026-02-05T10:17:36.323Z [Overseer] Cycle complete. Patterns: 0, Crystallized candidates: 0
+[2026-02-05T02:17:36-08:00] Gateway 337554 verified alive
+2026-02-05T10:17:37.047Z Config was last written by a newer OpenClaw (2026.2.1); current version is 0.0.0.
+2026-02-05T10:17:37.053Z [canvas] host mounted at http://127.0.0.1:18789/__openclaw__/canvas/ (root /home/amir/.openclaw/canvas)
+2026-02-05T10:17:37.088Z [heartbeat] started
+2026-02-05T10:17:37.092Z [gateway] agent model: minimax/MiniMax-M2.1
+2026-02-05T10:17:37.093Z [gateway] listening on ws://127.0.0.1:18789 (PID 337554)
+2026-02-05T10:17:37.094Z [gateway] listening on ws://[::1]:18789
+2026-02-05T10:17:37.094Z [gateway] log file: /tmp/openclaw/openclaw-2026-02-05.log
+2026-02-05T10:17:37.095Z [Scheduler] Started
+2026-02-05T10:17:37.097Z [Scheduler] Stuck task detection started
+2026-02-05T10:17:37.098Z [gateway] sowwy: task scheduler started
+2026-02-05T10:17:37.109Z [browser/service] Browser control service ready (profiles=2)
+2026-02-05T10:17:37.131Z [Scheduler] Stuck task detection error: Error [AggregateError]: 
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getStuckTasks (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15784:11)
+    at checkStuckTasks (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16142:24)
+2026-02-05T10:17:37.133Z [Scheduler] Tick error: Error [AggregateError]: 
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:37.609Z [telegram] [default] starting provider
+2026-02-05T10:17:37.620Z [telegram] autoSelectFamily=false (default-node22)
+2026-02-05T10:17:37.708Z [ws] webchat connected conn=42368bfb-5de9-45bf-a97b-ff4969c5a59a remote=::1 client=openclaw-control-ui webchat vdev
+2026-02-05T10:17:37.788Z [telegram] [default] channel exited: Call to 'getMe' failed! (404: Not Found)
+2026-02-05T10:17:37.789Z [telegram] setMyCommands failed: Call to 'setMyCommands' failed! (404: Not Found)
+2026-02-05T10:17:37.874Z [ws] webchat disconnected code=1001 reason=n/a conn=42368bfb-5de9-45bf-a97b-ff4969c5a59a
+2026-02-05T10:17:37.930Z [ws] webchat connected conn=13066d89-88dd-48ee-ae1f-10e62bd66dbf remote=::1 client=openclaw-control-ui webchat vdev
+2026-02-05T10:17:39.273Z [ws] webchat connected conn=4c7a89da-4cf1-4eac-8160-551e3d838f71 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+2026-02-05T10:17:42.135Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:17:47.136Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:52.138Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:17:57.141Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:18:02.142Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:18:07.144Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:18:12.146Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:18:17.148Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:18:22.149Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:18:27.151Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:18:32.153Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:18:37.156Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:18:42.158Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:18:47.160Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:18:52.161Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:18:57.163Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:19:02.165Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:19:07.167Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:19:12.169Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:19:17.172Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:19:22.174Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:19:27.175Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:19:32.179Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:19:37.179Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:19:42.181Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:19:47.184Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:19:52.185Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:19:57.186Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:20:02.189Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:20:07.193Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:20:12.195Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:20:17.197Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:20:22.200Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:20:27.202Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:20:32.205Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:20:37.209Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:20:42.210Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:20:47.212Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:20:52.217Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:20:57.219Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:21:02.221Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 53: local: can only be used in a function
+2026-02-05T10:21:07.224Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
