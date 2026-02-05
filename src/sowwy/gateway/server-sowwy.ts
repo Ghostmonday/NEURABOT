@@ -1,0 +1,182 @@
+/**
+ * Sowwy Gateway Server Bootstrap
+ *
+ * Initializes SOWWY components and wires them to the OpenClaw gateway.
+ * This file is called during gateway startup.
+ */
+
+import { randomUUID } from "node:crypto";
+import type { IdentityStore } from "../identity/store.js";
+import type { TaskScheduler } from "../mission-control/scheduler.js";
+import type {
+  AuditStore,
+  TaskStore,
+  DecisionStore,
+  DecisionLogEntry,
+} from "../mission-control/store.js";
+import type { SMTThrottler } from "../smt/throttler.js";
+import type { GatewayContext } from "./rpc-methods.js";
+// Persona executors
+import { createChiefOfStaffPersonaSkill } from "../personas/cos-skill.js";
+import { createDevPersonaSkill } from "../personas/dev-skill.js";
+import { createLegalOpsPersonaSkill } from "../personas/legalops-skill.js";
+import { createRnDPersonaSkill } from "../personas/rnd-skill.js";
+import { registerSowwyRPCMethods } from "./rpc-methods.js";
+
+export interface SowwyGatewayConfig {
+  /**
+   * Enable/disable persona executors
+   */
+  enablePersonas: boolean;
+}
+
+/**
+ * Initialize SOWWY gateway components
+ */
+export async function initializeSowwyGateway(
+  scheduler: TaskScheduler,
+  taskStore: TaskStore,
+  identityStore: IdentityStore,
+  smt: SMTThrottler,
+  auditStore: AuditStore,
+  config: Partial<SowwyGatewayConfig> = {},
+): Promise<GatewayContext> {
+  const finalConfig: SowwyGatewayConfig = {
+    enablePersonas: true,
+    ...config,
+  };
+
+  console.log("[SowwyGateway] Initializing...");
+
+  // Register persona executors
+  if (finalConfig.enablePersonas) {
+    registerPersonaExecutors(scheduler);
+  }
+
+  // Create gateway context
+  const context: GatewayContext = {
+    stores: {
+      tasks: taskStore,
+      audit: auditStore,
+      decisions: {
+        async log(entry: Omit<DecisionLogEntry, "id" | "createdAt">) {
+          const now = new Date().toISOString();
+          const decisionEntry: DecisionLogEntry = {
+            ...entry,
+            id: randomUUID(),
+            createdAt: now,
+          };
+          // Use audit store as fallback
+          await auditStore.append({
+            taskId: entry.taskId,
+            action: `decision:${entry.decision}`,
+            details: {
+              reasoning: entry.reasoning,
+              confidence: entry.confidence,
+              outcome: entry.outcome,
+            },
+            performedBy: "system",
+          });
+          return decisionEntry;
+        },
+        async getByTaskId(_taskId: string) {
+          return [];
+        },
+        async getRecent(_limit: number) {
+          return [];
+        },
+      } as unknown as DecisionStore,
+    },
+    identityStore,
+    smt,
+    userId: "sowwy",
+  };
+
+  console.log("[SowwyGateway] Initialized successfully");
+
+  return context;
+}
+
+/**
+ * Register all persona executors with the scheduler
+ */
+function registerPersonaExecutors(scheduler: TaskScheduler): void {
+  console.log("[SowwyGateway] Registering persona executors...");
+
+  // Register Dev persona
+  const devExecutor = createDevPersonaSkill();
+  scheduler.registerPersona("Dev" as any, async (task, context) => {
+    if (!devExecutor.canHandle(task)) {
+      throw new Error(`Dev executor cannot handle task ${task.taskId}`);
+    }
+    return devExecutor.execute(task, {
+      identityContext: context,
+      smt: { recordUsage: (op) => console.log(`[Dev] SMT: ${op}`) },
+      audit: {
+        log: async (entry) => {
+          console.log(`[Dev] Audit: ${entry.action}`);
+        },
+      },
+    });
+  });
+
+  // Register LegalOps persona
+  const legalOpsExecutor = createLegalOpsPersonaSkill();
+  scheduler.registerPersona("LegalOps" as any, async (task, context) => {
+    if (!legalOpsExecutor.canHandle(task)) {
+      throw new Error(`LegalOps executor cannot handle task ${task.taskId}`);
+    }
+    return legalOpsExecutor.execute(task, {
+      identityContext: context,
+      smt: { recordUsage: (op) => console.log(`[LegalOps] SMT: ${op}`) },
+      audit: {
+        log: async (entry) => {
+          console.log(`[LegalOps] Audit: ${entry.action}`);
+        },
+      },
+    });
+  });
+
+  // Register ChiefOfStaff persona
+  const cosExecutor = createChiefOfStaffPersonaSkill();
+  scheduler.registerPersona("ChiefOfStaff" as any, async (task, context) => {
+    if (!cosExecutor.canHandle(task)) {
+      throw new Error(`ChiefOfStaff executor cannot handle task ${task.taskId}`);
+    }
+    return cosExecutor.execute(task, {
+      identityContext: context,
+      smt: { recordUsage: (op) => console.log(`[ChiefOfStaff] SMT: ${op}`) },
+      audit: {
+        log: async (entry) => {
+          console.log(`[ChiefOfStaff] Audit: ${entry.action}`);
+        },
+      },
+    });
+  });
+
+  // Register RnD persona
+  const rndExecutor = createRnDPersonaSkill();
+  scheduler.registerPersona("RnD" as any, async (task, context) => {
+    if (!rndExecutor.canHandle(task)) {
+      throw new Error(`RnD executor cannot handle task ${task.taskId}`);
+    }
+    return rndExecutor.execute(task, {
+      identityContext: context,
+      smt: { recordUsage: (op) => console.log(`[RnD] SMT: ${op}`) },
+      audit: {
+        log: async (entry) => {
+          console.log(`[RnD] Audit: ${entry.action}`);
+        },
+      },
+    });
+  });
+
+  console.log("[SowwyGateway] Registered 4 persona executors: Dev, LegalOps, ChiefOfStaff, RnD");
+}
+
+/**
+ * Create RPC methods for the gateway
+ */
+export function createSowwyRPCMethods(context: GatewayContext): Record<string, Function> {
+  return registerSowwyRPCMethods(context);
+}

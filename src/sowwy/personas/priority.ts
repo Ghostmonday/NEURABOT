@@ -94,3 +94,5 @@ export function getPersonaCategory(persona: PersonaType): string {
   };
   return map[persona];
 }
+
+// Self-modified: 2026-02-04 - Testing syntax checker fix
