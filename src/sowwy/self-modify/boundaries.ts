@@ -3,6 +3,11 @@
  *
  * Defines what files the agent is allowed to modify.
  * This is the ONLY gatekeeper for self-edit operations.
+ *
+ * Poweruser mode support:
+ * - OPENCLAW_SELF_MODIFY_POWERUSER=1: Relax boundaries for autonomous operation
+ * - OPENCLAW_SELF_MODIFY_ALLOW_OVERRIDE=1: Allow runtime boundary adjustments
+ * - OPENCLAW_SELF_MODIFY_DIFF_THRESHOLD: Override diff ratio (e.g., "0.9")
  */
 
 // ============================================================================
@@ -112,9 +117,26 @@ export interface SelfModifyValidation {
   matchedRule?: string;
 }
 
-// TODO: Add environment variable override support for poweruser mode. Check
-// process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1" to conditionally relax boundaries.
-// Consider adding OPENCLAW_SELF_MODIFY_ALLOW_OVERRIDE for runtime boundary adjustments.
+// Environment variable overrides for poweruser mode
+export function isPoweruserModeEnabled(): boolean {
+  return process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1";
+}
+
+export function isBoundaryOverrideAllowed(): boolean {
+  return process.env.OPENCLAW_SELF_MODIFY_ALLOW_OVERRIDE === "1";
+}
+
+export function getDiffThreshold(): number {
+  const envThreshold = process.env.OPENCLAW_SELF_MODIFY_DIFF_THRESHOLD;
+  if (envThreshold) {
+    const parsed = parseFloat(envThreshold);
+    if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 1) {
+      return parsed;
+    }
+  }
+  return 0.5; // default 50%
+}
+
 export function validateSelfModifyPath(filePath: string): SelfModifyValidation {
   // Deny rules take precedence
   for (const pattern of SELF_MODIFY_DENY) {

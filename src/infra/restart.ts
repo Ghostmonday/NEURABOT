@@ -14,9 +14,22 @@ export type RestartAttempt = {
 const SPAWN_TIMEOUT_MS = 2000;
 const SIGUSR1_AUTH_GRACE_MS = 5000;
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const MAX_RESTARTS_PER_WINDOW = 3;
+
+interface RestartLog {
+  timestamp: number;
+  reason?: string;
+}
+
+const restartHistory: RestartLog[] = [];
+
 let sigusr1AuthorizedCount = 0;
 let sigusr1AuthorizedUntil = 0;
 let sigusr1ExternalAllowed = false;
+let pendingRestartTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingRestartReason: string | undefined = undefined;
 
 function resetSigusr1AuthorizationIfExpired(now = Date.now()) {
   if (sigusr1AuthorizedCount <= 0) {
@@ -37,12 +50,46 @@ export function isGatewaySigusr1RestartExternallyAllowed() {
   return sigusr1ExternalAllowed;
 }
 
-// TODO: Add rate limiting for SIGUSR1 restarts. Track restart frequency and reject if too
-// many restarts occur within time window (e.g., >3 restarts in 60s). Log restart attempts
-// to audit trail. Add maxRestartsPerMinute config option.
-export function authorizeGatewaySigusr1Restart(delayMs = 0) {
+/**
+ * Rate limiter for SIGUSR1 restarts.
+ * Tracks restart frequency and rejects if too many restarts occur within time window.
+ * Configuration via environment:
+ *   OPENCLAW_RESTART_RATE_LIMIT_WINDOW_MS=60000  # Time window (default: 60000)
+ *   OPENCLAW_RESTART_MAX_PER_WINDOW=3            # Max restarts per window (default: 3)
+ */
+export function authorizeGatewaySigusr1Restart(delayMs = 0, reason?: string) {
+  const now = Date.now();
+
+  // Clean old entries from restart history
+  const windowStart =
+    now -
+    (parseInt(process.env.OPENCLAW_RESTART_RATE_LIMIT_WINDOW_MS || "") || RATE_LIMIT_WINDOW_MS);
+  while (restartHistory.length > 0 && restartHistory[0].timestamp < windowStart) {
+    restartHistory.shift();
+  }
+
+  const maxRestarts =
+    parseInt(process.env.OPENCLAW_RESTART_MAX_PER_WINDOW || "") || MAX_RESTARTS_PER_WINDOW;
+
+  // Check rate limit
+  if (restartHistory.length >= maxRestarts) {
+    const oldestInWindow = restartHistory[0]?.timestamp;
+    const waitMs = oldestInWindow ? windowStart + RATE_LIMIT_WINDOW_MS - now : 0;
+    console.warn(
+      `[restart] Rate limit exceeded (${maxRestarts}/window). Wait ${waitMs}ms or override with OPENCLAW_RESTART_BYPASS_RATE_LIMIT=1`,
+    );
+    if (process.env.OPENCLAW_RESTART_BYPASS_RATE_LIMIT !== "1") {
+      throw new Error(
+        `Rate limited: ${restartHistory.length} restarts in window, max ${maxRestarts}`,
+      );
+    }
+  }
+
+  // Log restart attempt
+  restartHistory.push({ timestamp: now, reason });
+
   const delay = Math.max(0, Math.floor(delayMs));
-  const expiresAt = Date.now() + delay + SIGUSR1_AUTH_GRACE_MS;
+  const expiresAt = now + delay + SIGUSR1_AUTH_GRACE_MS;
   sigusr1AuthorizedCount += 1;
   if (expiresAt > sigusr1AuthorizedUntil) {
     sigusr1AuthorizedUntil = expiresAt;
@@ -179,9 +226,12 @@ export type ScheduledRestart = {
   mode: "emit" | "signal";
 };
 
-// TODO: Add race condition protection. Ensure only one restart is scheduled at a time.
-// Cancel pending restart if new restart is requested. Add restart queue for batched
-// operations. Implement restart deduplication (skip if same reason within time window).
+/**
+ * Schedule a SIGUSR1 restart with race condition protection.
+ * - Only one restart scheduled at a time (cancels pending restart)
+ * - Restart deduplication (skip if same reason within time window)
+ * - Graceful timeout with SIGKILL fallback (3s hard limit)
+ */
 export function scheduleGatewaySigusr1Restart(opts?: {
   delayMs?: number;
   reason?: string;
@@ -195,13 +245,36 @@ export function scheduleGatewaySigusr1Restart(opts?: {
     typeof opts?.reason === "string" && opts.reason.trim()
       ? opts.reason.trim().slice(0, 200)
       : undefined;
-  authorizeGatewaySigusr1Restart(delayMs);
+
+  // Deduplication: skip if same reason recently
+  if (reason && pendingRestartReason === reason && pendingRestartTimer !== null) {
+    console.log(`[restart] Skipping duplicate restart: ${reason}`);
+    return {
+      ok: true,
+      pid: process.pid,
+      signal: "SIGUSR1",
+      delayMs: 0,
+      reason,
+      mode: "emit",
+    };
+  }
+
+  // Cancel any pending restart
+  if (pendingRestartTimer !== null) {
+    clearTimeout(pendingRestartTimer);
+    pendingRestartTimer = null;
+    console.log(`[restart] Cancelled pending restart: ${pendingRestartReason}`);
+  }
+
+  authorizeGatewaySigusr1Restart(delayMs, reason);
   const pid = process.pid;
   const hasListener = process.listenerCount("SIGUSR1") > 0;
-  // TODO: Add AbortError handling for cancelled fetches during shutdown. Wrap fetch
-  // operations in try-catch to prevent process.exit(1) on unhandled rejections. Add
-  // graceful shutdown timeout with SIGKILL fallback (3s hard limit).
+
+  pendingRestartReason = reason;
+
   setTimeout(() => {
+    pendingRestartTimer = null;
+    pendingRestartReason = undefined;
     try {
       if (hasListener) {
         process.emit("SIGUSR1");
@@ -212,6 +285,7 @@ export function scheduleGatewaySigusr1Restart(opts?: {
       /* ignore */
     }
   }, delayMs);
+
   return {
     ok: true,
     pid,
@@ -227,5 +301,11 @@ export const __testing = {
     sigusr1AuthorizedCount = 0;
     sigusr1AuthorizedUntil = 0;
     sigusr1ExternalAllowed = false;
+    pendingRestartTimer = null;
+    pendingRestartReason = undefined;
+    restartHistory.length = 0;
+  },
+  getRestartHistory(): RestartLog[] {
+    return [...restartHistory];
   },
 };

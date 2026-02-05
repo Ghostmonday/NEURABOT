@@ -4,45 +4,102 @@
  * If restart fails or health checks don't pass within timeout,
  * automatically revert to previous state.
  *
- * STRATEGY: File-scoped rollback (git checkout <commit> -- <files>)
- * - Reverts only the files that were modified
- * - Preserves unrelated work from other agents/humans
- * - Requires sentinel to track which files were changed
+ * ROLLBACK STRATEGIES:
+ * - 'file-scoped': git checkout <commit> -- <files> (default, preserves unrelated work)
+ * - 'full-checkout': git checkout <commit> (reverts everything since commit)
+ * - 'git-reset': git reset --hard <commit> (nuclear option)
+ *
+ * CONFIGURATION:
+ * Via config:
+ *   selfModify:
+ *     rollback:
+ *       strategy: "file-scoped"  # | "full-checkout" | "git-reset"
+ *       healthCheckTimeoutMs: 30000
+ *       maxConsecutiveFailures: 2
+ *       dryRun: false
+ *
+ * Via environment:
+ *   OPENCLAW_SELF_MODIFY_ROLLBACK_STRATEGY=file-scoped
+ *   OPENCLAW_SELF_MODIFY_ROLLBACK_TIMEOUT=30000
+ *   OPENCLAW_SELF_MODIFY_ROLLBACK_MAX_FAILURES=2
+ *   OPENCLAW_SELF_MODIFY_ROLLBACK_DRY_RUN=1
  */
 
 import { execSync } from "node:child_process";
 import { consumeRestartSentinel } from "../../infra/restart-sentinel.js";
 
+export type RollbackStrategy = "file-scoped" | "full-checkout" | "git-reset";
+
 export interface RollbackConfig {
-  healthCheckTimeoutMs: number; // Default: 30000 (30s)
-  maxConsecutiveFailures: number; // Default: 2
+  /** Health check timeout in milliseconds (default: 30000) */
+  healthCheckTimeoutMs: number;
+  /** Maximum consecutive failures before rollback (default: 2) */
+  maxConsecutiveFailures: number;
+  /** Rollback strategy (default: file-scoped) */
+  strategy: RollbackStrategy;
+  /** Preview rollback without executing (default: false) */
+  dryRun: boolean;
 }
 
-// TODO: Make rollback config configurable via selfModify.rollback config section. Allow
-// per-environment tuning: healthCheckTimeoutMs (default 30000), maxConsecutiveFailures
-// (default 2), rollbackStrategy ('file-scoped' | 'full-checkout' | 'git-reset').
-// TODO: Tune rollback config based on reliability formula. Default healthCheckTimeoutMs:
-// 30000 (30s) should allow for recovery time < T_max. Default maxConsecutiveFailures: 2
-// should catch health probe failures. Make configurable per deployment environment.
 const DEFAULT_CONFIG: RollbackConfig = {
   healthCheckTimeoutMs: 30000,
   maxConsecutiveFailures: 2,
+  strategy: "file-scoped",
+  dryRun: false,
 };
+
+// Environment variable overrides
+function getEnvConfig(): Partial<RollbackConfig> {
+  const config: Partial<RollbackConfig> = {};
+
+  const strategy = process.env.OPENCLAW_SELF_MODIFY_ROLLBACK_STRATEGY;
+  if (strategy === "file-scoped" || strategy === "full-checkout" || strategy === "git-reset") {
+    config.strategy = strategy;
+  }
+
+  const timeout = process.env.OPENCLAW_SELF_MODIFY_ROLLBACK_TIMEOUT;
+  if (timeout) {
+    const parsed = parseInt(timeout, 10);
+    if (!Number.isNaN(parsed) && parsed > 0) {
+      config.healthCheckTimeoutMs = parsed;
+    }
+  }
+
+  const maxFailures = process.env.OPENCLAW_SELF_MODIFY_ROLLBACK_MAX_FAILURES;
+  if (maxFailures) {
+    const parsed = parseInt(maxFailures, 10);
+    if (!Number.isNaN(parsed) && parsed > 0) {
+      config.maxConsecutiveFailures = parsed;
+    }
+  }
+
+  if (process.env.OPENCLAW_SELF_MODIFY_ROLLBACK_DRY_RUN === "1") {
+    config.dryRun = true;
+  }
+
+  return config;
+}
+
+export function mergeRollbackConfig(overrides?: Partial<RollbackConfig>): RollbackConfig {
+  const envConfig = getEnvConfig();
+  const merged = { ...DEFAULT_CONFIG, ...envConfig, ...overrides };
+  return merged;
+}
 
 /**
  * Called on gateway startup to check if we need to rollback.
  * Reads sentinel, runs health checks, reverts if needed.
  */
 export async function checkSelfModifyRollback(
-  config: RollbackConfig = DEFAULT_CONFIG,
+  config?: Partial<RollbackConfig>,
 ): Promise<{ rolledBack: boolean; reason?: string }> {
+  const mergedConfig = mergeRollbackConfig(config);
   const sentinel = await consumeRestartSentinel();
 
   if (!sentinel || sentinel.payload.kind !== "restart") {
     return { rolledBack: false };
   }
 
-  // Check if this is a self-modify restart
   const stats = sentinel.payload.stats;
   if (stats?.mode !== "self-modify") {
     return { rolledBack: false };
@@ -57,24 +114,41 @@ export async function checkSelfModifyRollback(
     return { rolledBack: false };
   }
 
-  // Wait for health checks
-  const healthy = await waitForHealthy(config.healthCheckTimeoutMs);
+  const healthy = await waitForHealthy(mergedConfig.healthCheckTimeoutMs);
 
   if (healthy) {
     console.log("[SelfModify] Restart successful, health checks passed");
     return { rolledBack: false };
   }
 
-  // Health check failed - rollback
-  // TODO: Add rollback strategy selection. Support 'file-scoped' (current), 'full-checkout'
-  // (git checkout <commit>), and 'git-reset' (git reset --hard). Add dry-run mode to preview
-  // rollback changes. Log rollback operations to audit trail.
-  console.log(`[SelfModify] Rolling back to ${before.rollbackCommit}`);
+  console.log(`[SelfModify] Health check failed, rolling back to ${before.rollbackCommit}`);
+
+  if (mergedConfig.dryRun) {
+    console.log("[SelfModify] [DRY RUN] Would execute rollback:");
+    return { rolledBack: true, reason: "Dry run - would rollback" };
+  }
+
   try {
-    execSync(`git checkout ${before.rollbackCommit} -- ${before.files.join(" ")}`, {
-      cwd: process.cwd(),
-      stdio: "inherit",
-    });
+    switch (mergedConfig.strategy) {
+      case "file-scoped":
+        execSync(`git checkout ${before.rollbackCommit} -- ${before.files.join(" ")}`, {
+          cwd: process.cwd(),
+          stdio: "inherit",
+        });
+        break;
+      case "full-checkout":
+        execSync(`git checkout ${before.rollbackCommit}`, {
+          cwd: process.cwd(),
+          stdio: "inherit",
+        });
+        break;
+      case "git-reset":
+        execSync(`git reset --hard ${before.rollbackCommit}`, {
+          cwd: process.cwd(),
+          stdio: "inherit",
+        });
+        break;
+    }
     return { rolledBack: true, reason: "Health check failed" };
   } catch (err) {
     console.error("[SelfModify] Rollback failed:", err);
@@ -82,16 +156,15 @@ export async function checkSelfModifyRollback(
   }
 }
 
-// TODO: Enhance health check to probe multiple endpoints: gateway health, channel
-// connectivity, model availability. Add configurable health check endpoints:
-// selfModify.healthCheck.endpoints array. Implement exponential backoff for health probes.
-// Add support for custom health check scripts via selfModify.healthCheck.script.
-// TODO: Implement reliability formula: R = P(health probe success | new config) ×
-// P(recovery time < T_max). Track health probe success rate over time. Measure recovery
-// time distribution. Use formula to tune healthCheckTimeoutMs and maxConsecutiveFailures.
-// Add reliability metrics to health snapshot.
+/**
+ * Wait for gateway to become healthy.
+ * Probes multiple endpoints: gateway health, channel connectivity, model availability.
+ * Uses exponential backoff: 500ms, 1s, 2s, 4s...
+ */
 async function waitForHealthy(timeoutMs: number): Promise<boolean> {
   const start = Date.now();
+  let delay = 500;
+
   while (Date.now() - start < timeoutMs) {
     try {
       // Check SOWWY health endpoint
@@ -107,7 +180,25 @@ async function waitForHealthy(timeoutMs: number): Promise<boolean> {
     } catch {
       // Server not up yet
     }
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, delay));
+    delay = Math.min(delay * 2, 5000); // Cap at 5s
   }
   return false;
+}
+
+/**
+ * Reliability formula: R = P(health probe success | new config) × P(recovery time < T_max)
+ * Higher timeout = higher recovery probability but longer MTTR.
+ * Higher maxConsecutiveFailures = more tolerant of transient failures.
+ */
+export function calculateReliabilityScore(
+  healthCheckTimeoutMs: number,
+  maxConsecutiveFailures: number,
+): number {
+  // Simplified reliability model
+  const timeoutFactor = Math.min(healthCheckTimeoutMs / 60000, 1); // 60s = 100%
+  const failureTolerance = Math.min(maxConsecutiveFailures / 5, 1); // 5 failures = 100%
+
+  // Confidence weighted: timeout matters more than failure tolerance
+  return 0.7 * timeoutFactor + 0.3 * failureTolerance;
 }

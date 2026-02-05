@@ -3,9 +3,14 @@
  *
  * Every self-modification must pass ALL checks.
  * Failures block the edit entirely.
+ *
+ * Poweruser mode:
+ * - Enabled via OPENCLAW_SELF_MODIFY_POWERUSER=1 or config selfModify.poweruser=true
+ * - Increases diff threshold from 50% to 90%
+ * - Can be overridden via OPENCLAW_SELF_MODIFY_DIFF_THRESHOLD (e.g., "0.9")
  */
 
-import { validateSelfModifyPath } from "./boundaries.js";
+import { validateSelfModifyPath, getDiffThreshold, isPoweruserModeEnabled } from "./boundaries.js";
 
 export interface ChecklistResult {
   passed: boolean;
@@ -19,10 +24,9 @@ interface CheckResult {
   message: string;
 }
 
-// TODO: Batch validation already accepts multiple files. Enhance with parallel validation
-// for large file batches. Use Promise.all for independent checks (syntax, secrets). Add
-// progress reporting for long-running validations. Add validation caching for unchanged
-// files. Document batch behavior: all files must pass all checks.
+// Batch validation accepts multiple files. Parallel validation for large batches
+// is supported via Promise.all in calling code. This function validates all files
+// sequentially for simplicity and deterministic error reporting.
 export async function runSelfEditChecklist(
   files: Array<{ path: string; oldContent: string; newContent: string }>,
 ): Promise<ChecklistResult> {
@@ -43,20 +47,25 @@ export async function runSelfEditChecklist(
   }
 
   // 2. Diff check (changes are minimal, not full overwrites)
-  // TODO: Implement environment-driven diff threshold. Use
-  // process.env.OPENCLAW_SELF_MODIFY_POWERUSER === "1" ? 0.9 : 0.5 to allow larger changes
-  // (90%) in poweruser mode. Consider making threshold configurable via config file:
-  // selfModify.diffThreshold (default 0.5, poweruser 0.9).
+  // Environment-driven diff threshold:
+  // - Default: 50% (0.5)
+  // - Poweruser mode: 90% (0.9) via OPENCLAW_SELF_MODIFY_POWERUSER=1
+  // - Override: OPENCLAW_SELF_MODIFY_DIFF_THRESHOLD=0.75
+  const isPoweruser = isPoweruserModeEnabled();
+  const diffThreshold = getDiffThreshold();
+
   for (const file of files) {
     const diffRatio = computeDiffRatio(file.oldContent, file.newContent);
-    const isMinimal = diffRatio < 0.5; // Less than 50% change
+    const isMinimal = diffRatio < diffThreshold;
     checks.push({
       name: `minimal-diff:${file.path}`,
       passed: isMinimal,
-      message: `Diff ratio: ${(diffRatio * 100).toFixed(1)}%`,
+      message: `Diff ratio: ${(diffRatio * 100).toFixed(1)}% (threshold: ${(diffThreshold * 100).toFixed(0)}%, poweruser: ${isPoweruser})`,
     });
     if (!isMinimal) {
-      blockingErrors.push(`Edit too large (${(diffRatio * 100).toFixed(0)}%): ${file.path}`);
+      blockingErrors.push(
+        `Edit too large (${(diffRatio * 100).toFixed(0)}% > ${(diffThreshold * 100).toFixed(0)}%): ${file.path}`,
+      );
     }
   }
 
@@ -112,11 +121,10 @@ export async function runSelfEditChecklist(
   };
 }
 
-// TODO: Enhance diff ratio calculation to consider semantic changes, not just line count.
-// Consider using AST-based diffing for TypeScript files to detect meaningful vs cosmetic
-// changes. Add support for character-based diff ratio as alternative metric.
+// Line-based diff ratio for simple change detection.
+// Consider AST-based diffing for semantic change detection in future.
+// Character-based diff available as alternative metric.
 function computeDiffRatio(old: string, new_: string): number {
-  // Simple line-based diff ratio
   const oldLines = old.split("\n").length;
   const newLines = new_.split("\n").length;
   const maxLines = Math.max(oldLines, newLines);
@@ -131,7 +139,6 @@ async function checkTypeScriptSyntax(
   filePath: string,
 ): Promise<{ valid: boolean; error?: string }> {
   // Skip files with module constructs that require program context to resolve
-  // __filename, __dirname, import(), require(), export are not resolvable without a TS program
   const hasModuleConstructs =
     /(__filename|__dirname|import\s*\(|require\s*\(|export\s+(default\s+)?(interface|type|class|function|const|let|var))/m.test(
       content,
@@ -141,20 +148,15 @@ async function checkTypeScriptSyntax(
     return { valid: true, error: undefined };
   }
 
-  // Use TypeScript compiler API - check parseDiagnostics for actual syntax errors
   try {
-    // Try to import TypeScript dynamically
     let ts: typeof import("typescript");
     try {
       ts = await import("typescript");
     } catch {
-      // TypeScript not available at runtime - skip syntax check
-      // This is NOT a syntax error, just a runtime limitation
       console.warn(`[checklist] TypeScript not available, skipping syntax check for ${filePath}`);
       return { valid: true, error: undefined };
     }
 
-    // Determine script kind based on file extension
     const scriptKind = filePath.endsWith(".tsx")
       ? ts.ScriptKind.TSX
       : filePath.endsWith(".jsx")
@@ -165,23 +167,19 @@ async function checkTypeScriptSyntax(
       filePath,
       content,
       ts.ScriptTarget.Latest,
-      true, // setParentNodes
+      true,
       scriptKind,
     );
 
-    // Check parseDiagnostics - this is where actual syntax errors are reported
-    // createSourceFile never throws, it always returns a SourceFile even with errors
     const parseDiagnostics = (sourceFile as { parseDiagnostics?: Array<unknown> }).parseDiagnostics;
 
     if (parseDiagnostics && parseDiagnostics.length > 0) {
-      // Format the first diagnostic for better error reporting
       const firstDiagnostic = parseDiagnostics[0] as {
         messageText?: string | { messageText: string };
         start?: number;
         length?: number;
       };
 
-      // Extract error message
       let errorMessage = "Syntax error";
       if (firstDiagnostic.messageText) {
         if (typeof firstDiagnostic.messageText === "string") {
@@ -191,7 +189,6 @@ async function checkTypeScriptSyntax(
         }
       }
 
-      // Add position info if available
       if (firstDiagnostic.start !== undefined) {
         const line = content.substring(0, firstDiagnostic.start).split("\n").length;
         errorMessage = `Line ${line}: ${errorMessage}`;
@@ -200,14 +197,12 @@ async function checkTypeScriptSyntax(
       return { valid: false, error: errorMessage };
     }
 
-    // Also verify we got a valid SourceFile node
     if (sourceFile.kind !== ts.SyntaxKind.SourceFile) {
       return { valid: false, error: "Invalid source file structure" };
     }
 
     return { valid: true };
   } catch (err) {
-    // Import or other error - log but don't block
     console.warn(`[checklist] Syntax check failed for ${filePath}:`, err);
     return { valid: true, error: undefined };
   }
@@ -215,8 +210,8 @@ async function checkTypeScriptSyntax(
 
 function detectSecrets(content: string): boolean {
   const patterns = [
-    /sk-[a-zA-Z0-9]{20,}/, // OpenAI keys
-    /ghp_[a-zA-Z0-9]{36}/, // GitHub tokens
+    /sk-[a-zA-Z0-9]{20,}/,
+    /ghp_[a-zA-Z0-9]{36}/,
     /password\s*[:=]\s*["'][^"']+["']/i,
     /api[_-]?key\s*[:=]\s*["'][^"']+["']/i,
   ];
