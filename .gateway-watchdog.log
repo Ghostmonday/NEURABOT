@@ -1,0 +1,65 @@
+[2026-02-04T23:37:52-08:00] Watchdog started
+[2026-02-04T23:37:52-08:00] Started gateway 293592
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T07:37:58.886Z Gateway failed to start: gateway already running (pid 289054); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T07:37:59.032Z Port 18789 is already in use.
+2026-02-05T07:37:59.032Z - pid 289054 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T07:37:59.033Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-04T23:38:22-08:00] Gateway down, restarting...
+[2026-02-04T23:38:22-08:00] Started gateway 293801
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T07:38:28.959Z Gateway failed to start: gateway already running (pid 289054); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T07:38:29.086Z Port 18789 is already in use.
+2026-02-05T07:38:29.086Z - pid 289054 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T07:38:29.087Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-04T23:38:46-08:00] Watchdog started
+[2026-02-04T23:38:46-08:00] Started gateway 293971
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T07:38:53.076Z Gateway failed to start: gateway already running (pid 289054); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T07:38:53.200Z Port 18789 is already in use.
+2026-02-05T07:38:53.200Z - pid 289054 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T07:38:53.201Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-04T23:39:16-08:00] Gateway down, restarting...
+[2026-02-04T23:39:16-08:00] Started gateway 294137
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T07:39:23.046Z Gateway failed to start: gateway already running (pid 289054); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T07:39:23.188Z Port 18789 is already in use.
+2026-02-05T07:39:23.188Z - pid 289054 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T07:39:23.189Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-04T23:39:46-08:00] Gateway down, restarting...
+[2026-02-04T23:39:46-08:00] Started gateway 294443
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
