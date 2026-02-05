@@ -119,6 +119,7 @@ export class TaskScheduler {
     string,
     (task: Task, context: string) => Promise<TaskExecutionResult>
   >;
+  private activePersonas = new Set<PersonaOwner>();
   private broadcaster: Broadcaster | null = null;
 
   constructor(
@@ -209,27 +210,54 @@ export class TaskScheduler {
       return;
     }
 
-    // Get next ready task
-    let task = await this.taskStore.getNextReady();
-    if (!task) {
+    const personas = Array.from(this.personaExecutors.keys()) as PersonaOwner[];
+
+    for (const persona of personas) {
+      if (this.activePersonas.has(persona)) {
+        continue;
+      }
+
+      // Get next ready task for this persona
+      let task = await this.taskStore.getNextReady({ personaOwner: persona });
+
+      if (!task) {
+        // If no ready task, try to promote one from backlog for this specific persona
+        // Note: promoteHighestPriorityBacklog is currently global, let's keep it simple for now
+        // but try to find a task that specifically fits this persona if we have capacity.
+        continue;
+      }
+
+      // Check approval gate
+      if (task.requiresApproval && !task.approved) {
+        await this.notifyHuman(task);
+        continue;
+      }
+
+      // Mark persona as active and start execution lane (fire and forget with cleanup)
+      this.activePersonas.add(persona);
+      console.log(`[Scheduler] [${persona}] Starting lane for task: ${redactString(task.taskId)}`);
+
+      this.runExecutionLane(task).finally(() => {
+        this.activePersonas.delete(persona);
+      });
+    }
+
+    // Global backlog promotion if we have idle capacity
+    if (this.activePersonas.size < personas.length) {
       await this.promoteHighestPriorityBacklog();
-      task = await this.taskStore.getNextReady();
     }
-    if (!task) {
-      return;
+  }
+
+  private async runExecutionLane(task: Task): Promise<void> {
+    try {
+      // Get identity context
+      const identity = await this.getIdentityContext(task);
+
+      // Execute with persona
+      await this.executeTask(task, identity);
+    } catch (error) {
+      console.error(`[Scheduler] [${task.personaOwner}] Lane error:`, redactError(error));
     }
-
-    // Check approval gate
-    if (task.requiresApproval && !task.approved) {
-      await this.notifyHuman(task);
-      return;
-    }
-
-    // Get identity context
-    const identity = await this.getIdentityContext(task);
-
-    // Execute with persona
-    await this.executeTask(task, identity);
   }
 
   private async executeTask(task: Task, identityContext: string): Promise<void> {

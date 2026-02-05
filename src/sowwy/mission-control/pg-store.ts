@@ -484,18 +484,27 @@ export class PostgresTaskStore implements TaskStore {
   /**
    * Get next ready task (optimized query with composite index)
    */
-  async getNextReady(): Promise<Task | null> {
-    const result = await this.pool.query(`
+  async getNextReady(filter?: { personaOwner?: PersonaOwner }): Promise<Task | null> {
+    const conditions = ["status = 'READY'", "(requires_approval = false OR approved = true)"];
+    const values: any[] = [];
+    if (filter?.personaOwner) {
+      conditions.push(`persona_owner = $${values.length + 1}`);
+      values.push(filter.personaOwner);
+    }
+
+    const result = await this.pool.query(
+      `
       SELECT * FROM tasks
-      WHERE status = 'READY'
-        AND (requires_approval = false OR approved = true)
+      WHERE ${conditions.join(" AND ")}
       ORDER BY
         urgency DESC,
         importance DESC,
         created_at ASC
       LIMIT 1
       FOR UPDATE SKIP LOCKED
-    `);
+    `,
+      values,
+    );
 
     if (result.rows.length === 0) {
       return null;

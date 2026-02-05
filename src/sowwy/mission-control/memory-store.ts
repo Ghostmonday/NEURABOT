@@ -16,7 +16,14 @@
  * - This is ONLY for testing/development
  */
 
-import { Task, TaskCreateInput, TaskFilter, TaskUpdateInput, calculatePriority } from "./schema.js";
+import {
+  PersonaOwner,
+  Task,
+  TaskCreateInput,
+  TaskFilter,
+  TaskUpdateInput,
+  calculatePriority,
+} from "./schema.js";
 import {
   AuditLogEntry,
   AuditStore,
@@ -121,8 +128,11 @@ export class InMemoryTaskStore implements TaskStore {
     return tasks;
   }
 
-  async getNextReady(): Promise<Task | null> {
+  async getNextReady(filter?: { personaOwner?: PersonaOwner }): Promise<Task | null> {
     this.refreshCacheIfNeeded();
+    if (filter?.personaOwner) {
+      return this.nextReadyCache.find((t) => t.personaOwner === filter.personaOwner) ?? null;
+    }
     return this.nextReadyCache[0] ?? null;
   }
 

@@ -25,7 +25,7 @@
  * If either fails, ROLLBACK
  */
 
-import { Task, TaskCreateInput, TaskUpdateInput, TaskFilter } from "./schema.js";
+import { PersonaOwner, Task, TaskCreateInput, TaskFilter, TaskUpdateInput } from "./schema.js";
 
 // ============================================================================
 // Task Store Interface
@@ -40,7 +40,7 @@ export interface TaskStore {
 
   // Query Operations
   list(filter?: TaskFilter): Promise<Task[]>;
-  getNextReady(): Promise<Task | null>;
+  getNextReady(filter?: { personaOwner?: PersonaOwner }): Promise<Task | null>;
   getByStatus(status: string): Promise<Task[]>;
   getByCategory(category: string): Promise<Task[]>;
   getByPersona(persona: string): Promise<Task[]>;
