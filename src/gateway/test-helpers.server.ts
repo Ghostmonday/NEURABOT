@@ -197,10 +197,16 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
   tempConfigRoot = undefined;
 }
 
+/** Dummy MiniMax key so Sowwy env validation passes in gateway server tests. */
+const GATEWAY_TEST_MINIMAX_KEY = "sk-cp-test00000000000000000000000000000000000000";
+
 export function installGatewayTestHooks(options?: { scope?: "test" | "suite" }) {
   const scope = options?.scope ?? "test";
   if (scope === "suite") {
     beforeAll(async () => {
+      if (!process.env.MINIMAX_API_KEY) {
+        process.env.MINIMAX_API_KEY = GATEWAY_TEST_MINIMAX_KEY;
+      }
       await setupGatewayTestHome();
       await resetGatewayTestState({ uniqueConfigRoot: true });
     });
@@ -217,6 +223,9 @@ export function installGatewayTestHooks(options?: { scope?: "test" | "suite" }) 
   }
 
   beforeEach(async () => {
+    if (!process.env.MINIMAX_API_KEY) {
+      process.env.MINIMAX_API_KEY = GATEWAY_TEST_MINIMAX_KEY;
+    }
     await setupGatewayTestHome();
     await resetGatewayTestState({ uniqueConfigRoot: false });
   }, 60_000);
