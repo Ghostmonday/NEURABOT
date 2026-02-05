@@ -2,27 +2,8 @@
 #
 # OpenClaw Gateway Watchdog Daemon
 #
-# Monitors and restarts the gateway. Run with:
-#   start  - Start daemon (returns immediately)
-#   stop   - Stop daemon and gateway
-#   status - Show daemon/gateway status
-#
-# Environment:
-#   OPENCLAW_DIR   - Project root (auto-detected)
-#   OPENCLAW_NODE  - Node binary (default: node)
-#   OPENCLAW_CHECK_INTERVAL - Seconds between checks (default: 30)
-#
 
-# Detect project root
-if [ -n "$OPENCLAW_DIR" ] && [ -f "$OPENCLAW_DIR/package.json" ]; then
-    PROJECT_ROOT="$OPENCLAW_DIR"
-else
-    SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || echo "$0")"
-    SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
-    PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-fi
-
-OPENCLAW_DIR="${OPENCLAW_DIR:-$PROJECT_ROOT}"
+OPENCLAW_DIR="${OPENCLAW_DIR:-/home/amir/Projects/NEURABOT}"
 OPENCLAW_NODE="${OPENCLAW_NODE:-node}"
 OPENCLAW_CHECK_INTERVAL="${OPENCLAW_CHECK_INTERVAL:-30}"
 
@@ -31,7 +12,7 @@ GATEWAY_PID_FILE="$OPENCLAW_DIR/.gateway.pid"
 LOG_FILE="$OPENCLAW_DIR/.gateway-watchdog.log"
 DAEMON_SCRIPT="$OPENCLAW_DIR/.watchdog-daemon.sh"
 
-write_daemon_script() {
+write_daemon() {
     cat > "$DAEMON_SCRIPT" << EOF
 #!/bin/bash
 cd "$OPENCLAW_DIR"
@@ -42,7 +23,7 @@ log() { echo "[\$(date -Iseconds)] \$*" ; }
 start_gateway() {
     "$OPENCLAW_NODE" dist/index.js gateway &
     echo \$! > "$GATEWAY_PID_FILE"
-    log "Started gateway \$(cat "$GATEWAY_PID_FILE")"
+    log "Started gateway \$PPID"
 }
 
 check() {
@@ -63,8 +44,7 @@ EOF
 
 start() {
     [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null && echo "Running $(cat "$PID_FILE")" && return
-    
-    write_daemon_script
+    write_daemon
     nohup bash "$DAEMON_SCRIPT" &
     echo $! > "$PID_FILE"
     echo "Started $(cat "$PID_FILE")"
