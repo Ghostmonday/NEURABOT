@@ -723,3 +723,957 @@ If the gateway is supervised, stop it with: openclaw gateway stop
     at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
     at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
     at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:50.968Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T09:59:55.970Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:00.973Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:05.975Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:10.976Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:15.982Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:20.983Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:25.985Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:30.990Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:35.992Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:40.995Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:45.998Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:51.000Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:00:56.002Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:01.006Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:06.009Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:11.011Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:14.109Z [ws] unauthorized conn=8edfdbba-4c95-4cae-80a3-097290b1f3a6 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:14.112Z [ws] closed before connect conn=8edfdbba-4c95-4cae-80a3-097290b1f3a6 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:14.917Z [ws] unauthorized conn=9172c26f-7c5b-4e7f-ad72-0a0a92228dca remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:14.918Z [ws] closed before connect conn=9172c26f-7c5b-4e7f-ad72-0a0a92228dca remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:16.014Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:16.284Z [ws] unauthorized conn=317f2069-eb21-4c9f-b438-22048113d5fe remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:16.285Z [ws] closed before connect conn=317f2069-eb21-4c9f-b438-22048113d5fe remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:18.603Z [ws] unauthorized conn=9a02dcb9-59ec-4c51-aff6-95ef84f7781f remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:18.604Z [ws] closed before connect conn=9a02dcb9-59ec-4c51-aff6-95ef84f7781f remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:21.016Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:22.541Z [ws] unauthorized conn=d3eab6fd-3540-47de-9600-c75e6f809590 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:22.541Z [ws] closed before connect conn=d3eab6fd-3540-47de-9600-c75e6f809590 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:26.018Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:29.230Z [ws] unauthorized conn=e05c9cd8-04f8-4ba1-bd77-4810bfd662bd remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:29.233Z [ws] closed before connect conn=e05c9cd8-04f8-4ba1-bd77-4810bfd662bd remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:30.660Z [Scheduler] Stuck task detection error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getStuckTasks (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15667:11)
+    at checkStuckTasks (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:16025:24)
+2026-02-05T10:01:31.022Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:36.024Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:40.597Z [ws] unauthorized conn=c1c8d984-fb39-49b2-a190-1fc157b306e4 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:40.598Z [ws] closed before connect conn=c1c8d984-fb39-49b2-a190-1fc157b306e4 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:41.025Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:46.032Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:51.034Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:55.604Z [ws] unauthorized conn=3e98fea0-68a0-4329-917a-10a1fe0657e7 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:55.605Z [ws] closed before connect conn=3e98fea0-68a0-4329-917a-10a1fe0657e7 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:56.036Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:01:58.746Z [ws] unauthorized conn=5e442673-d2b0-49a5-b0c3-2b690b504a1c remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:58.747Z [ws] closed before connect conn=5e442673-d2b0-49a5-b0c3-2b690b504a1c remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:01:59.553Z [ws] unauthorized conn=07e36d81-a377-4ed2-8b31-77022ed24176 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:01:59.554Z [ws] closed before connect conn=07e36d81-a377-4ed2-8b31-77022ed24176 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:00.920Z [ws] unauthorized conn=b209c237-8480-407f-a163-6ca00ceac124 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:00.921Z [ws] closed before connect conn=b209c237-8480-407f-a163-6ca00ceac124 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:01.040Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:03.240Z [ws] unauthorized conn=964c8b1e-28b9-4316-b2a2-ebf2d6096e98 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:03.240Z [ws] closed before connect conn=964c8b1e-28b9-4316-b2a2-ebf2d6096e98 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:06.044Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:07.177Z [ws] unauthorized conn=05ebef1e-ab0b-400f-853a-c4f1837737e5 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:07.180Z [ws] closed before connect conn=05ebef1e-ab0b-400f-853a-c4f1837737e5 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:11.046Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:13.865Z [ws] unauthorized conn=57c6eb64-6d12-4fa9-b87d-2b9e0acee4d3 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:13.866Z [ws] closed before connect conn=57c6eb64-6d12-4fa9-b87d-2b9e0acee4d3 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:16.049Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:21.051Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:25.231Z [ws] unauthorized conn=a2617c01-9b2d-4e07-8920-a21868a0cc42 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:25.232Z [ws] closed before connect conn=a2617c01-9b2d-4e07-8920-a21868a0cc42 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:26.053Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:31.058Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:36.060Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:40.237Z [ws] unauthorized conn=22db0a49-acfc-4ac1-a102-3e894542427c remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:40.238Z [ws] closed before connect conn=22db0a49-acfc-4ac1-a102-3e894542427c remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:41.062Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:46.067Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:51.067Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:54.182Z [ws] unauthorized conn=c133ad9d-6472-4fbd-a50a-567e0438bc78 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:54.184Z [ws] closed before connect conn=c133ad9d-6472-4fbd-a50a-567e0438bc78 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:54.990Z [ws] unauthorized conn=0f7c2c5f-34e3-433b-bf3a-0f0bcd66e2f8 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:54.991Z [ws] closed before connect conn=0f7c2c5f-34e3-433b-bf3a-0f0bcd66e2f8 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:56.069Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:02:56.358Z [ws] unauthorized conn=b3e57dcc-713c-4277-8ca2-ff6a50724b35 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:56.359Z [ws] closed before connect conn=b3e57dcc-713c-4277-8ca2-ff6a50724b35 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:02:58.676Z [ws] unauthorized conn=d32cc9d5-ef38-4ce2-867a-485f09b589c0 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:02:58.678Z [ws] closed before connect conn=d32cc9d5-ef38-4ce2-867a-485f09b589c0 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:03:01.075Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:02.614Z [ws] unauthorized conn=1028978a-bc2f-4b91-9065-be63f2a2d247 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:03:02.615Z [ws] closed before connect conn=1028978a-bc2f-4b91-9065-be63f2a2d247 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:03:06.076Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:09.301Z [ws] unauthorized conn=91c458d2-89bf-452b-962f-d7335e846693 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:03:09.302Z [ws] closed before connect conn=91c458d2-89bf-452b-962f-d7335e846693 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:03:11.078Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:16.083Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:20.667Z [ws] unauthorized conn=fd954872-a0c7-4662-8bba-600b42c1720d remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:03:20.668Z [ws] closed before connect conn=fd954872-a0c7-4662-8bba-600b42c1720d remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:03:21.086Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:26.087Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:31.090Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:35.674Z [ws] unauthorized conn=1738454d-9ada-45b0-a12b-e403e4000785 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:03:35.675Z [ws] closed before connect conn=1738454d-9ada-45b0-a12b-e403e4000785 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:03:36.092Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:41.094Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:46.099Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:50.681Z [ws] unauthorized conn=e7e1643b-3f0d-43dd-912c-f502d4633fa9 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:03:50.682Z [ws] closed before connect conn=e7e1643b-3f0d-43dd-912c-f502d4633fa9 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:03:51.101Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:03:56.103Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:01.107Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:05.688Z [ws] unauthorized conn=fec3ea65-99ce-495f-a6ff-9ddc8a70233c remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:04:05.689Z [ws] closed before connect conn=fec3ea65-99ce-495f-a6ff-9ddc8a70233c remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:04:06.108Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:11.110Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:16.114Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:20.694Z [ws] unauthorized conn=1ab1a94a-747c-4da7-adcc-ac81dbf666e7 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:04:20.695Z [ws] closed before connect conn=1ab1a94a-747c-4da7-adcc-ac81dbf666e7 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:04:21.116Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:26.118Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:31.122Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:35.702Z [ws] unauthorized conn=8a825d94-ddb8-4f81-8589-e886522b6b32 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:04:35.703Z [ws] closed before connect conn=8a825d94-ddb8-4f81-8589-e886522b6b32 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:04:36.123Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:41.125Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:46.130Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:50.709Z [ws] unauthorized conn=af2f25a9-4401-4658-81e0-3cfe45628b38 remote=::1 client=openclaw-control-ui webchat vdev reason=token_missing
+2026-02-05T10:04:50.710Z [ws] closed before connect conn=af2f25a9-4401-4658-81e0-3cfe45628b38 remote=::1 fwd=n/a origin=http://localhost:18789 host=localhost:18789 ua=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 code=1008 reason=unauthorized: gateway token missing (open a tokenized dashboard URL or paste token in Control UI settings)
+2026-02-05T10:04:51.131Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:04:56.134Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+2026-02-05T10:05:01.138Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15595:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15936:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-D_BrLoO-.js:15908:5)
+/home/amir/Projects/NEURABOT/.watchdog-daemon.sh: line 24: 314525 Killed                  "node" dist/index.js gateway
+[2026-02-05T02:05:28-08:00] Gateway down, restarting...
+[2026-02-05T02:05:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:05:35.125Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:05:35.293Z Port 18789 is already in use.
+2026-02-05T10:05:35.294Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:05:35.294Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:05:58-08:00] Gateway down, restarting...
+[2026-02-05T02:05:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:06:05.211Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:06:05.370Z Port 18789 is already in use.
+2026-02-05T10:06:05.371Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:06:05.371Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:06:28-08:00] Gateway down, restarting...
+[2026-02-05T02:06:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:06:35.330Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:06:35.472Z Port 18789 is already in use.
+2026-02-05T10:06:35.472Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:06:35.473Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:06:58-08:00] Gateway down, restarting...
+[2026-02-05T02:06:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:07:05.265Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:07:05.414Z Port 18789 is already in use.
+2026-02-05T10:07:05.415Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:07:05.416Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:07:28-08:00] Gateway down, restarting...
+[2026-02-05T02:07:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:07:35.306Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:07:35.471Z Port 18789 is already in use.
+2026-02-05T10:07:35.472Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:07:35.473Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:07:58-08:00] Gateway down, restarting...
+[2026-02-05T02:07:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:08:05.291Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:08:05.434Z Port 18789 is already in use.
+2026-02-05T10:08:05.435Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:08:05.435Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:08:28-08:00] Gateway down, restarting...
+[2026-02-05T02:08:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:08:35.309Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:08:35.447Z Port 18789 is already in use.
+2026-02-05T10:08:35.448Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:08:35.448Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:08:58-08:00] Gateway down, restarting...
+[2026-02-05T02:08:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:09:05.227Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:09:05.380Z Port 18789 is already in use.
+2026-02-05T10:09:05.381Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:09:05.382Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:09:28-08:00] Gateway down, restarting...
+[2026-02-05T02:09:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:09:35.258Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:09:35.406Z Port 18789 is already in use.
+2026-02-05T10:09:35.406Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:09:35.407Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:09:58-08:00] Gateway down, restarting...
+[2026-02-05T02:09:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:10:05.298Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:10:05.461Z Port 18789 is already in use.
+2026-02-05T10:10:05.461Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:10:05.462Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:10:28-08:00] Gateway down, restarting...
+[2026-02-05T02:10:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:10:35.329Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:10:35.502Z Port 18789 is already in use.
+2026-02-05T10:10:35.503Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:10:35.504Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:10:58-08:00] Gateway down, restarting...
+[2026-02-05T02:10:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:11:05.321Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:11:05.443Z Port 18789 is already in use.
+2026-02-05T10:11:05.444Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:11:05.445Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:11:28-08:00] Gateway down, restarting...
+[2026-02-05T02:11:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:11:35.322Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:11:35.476Z Port 18789 is already in use.
+2026-02-05T10:11:35.477Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:11:35.478Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:11:58-08:00] Gateway down, restarting...
+[2026-02-05T02:11:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:12:05.328Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:12:05.479Z Port 18789 is already in use.
+2026-02-05T10:12:05.480Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:12:05.480Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:12:28-08:00] Gateway down, restarting...
+[2026-02-05T02:12:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:12:35.313Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:12:35.463Z Port 18789 is already in use.
+2026-02-05T10:12:35.464Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:12:35.464Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:12:58-08:00] Gateway down, restarting...
+[2026-02-05T02:12:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:13:05.247Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:13:05.400Z Port 18789 is already in use.
+2026-02-05T10:13:05.401Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:13:05.401Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:13:28-08:00] Gateway down, restarting...
+[2026-02-05T02:13:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:13:35.253Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:13:35.400Z Port 18789 is already in use.
+2026-02-05T10:13:35.401Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:13:35.402Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:13:58-08:00] Gateway down, restarting...
+[2026-02-05T02:13:58-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:14:05.183Z Gateway failed to start: gateway already running (pid 329919); lock timeout after 5000ms
+If the gateway is supervised, stop it with: openclaw gateway stop
+2026-02-05T10:14:05.315Z Port 18789 is already in use.
+2026-02-05T10:14:05.316Z - pid 329919 amir: openclaw-gateway (127.0.0.1:18789)
+2026-02-05T10:14:05.317Z - Gateway already running locally. Stop it (openclaw gateway stop) or use a different port.
+[2026-02-05T02:14:28-08:00] Gateway down, restarting...
+[2026-02-05T02:14:28-08:00] Started gateway 1281
+│
+◇  Doctor warnings ──────────────────────────────────────╮
+│                                                        │
+│  - State dir migration skipped: target already exists  │
+│    (/home/amir/.openclaw). Remove or merge manually.   │
+│                                                        │
+├────────────────────────────────────────────────────────╯
+2026-02-05T10:14:30.249Z [PostgresTaskStore] Schema initialization failed: AggregateError [ECONNREFUSED]: 
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PostgresTaskStore.initializeSchema (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15439:18)
+2026-02-05T10:14:30.255Z Twilio SMS Extension: Initialized successfully.
+2026-02-05T10:14:30.256Z [Overseer] Starting (interval: 3600000ms)
+2026-02-05T10:14:30.256Z [Overseer] Starting cycle 2
+2026-02-05T10:14:30.257Z [Overseer] Pruned 0 stale patterns
+2026-02-05T10:14:30.258Z [Overseer] Cycle complete. Patterns: 0, Crystallized candidates: 0
+2026-02-05T10:14:30.957Z Config was last written by a newer OpenClaw (2026.2.1); current version is 0.0.0.
+2026-02-05T10:14:30.963Z [canvas] host mounted at http://127.0.0.1:18789/__openclaw__/canvas/ (root /home/amir/.openclaw/canvas)
+2026-02-05T10:14:31.010Z [heartbeat] started
+2026-02-05T10:14:31.014Z [gateway] agent model: minimax/MiniMax-M2.1
+2026-02-05T10:14:31.015Z [gateway] listening on ws://127.0.0.1:18789 (PID 335707)
+2026-02-05T10:14:31.015Z [gateway] listening on ws://[::1]:18789
+2026-02-05T10:14:31.016Z [gateway] log file: /tmp/openclaw/openclaw-2026-02-05.log
+2026-02-05T10:14:31.017Z [Scheduler] Started
+2026-02-05T10:14:31.017Z [Scheduler] Stuck task detection started
+2026-02-05T10:14:31.019Z [gateway] sowwy: task scheduler started
+2026-02-05T10:14:31.031Z [browser/service] Browser control service ready (profiles=2)
+2026-02-05T10:14:31.051Z [Scheduler] Stuck task detection error: Error [AggregateError]: 
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getStuckTasks (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15784:11)
+    at checkStuckTasks (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16142:24)
+2026-02-05T10:14:31.052Z [Scheduler] Tick error: Error [AggregateError]: 
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:14:31.540Z [telegram] [default] starting provider
+2026-02-05T10:14:31.550Z [telegram] autoSelectFamily=false (default-node22)
+2026-02-05T10:14:31.720Z [telegram] setMyCommands failed: Call to 'setMyCommands' failed! (404: Not Found)
+2026-02-05T10:14:31.723Z [telegram] [default] channel exited: Call to 'getMe' failed! (404: Not Found)
+2026-02-05T10:14:31.842Z [ws] webchat connected conn=bea6b681-51b5-44c3-9f53-38812c846ac4 remote=127.0.0.1 client=openclaw-control-ui webchat vdev
+2026-02-05T10:14:36.055Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:14:38.330Z [gateway] device pairing auto-approved device=f62a5ebfcc43057326640d7a905c06aa8d0bb3f6fb95dc09c585a66edd19376d role=operator
+2026-02-05T10:14:38.331Z [ws] webchat connected conn=8869fd3c-9aa3-44cf-80cc-c71c4409410c remote=::1 client=openclaw-control-ui webchat vdev
+2026-02-05T10:14:41.058Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:14:46.060Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:14:51.064Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:14:56.066Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:01.067Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:06.070Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:11.071Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:16.072Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:21.075Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:26.077Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:31.079Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:36.081Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:41.084Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:43.619Z [ws] webchat disconnected code=1001 reason=n/a conn=8869fd3c-9aa3-44cf-80cc-c71c4409410c
+2026-02-05T10:15:43.663Z [ws] webchat connected conn=6b5002c4-e67b-426d-97b5-3c29bd9aea09 remote=::1 client=openclaw-control-ui webchat vdev
+2026-02-05T10:15:46.085Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:51.087Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:15:56.088Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:01.090Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:06.092Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:11.094Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:16.096Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:21.098Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:26.101Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:31.102Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:36.105Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:41.107Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:46.108Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:46.480Z [agent/embedded] read tool called without path: toolCallId=call_function_jzlg42ptsjl2_1 argsType=object
+2026-02-05T10:16:51.110Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:16:56.112Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:01.114Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:06.116Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:11.118Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:16.120Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:21.121Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
+2026-02-05T10:17:26.123Z [Scheduler] Tick error: Error: connect ECONNREFUSED ::1:5432
+    at /home/amir/Projects/NEURABOT/node_modules/.pnpm/pg-pool@3.11.0_pg@8.18.0/node_modules/pg-pool/index.js:45:11
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at PostgresTaskStore.getNextReady (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:15712:18)
+    at TaskScheduler.tick (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16053:14)
+    at TaskScheduler.start (file:///home/amir/Projects/NEURABOT/dist/gateway-cli-QqIKoM7i.js:16025:5)
