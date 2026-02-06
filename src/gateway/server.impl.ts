@@ -508,6 +508,47 @@ export async function startGatewayServer(
   });
   if (sowwyBootstrap.scheduler) {
     sowwyBootstrap.scheduler.setBroadcaster(broadcast);
+    
+    // Run health check and prompt user for autonomous operations
+    const { runHealthCheck, promptStartupApproval, createInitialRoadmapTask } = await import(
+      "../sowwy/startup/health-prompt.js"
+    );
+    
+    const healthCheck = await runHealthCheck({
+      taskStore: sowwyBootstrap.stores.tasks,
+      identityStore: sowwyBootstrap.stores.identityStore,
+      smt: sowwyBootstrap.stores.smt,
+    });
+    
+    // Read startup options from environment
+    const autoApprove = process.env.SOWWY_AUTO_APPROVE === "true";
+    const skipPrompt = process.env.SOWWY_SKIP_PROMPT === "true";
+    
+    const approved = await promptStartupApproval(healthCheck, { autoApprove, skipPrompt });
+    
+    if (approved) {
+      // Create initial Roadmap Observer task if not exists
+      try {
+        const existingTasks = await sowwyBootstrap.stores.tasks.list({
+          category: "MISSION_CONTROL",
+          limit: 1,
+        });
+        
+        if (existingTasks.length === 0) {
+          await createInitialRoadmapTask(sowwyBootstrap.stores.tasks, "system");
+        } else {
+          console.log(
+            "[SOWWY] Roadmap Observer task already exists. Skipping creation.",
+          );
+        }
+      } catch (err) {
+        console.error(
+          `[SOWWY] Warning: Failed to check/create Roadmap Observer task: ${String(err)}`,
+        );
+      }
+    }
+    
+    // Start scheduler (runs regardless of approval; it will process existing tasks)
     void sowwyBootstrap.scheduler.start();
     log.info("sowwy: task scheduler started");
   }

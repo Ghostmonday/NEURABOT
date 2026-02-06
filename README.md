@@ -10,8 +10,30 @@
 
 ---
 
+## Ratified Constitution (Source of Truth)
+
+This README is the **Ratified Constitution** of NEURABOT: a single Source of Truth synthesizing every architectural decision, safety protocol, and strategic objective. The following self-reinforcing loop defines how NEURABOT operates:
+
+| Role | Section | Responsibility |
+|------|---------|----------------|
+| **The Goal** | [§12 Where to Go from Here](#where-to-go-from-here) | Strategic roadmap (e.g., "Build iOS App", Tuta Mail, Calendar) |
+| **The Brain** | [§6 SOWWY / Mission Control](#sowwy--mission-control) | Breaks goals into tasks, personas, priority, approval |
+| **The Hands** | [§5 Data Flow](#data-flow-from-message-to-response) | Agent Runner executes code and tools |
+| **The Safety Net** | [§9 Self-Modification](#self-modification-system), [§4 Process & Runtime](#process--runtime-topology) | Self-Modify checklist, Watchdog; system doesn't kill itself while learning |
+
+**State Synchronization:**
+
+- **Documentation:** This README (updated with Constitution and implementation guidance)
+- **Status Board:** Google Sheet (or equivalent) aligned with Section 12 roadmap
+- **Visual Map:** NotebookLM Mind Map (or equivalent) aligned with Section 3 architecture
+
+Missions (e.g., Track 1 iOS App Factory) are executed under this Constitution: goals from §12, taskification by SOWWY §6, execution by the Agent Runner, with safety boundaries (§8–§9) and staging/sandbox constraints respected. **Do not** edit `ecosystem.config.cjs` or deploy to `active_tools` from staging until explicitly authorized.
+
+---
+
 ## Table of Contents
 
+0. [Ratified Constitution](#ratified-constitution-source-of-truth)
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [High-Level Architecture](#high-level-architecture)
@@ -553,16 +575,20 @@ flowchart TB
 
 ### Implementation Guide: Adding a New Task Type
 
+**Validation checkpoints at each step:**
+
 1. **Define task category** (if new):
    - Edit `src/sowwy/mission-control/schema.ts`
    - Add to `TaskCategory` enum
    - Document what this category represents
+   - **Verify:** Run `pnpm build` to check TypeScript compilation
 
 2. **Choose persona owner:**
    - `Dev` = Code changes, deployments, technical work
    - `LegalOps` = Contracts, compliance, legal review
    - `ChiefOfStaff` = Scheduling, coordination, communication
    - `RnD` = Research, experiments, explorations
+   - **Verify:** Persona exists in `PersonaOwner` enum in schema
 
 3. **Implement persona executor:**
    ```typescript
@@ -574,11 +600,15 @@ flowchart TB
      // 4. Return success/failure
    });
    ```
+   - **Verify:** Run `pnpm build` and check for TypeScript errors
+   - **Test:** Create a stub task and verify executor is called
 
 4. **Create tasks:**
    - Via RPC: `tasks.create` with category, persona, priority, payload
    - Via extension: Call `taskStore.create()` directly
    - Via agent tool: Expose `create_task` tool to agents
+   - **Verify:** Check `tasks.list` RPC returns your task
+   - **Test:** Verify task transitions through states (BACKLOG → READY → IN_PROGRESS → DONE)
 
 5. **Handle approval** (if needed):
    - Set `requiresApproval: true` when creating task
@@ -1175,6 +1205,25 @@ export const selfModifyTool = {
 5. Never allow boundaries, gateway, or config
 
 ### Testing Self-Modification
+
+**⚠️ CRITICAL: Incremental Test Validation**
+
+The self-modification implementation includes **incremental validation steps throughout** to catch errors early:
+
+1. **During checklist execution** (`runSelfEditChecklist`):
+   - Each edit is validated individually before proceeding
+   - Validation failures stop execution immediately
+   - No changes are applied if any validation fails
+
+2. **After each file edit**:
+   - TypeScript syntax validation runs immediately (if `.ts` file)
+   - Secret detection scans the new content
+   - Diff ratio check ensures changes are within bounds
+
+3. **Before reload request**:
+   - Final checklist pass over all edits
+   - Aggregate validation report
+   - Only proceeds if all checks pass
 
 **Unit tests:**
 - Test allowlist matching (positive and negative cases)
