@@ -42,8 +42,8 @@ module.exports = {
       min_uptime: "10s",
       restart_delay: 5000, // 5s between restarts
 
-      // Memory management
-      max_memory_restart: "300M",
+      // Memory management (high-throughput: increased to 1024M)
+      max_memory_restart: "1024M",
 
       // Logging
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",

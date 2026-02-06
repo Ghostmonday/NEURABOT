@@ -21,6 +21,7 @@
 
 import type { SearchResult } from "../identity/fragments.js";
 import type { IdentityStore } from "../identity/store.js";
+import type { TaskScheduler } from "../mission-control/scheduler.js";
 import type {
   Task,
   TaskCreateInput,
@@ -39,6 +40,7 @@ export interface GatewayContext {
   stores: SowwyStores;
   identityStore: IdentityStore;
   smt: SMTThrottler;
+  scheduler: TaskScheduler | null;
   userId: string;
 }
 
@@ -126,7 +128,7 @@ export interface HealthStatus {
 // ============================================================================
 
 export function registerSowwyRPCMethods(context: GatewayContext): Record<string, Function> {
-  const { stores, identityStore, smt, userId } = context;
+  const { stores, identityStore, smt, scheduler, userId } = context;
 
   return {
     // ========================================================================
@@ -279,13 +281,14 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
 
     "sowwy.status": async (): Promise<SowwyStatus> => {
       const queueDepth = await stores.tasks.count({ status: "READY", requiresApproval: undefined });
+      const schedulerState = scheduler?.getState();
       return {
-        running: true,
+        running: schedulerState?.running ?? false,
         paused: smt.isPaused(),
         taskCount: await stores.tasks.count(),
         queueDepth,
         smtUtilization: smt.getUtilization(),
-        lastTaskAt: null, // TODO: Track this
+        lastTaskAt: schedulerState?.lastTaskAt?.toISOString() ?? null,
       };
     },
 
@@ -323,10 +326,17 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
     },
 
     "identity.stats": async (): Promise<IdentityStats> => {
+      const allFragments = await identityStore.getAll();
+      const totalFragments = allFragments.length;
+      const averageConfidence =
+        totalFragments > 0
+          ? allFragments.reduce((sum, f) => sum + f.confidence, 0) / totalFragments
+          : 0;
+
       return {
-        totalFragments: await identityStore.count(),
+        totalFragments,
         byCategory: await identityStore.countByCategory(),
-        averageConfidence: 0, // TODO: Calculate
+        averageConfidence,
       };
     },
 
@@ -335,25 +345,69 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
     // ========================================================================
 
     "sowwy.metrics": async (): Promise<Metrics> => {
+      const schedulerState = scheduler?.getState();
+      const schedulerStartTime = schedulerState?.running
+        ? (schedulerState.lastTaskAt?.getTime() ?? Date.now())
+        : 0;
+      const schedulerUptime = schedulerStartTime > 0 ? Date.now() - schedulerStartTime : 0;
+
       return {
-        tasksCompleted: 0, // TODO: Track
-        tasksFailed: 0,
+        tasksCompleted: schedulerState?.tasksProcessed ?? 0,
+        tasksFailed: schedulerState?.tasksFailed ?? 0,
         smtUtilization: smt.getUtilization(),
         identityFragments: await identityStore.count(),
-        schedulerUptime: 0,
+        schedulerUptime,
       };
     },
 
     "sowwy.health": async (): Promise<HealthStatus> => {
-      // TODO: Implement actual health checks
+      const checks: HealthStatus["checks"] = {
+        postgres: false,
+        lancedb: false,
+        smt: false,
+        scheduler: false,
+      };
+
+      // Check PostgreSQL (try a simple query)
+      try {
+        await stores.tasks.count();
+        checks.postgres = true;
+      } catch {
+        checks.postgres = false;
+      }
+
+      // Check LanceDB (try a simple query)
+      try {
+        await identityStore.count();
+        checks.lancedb = true;
+      } catch {
+        checks.lancedb = false;
+      }
+
+      // Check SMT (check if it's responsive)
+      try {
+        smt.getUtilization();
+        checks.smt = true;
+      } catch {
+        checks.smt = false;
+      }
+
+      // Check Scheduler (check if it's running)
+      const schedulerState = scheduler?.getState();
+      checks.scheduler = schedulerState?.running ?? false;
+
+      // Determine overall health
+      const allHealthy = Object.values(checks).every((v) => v === true);
+      const anyUnhealthy = Object.values(checks).some((v) => v === false);
+      const overall: HealthStatus["overall"] = allHealthy
+        ? "healthy"
+        : anyUnhealthy
+          ? "unhealthy"
+          : "degraded";
+
       return {
-        overall: "healthy",
-        checks: {
-          postgres: true,
-          lancedb: true,
-          smt: true,
-          scheduler: true,
-        },
+        overall,
+        checks,
       };
     },
   };

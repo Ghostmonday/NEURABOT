@@ -56,6 +56,8 @@ export interface SchedulerConfig {
   maxRetries: number;
   stuckTaskThresholdMs: number;
   backoffBaseMs: number;
+  /** Max concurrent tasks per persona (sub-agents in parallel). Default 1; set >1 to run multiple tasks per persona. */
+  maxConcurrentPerPersona: number;
 }
 
 // ============================================================================
@@ -67,6 +69,7 @@ export const DEFAULT_SCHEDULER_CONFIG: SchedulerConfig = {
   maxRetries: 3, // Max retries per task
   stuckTaskThresholdMs: 3600000, // 1 hour = stuck
   backoffBaseMs: 5000, // Base backoff: 5s, 10s, 20s...
+  maxConcurrentPerPersona: 1, // One task per persona at a time; set via SOWWY_MAX_CONCURRENT_PER_PERSONA for parallel sub-agents
 };
 
 // ============================================================================
@@ -117,9 +120,10 @@ export class TaskScheduler {
   private smt: SMTThrottler;
   private personaExecutors: Map<
     string,
-    (task: Task, context: string) => Promise<TaskExecutionResult>
-  >;
-  private activePersonas = new Set<PersonaOwner>();
+    ((task: Task, context: string) => Promise<TaskExecutionResult>)[]
+  > = new Map();
+  /** Number of tasks currently running per persona (for maxConcurrentPerPersona > 1). */
+  private activeCountByPersona = new Map<PersonaOwner, number>();
   private broadcaster: Broadcaster | null = null;
 
   constructor(
@@ -149,13 +153,15 @@ export class TaskScheduler {
   }
 
   /**
-   * Register a persona executor
+   * Register a persona executor (supports multiple executors per persona for multiplexing)
    */
   registerPersona(
     persona: PersonaOwner,
     executor: (task: Task, context: string) => Promise<TaskExecutionResult>,
   ): void {
-    this.personaExecutors.set(persona, executor);
+    const existing = this.personaExecutors.get(persona) ?? [];
+    existing.push(executor);
+    this.personaExecutors.set(persona, existing);
   }
 
   /**
@@ -211,39 +217,47 @@ export class TaskScheduler {
     }
 
     const personas = Array.from(this.personaExecutors.keys()) as PersonaOwner[];
+    const maxPerPersona = Math.max(1, this.config.maxConcurrentPerPersona);
 
-    for (const persona of personas) {
-      if (this.activePersonas.has(persona)) {
-        continue;
-      }
+    // Parallel task fetch across all personas (high-throughput optimization)
+    await Promise.all(
+      personas.map(async (persona) => {
+        const active = this.activeCountByPersona.get(persona) ?? 0;
+        const slotsAvailable = maxPerPersona - active;
+        if (slotsAvailable <= 0) {
+          return;
+        }
 
-      // Get next ready task for this persona
-      let task = await this.taskStore.getNextReady({ personaOwner: persona });
+        // Fetch multiple ready tasks at once (up to available slots)
+        for (let i = 0; i < slotsAvailable; i++) {
+          const task = await this.taskStore.getNextReady({ personaOwner: persona });
+          if (!task) {
+            break;
+          }
 
-      if (!task) {
-        // If no ready task, try to promote one from backlog for this specific persona
-        // Note: promoteHighestPriorityBacklog is currently global, let's keep it simple for now
-        // but try to find a task that specifically fits this persona if we have capacity.
-        continue;
-      }
+          // Check approval gate
+          if (task.requiresApproval && !task.approved) {
+            await this.notifyHuman(task);
+            continue;
+          }
 
-      // Check approval gate
-      if (task.requiresApproval && !task.approved) {
-        await this.notifyHuman(task);
-        continue;
-      }
+          // Increment active count and start execution lane
+          this.activeCountByPersona.set(persona, (this.activeCountByPersona.get(persona) ?? 0) + 1);
+          console.log(
+            `[Scheduler] [${persona}] Starting lane for task: ${redactString(task.taskId)}`,
+          );
 
-      // Mark persona as active and start execution lane (fire and forget with cleanup)
-      this.activePersonas.add(persona);
-      console.log(`[Scheduler] [${persona}] Starting lane for task: ${redactString(task.taskId)}`);
-
-      this.runExecutionLane(task).finally(() => {
-        this.activePersonas.delete(persona);
-      });
-    }
+          this.runExecutionLane(task).finally(() => {
+            const n = this.activeCountByPersona.get(persona) ?? 1;
+            this.activeCountByPersona.set(persona, Math.max(0, n - 1));
+          });
+        }
+      }),
+    );
 
     // Global backlog promotion if we have idle capacity
-    if (this.activePersonas.size < personas.length) {
+    const totalActive = Array.from(this.activeCountByPersona.values()).reduce((a, b) => a + b, 0);
+    if (totalActive < personas.length * maxPerPersona) {
       await this.promoteHighestPriorityBacklog();
     }
   }
@@ -261,31 +275,42 @@ export class TaskScheduler {
   }
 
   private async executeTask(task: Task, identityContext: string): Promise<void> {
-    const executor = this.personaExecutors.get(task.personaOwner);
-    if (!executor) {
+    const executors = this.personaExecutors.get(task.personaOwner) ?? [];
+    if (executors.length === 0) {
       console.error(`[Scheduler] No executor for persona: ${redactString(task.personaOwner)}`);
       return;
     }
 
-    try {
-      const result = await executor(task, identityContext);
+    // Try each executor in order until one succeeds
+    let lastError: Error | undefined;
+    for (const executor of executors) {
+      try {
+        const result = await executor(task, identityContext);
 
-      // Update task
-      await this.taskStore.update(task.taskId, {
-        status: "DONE",
-        outcome: result.outcome as TaskOutcome,
-        decisionSummary: result.summary,
-        confidence: result.confidence,
-      });
+        // Update task
+        await this.taskStore.update(task.taskId, {
+          status: "DONE",
+          outcome: result.outcome as TaskOutcome,
+          decisionSummary: result.summary,
+          confidence: result.confidence,
+        });
 
-      this.state.tasksProcessed++;
-      this.state.lastTaskAt = new Date();
+        this.state.tasksProcessed++;
+        this.state.lastTaskAt = new Date();
 
-      console.log(
-        `[Scheduler] Task ${redactString(task.taskId)} completed: ${redactString(result.outcome)}`,
-      );
-    } catch (error) {
-      await this.handleTaskFailure(task, error);
+        console.log(
+          `[Scheduler] Task ${redactString(task.taskId)} completed: ${redactString(result.outcome)}`,
+        );
+        return; // Success, exit
+      } catch (error) {
+        lastError = error as Error;
+        // Continue to next executor
+      }
+    }
+
+    // All executors failed
+    if (lastError) {
+      await this.handleTaskFailure(task, lastError);
     }
   }
 

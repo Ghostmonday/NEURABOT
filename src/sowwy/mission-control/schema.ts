@@ -24,6 +24,9 @@ export const TaskCategory = {
   RESEARCH: "RESEARCH",
   RND: "RND",
   SMS: "SMS",
+  MISSION_CONTROL: "MISSION_CONTROL",
+  /** Continuous upgrade/validate cycles until human says stop (README §0.2). */
+  SELF_MODIFY: "SELF_MODIFY",
 } as const;
 
 export type TaskCategory = (typeof TaskCategory)[keyof typeof TaskCategory];

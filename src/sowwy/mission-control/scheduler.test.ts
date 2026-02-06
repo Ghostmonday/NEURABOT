@@ -84,7 +84,9 @@ describe("TaskScheduler", () => {
     } as Partial<Task>);
 
     try {
-      await scheduler.triggerTick();
+      await scheduler.triggerTick(); // Promotes highest-priority backlog to READY
+      await scheduler.triggerTick(); // Runs the now-READY task (fire-and-forget)
+      await new Promise((r) => setTimeout(r, 20)); // Allow executor to complete and update task to DONE
     } finally {
       expect(logSpy).toHaveBeenCalled();
       logSpy.mockRestore();

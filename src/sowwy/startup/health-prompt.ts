@@ -8,8 +8,8 @@
  * modifications without operator consent.
  */
 
-import type { TaskStore } from "../mission-control/store.js";
 import type { IdentityStore } from "../identity/store.js";
+import type { TaskStore } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 
 export type HealthCheckResult = {
@@ -61,9 +61,7 @@ export async function runHealthCheck(opts: {
     await opts.identityStore.search("health check", { limit: 1 });
     checks.identityStore = true;
   } catch (err) {
-    errors.push(
-      `Identity store check failed: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    errors.push(`Identity store check failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   // Check SMT throttler
@@ -90,7 +88,8 @@ export async function runHealthCheck(opts: {
     errors.push(`Watchdog check failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  const healthy = checks.taskStore && checks.identityStore && checks.smtThrottler && errors.length === 0;
+  const healthy =
+    checks.taskStore && checks.identityStore && checks.smtThrottler && errors.length === 0;
 
   return { healthy, checks, warnings, errors };
 }
@@ -168,9 +167,7 @@ export async function promptStartupApproval(
   }
 
   // Prompt for approval
-  console.log(
-    "\nThe Roadmap Observer (README §12) can autonomously create and manage tasks",
-  );
+  console.log("\nThe Roadmap Observer (README §12) can autonomously create and manage tasks");
   console.log("to drive completion of Track 1 (iOS), Track 2 (Tuta Mail), and Track 3 (Calendar).");
   console.log("\nThis respects all safety constraints from the Ratified Constitution (README §0):");
   console.log("  • Approval gates for high-risk actions");
@@ -194,12 +191,12 @@ export async function promptStartupApproval(
         const approved = normalized === "yes" || normalized === "y";
 
         if (approved) {
-          console.log("\n\x1b[32m✓ Autonomous operations approved. Starting SOWWY scheduler...\x1b[0m\n");
-        } else {
           console.log(
-            "\n\x1b[33m⊘ Autonomous operations declined. SOWWY will remain idle.\x1b[0m",
+            "\n\x1b[32m✓ Autonomous operations approved. Starting SOWWY scheduler...\x1b[0m\n",
           );
-          console.log('  To activate later, run: \x1b[36mopenclaw roadmap:activate\x1b[0m\n');
+        } else {
+          console.log("\n\x1b[33m⊘ Autonomous operations declined. SOWWY will remain idle.\x1b[0m");
+          console.log("  To activate later, run: \x1b[36mopenclaw roadmap:activate\x1b[0m\n");
         }
 
         resolve(approved);
@@ -228,7 +225,10 @@ export async function createInitialRoadmapTask(
       importance: 5,
       risk: 2,
       stressCost: 2,
-      requiresApproval: false, // Observer itself doesn't need approval; sub-tasks it creates may
+      requiresApproval: false,
+      maxRetries: 3,
+      dependencies: [],
+      contextLinks: {},
       payload: {
         action: "read_readme_roadmap",
         persist_until_complete: true,
@@ -244,6 +244,8 @@ export async function createInitialRoadmapTask(
     console.error(
       `\x1b[31m✗ Failed to create Roadmap Observer task: ${err instanceof Error ? err.message : String(err)}\x1b[0m`,
     );
-    console.error("  You can create it manually later with: \x1b[36mopenclaw roadmap:activate\x1b[0m\n");
+    console.error(
+      "  You can create it manually later with: \x1b[36mopenclaw roadmap:activate\x1b[0m\n",
+    );
   }
 }

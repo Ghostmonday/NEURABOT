@@ -9,8 +9,11 @@ import type {
   GatewayRequestHandler,
   GatewayRequestHandlerOptions,
 } from "./server-methods/types.js";
+import { loadConfig } from "../config/config.js";
+import { createEmbeddingProvider } from "../memory/embeddings.js";
 import { ExtensionFoundationImpl } from "../sowwy/extensions/foundation.js";
 import { ExtensionLoader } from "../sowwy/extensions/loader.js";
+import { adaptMemoryEmbeddingProvider } from "../sowwy/identity/embedding-adapter.js";
 import {
   createInMemoryStores,
   createLanceDBIdentityStore,
@@ -20,6 +23,7 @@ import {
   SMTThrottler,
   TaskScheduler,
   type GatewayContext,
+  type IdentityStore,
   type SowwyStores,
   type Task,
   type TaskExecutionResult,
@@ -59,6 +63,63 @@ function createStubEmbeddingProvider(dimensions = 384): {
     embed: async () => zero,
     getDimensions: () => dimensions,
   };
+}
+
+/**
+ * Create real embedding provider for identity store from config/env vars.
+ * Falls back to stub if provider is not configured or fails to initialize.
+ */
+async function createIdentityEmbeddingProvider(): Promise<{
+  embed: (text: string) => Promise<number[]>;
+  getDimensions: () => number;
+}> {
+  const providerType = process.env.SOWWY_IDENTITY_EMBEDDING_PROVIDER || "auto";
+
+  // If explicitly set to "stub", use stub
+  if (providerType === "stub") {
+    return createStubEmbeddingProvider(384);
+  }
+
+  try {
+    const cfg = loadConfig();
+    const provider =
+      providerType === "auto" ? "auto" : (providerType as "openai" | "gemini" | "local");
+
+    // Determine model based on provider
+    let model = "text-embedding-3-small"; // OpenAI default
+    if (provider === "gemini") {
+      model = "text-embedding-004";
+    } else if (provider === "local") {
+      model = "hf:ggml-org/embeddinggemma-300M-GGUF/embeddinggemma-300M-Q8_0.gguf";
+    }
+
+    const result = await createEmbeddingProvider({
+      config: cfg,
+      provider,
+      model,
+      fallback: "none",
+      remote: undefined,
+      local: undefined,
+    });
+
+    // Get dimensions from the provider
+    // OpenAI text-embedding-3-small = 1536, Gemini = 768, Local varies
+    let dimensions = 1536; // Default for OpenAI
+    if (provider === "gemini" || result.requestedProvider === "gemini") {
+      dimensions = 768;
+    } else if (provider === "local" || result.requestedProvider === "local") {
+      // Local models vary, but embeddinggemma-300M is typically 768
+      dimensions = 768;
+    }
+
+    // Adapt memory provider to identity store interface
+    return adaptMemoryEmbeddingProvider(result.provider, dimensions);
+  } catch (error) {
+    console.warn(
+      `⚠️ Failed to initialize identity embedding provider (${providerType}): ${error instanceof Error ? error.message : String(error)}. Falling back to stub embedder.`,
+    );
+    return createStubEmbeddingProvider(384);
+  }
 }
 
 function getUserId(_opts: GatewayRequestHandlerOptions): string {
@@ -107,6 +168,8 @@ export interface SowwyBootstrapResult {
   sowwyMethodNames: string[];
   scheduler: TaskScheduler | null;
   stores: SowwyStores | null;
+  identityStore: IdentityStore | null;
+  smt: SMTThrottler | null;
 }
 
 /**
@@ -142,10 +205,10 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     stores = await createPostgresStores(env.postgres!);
   }
 
-  const stubEmbedder = createStubEmbeddingProvider(384);
+  const embeddingProvider = await createIdentityEmbeddingProvider();
   const identityStore = await createLanceDBIdentityStore({
     dbPath: env.identityPath,
-    embeddingProvider: stubEmbedder,
+    embeddingProvider,
     writeAccessAllowed: false,
   });
 
@@ -156,10 +219,18 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     reservePercent: env.smt.reservePercent,
   });
 
+  const scheduler = new TaskScheduler(stores.tasks, identityStore, smt, {
+    pollIntervalMs: env.scheduler.pollIntervalMs,
+    maxRetries: env.scheduler.maxRetries,
+    stuckTaskThresholdMs: env.scheduler.stuckTaskThresholdMs,
+    maxConcurrentPerPersona: env.scheduler.maxConcurrentPerPersona,
+  });
+
   const context: GatewayContext = {
     stores,
     identityStore,
     smt,
+    scheduler,
     userId: "gateway",
   };
 
@@ -196,23 +267,8 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     };
   }
 
-  const scheduler = new TaskScheduler(stores.tasks, identityStore, smt, {
-    pollIntervalMs: env.scheduler.pollIntervalMs,
-    maxRetries: env.scheduler.maxRetries,
-    stuckTaskThresholdMs: env.scheduler.stuckTaskThresholdMs,
-  });
-
-  const personaStub = async (_task: Task, _context: string): Promise<TaskExecutionResult> => ({
-    success: true,
-    outcome: "COMPLETED",
-    summary: "Stub executor (register real persona executors)",
-    confidence: 0,
-  });
-
-  scheduler.registerPersona(PersonaOwner.Dev, personaStub);
-  scheduler.registerPersona(PersonaOwner.LegalOps, personaStub);
-  scheduler.registerPersona(PersonaOwner.ChiefOfStaff, personaStub);
-  scheduler.registerPersona(PersonaOwner.RnD, personaStub);
+  // Persona executors are registered by extensions (PersonaDevExtension, etc.)
+  // No stub registrations needed - extensions will register real executors
 
   // Wire Extensions
   const foundation = new ExtensionFoundationImpl(
@@ -230,5 +286,7 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     sowwyMethodNames: [...SOWWY_METHODS],
     scheduler,
     stores,
+    identityStore,
+    smt,
   };
 }

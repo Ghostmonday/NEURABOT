@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="README-header.svg" alt="NEURABOT - Autonomous AI Orchestration Platform" width="100%"/>
+</div>
+
 # NEURABOT — Autonomous AI Orchestration Platform
 
 > **Fork of [OpenClaw](https://github.com/openclaw/openclaw)** with SOWWY (Super Output Workforce Intelligence Entity): identity learning, mission control, disaster recovery, and self-modification.
@@ -14,12 +18,13 @@
 
 This README is the **Ratified Constitution** of NEURABOT: a single Source of Truth synthesizing every architectural decision, safety protocol, and strategic objective. The following self-reinforcing loop defines how NEURABOT operates:
 
-| Role | Section | Responsibility |
-|------|---------|----------------|
-| **The Goal** | [§12 Where to Go from Here](#where-to-go-from-here) | Strategic roadmap (e.g., "Build iOS App", Tuta Mail, Calendar) |
-| **The Brain** | [§6 SOWWY / Mission Control](#sowwy--mission-control) | Breaks goals into tasks, personas, priority, approval |
-| **The Hands** | [§5 Data Flow](#data-flow-from-message-to-response) | Agent Runner executes code and tools |
-| **The Safety Net** | [§9 Self-Modification](#self-modification-system), [§4 Process & Runtime](#process--runtime-topology) | Self-Modify checklist, Watchdog; system doesn't kill itself while learning |
+| Role               | Section                                                                                               | Responsibility                                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **The Goal**       | [§12 Where to Go from Here](#where-to-go-from-here)                                                   | Strategic roadmap (e.g., "Build iOS App", Tuta Mail, Calendar)                                                     |
+| **The Brain**      | [§6 SOWWY / Mission Control](#sowwy--mission-control)                                                 | Breaks goals into tasks, personas, priority, approval                                                              |
+| **The Hands**      | [§5 Data Flow](#data-flow-from-message-to-response)                                                   | Agent Runner executes code and tools                                                                               |
+| **The Safety Net** | [§9 Self-Modification](#self-modification-system), [§4 Process & Runtime](#process--runtime-topology) | Self-Modify checklist, Watchdog; system doesn't kill itself while learning                                         |
+| **The Throughput** | [§0.3 Computational Throughput Triumph](#03-computational-throughput-triumph)                         | Parallel lanes, concurrent agent sessions, SMT-scalable limits—architecture built for hundreds of prompts per hour |
 
 **State Synchronization:**
 
@@ -28,6 +33,45 @@ This README is the **Ratified Constitution** of NEURABOT: a single Source of Tru
 - **Visual Map:** NotebookLM Mind Map (or equivalent) aligned with Section 3 architecture
 
 Missions (e.g., Track 1 iOS App Factory) are executed under this Constitution: goals from §12, taskification by SOWWY §6, execution by the Agent Runner, with safety boundaries (§8–§9) and staging/sandbox constraints respected. **Do not** edit `ecosystem.config.cjs` or deploy to `active_tools` from staging until explicitly authorized.
+
+### §0.1 Operational Directives (Speed & Parallelism)
+
+When operating autonomously, NEURABOT SHALL:
+
+- **Work as fast as it can** within safety limits: use the shortest practical scheduler poll interval (`SOWWY_SCHEDULER_POLL_MS`), respect SMT throttling and approval gates, but avoid unnecessary delays.
+- **Deploy sub-agents in parallel**: create sub-tasks assigned to **different personas** (Dev, ChiefOfStaff, LegalOps, RnD) so the scheduler can run multiple tasks concurrently—one or more per persona, according to `SOWWY_MAX_CONCURRENT_PER_PERSONA`. The Roadmap Observer and other extensions SHOULD create track-level or phase-level sub-tasks that distribute work across personas rather than serializing everything under one persona.
+- **Prefer parallelism over serialization**: when breaking down a goal (e.g. §12 tracks), assign distinct tracks or phases to different personas where logically possible so that Dev, ChiefOfStaff, and RnD can advance work in parallel.
+
+These directives are subordinate to the Safety Net (§4, §8, §9): SMT limits, approval gates, and self-modify boundaries MUST still be respected.
+
+### §0.2 Continuous Self-Modify & Workforce Goal
+
+NEURABOT SHALL operate in **continuous self-improvement mode** until explicitly told to stop:
+
+- **Self-modify without stopping**: Run upgrade and self-modify cycles (validate → apply → reload) continuously. Do not stop for convenience; only stop when the human operator says so.
+- **Validate, then move on**: Every upgrade MUST pass the self-modify checklist (allowlist, diff threshold, syntax, no secrets, no boundary edits). After validation, apply changes and continue. Run tests where applicable so all upgrades work.
+- **Hours, days, weeks**: Operate for extended periods. Schedule follow-up self-modify or roadmap tasks so work continues across restarts. The system is built to run as a persistent workforce.
+- **Strategic goal**: Evolve into the **company’s workforce**—reliably executing roadmap tracks (§12), mission control (§6), and delegated tasks within safety boundaries (§4, §8, §9).
+
+**When to STOP** (and only then):
+
+- The human says **"stop"** or **"pause self-modify"** (or equivalent via channel or CLI).
+- The human invokes **sowwy.pause** (RPC or dashboard) to pause the scheduler and SMT.
+- **SOWWY_KILL_SWITCH=true** is set in the environment (global kill switch).
+
+After stop, the human may resume with **sowwy.resume** or by clearing the kill switch. Until then, NEURABOT SHALL NOT start new self-modify or autonomous upgrade cycles.
+
+### §0.3 Computational Throughput Triumph
+
+NEURABOT’s architecture is built for **high-throughput, parallel computation**—designed to fully use powerful backends like MiniMax M2.1 with hundreds of prompts per hour:
+
+- **Parallel execution lanes**: The scheduler runs multiple tasks **per persona** (configurable via `SOWWY_MAX_CONCURRENT_PER_PERSONA`, up to 10+ per persona). With four personas (Dev, ChiefOfStaff, LegalOps, RnD), dozens of execution lanes can run **simultaneously**.
+- **Agent lane concurrency**: The command-queue layer allows many concurrent LLM sessions (main lane + subagent lane), so the gateway does not serialize API calls—multiple agent turns and tool runs proceed in parallel.
+- **SMT-aligned scaling**: The SMT throttler window and limits can be raised to match provider quotas (e.g. thousands of prompts per 5-hour window), so throughput is limited by the **model provider**, not by artificial caps.
+- **Parallel tick and multi-task fetch**: The scheduler can dispatch work across all personas in parallel and fetch multiple ready tasks per persona per tick, keeping every lane fed.
+- **Executor multiplexing**: Multiple executors per persona (e.g. Continuous Self-Modify, Roadmap Observer, Twilio SMS) can coexist, so diverse work streams run in parallel without blocking one another.
+
+Together, these layers form a **throughput stack**: Constitution (§0.1–§0.2) demands speed and parallelism; the scheduler, lanes, SMT, and executors implement it. The result is an architecture that **celebrates computational throughput**—maximizing the use of high-capacity backends and turning NEURABOT into a true parallel workforce.
 
 ---
 
@@ -58,25 +102,28 @@ NEURABOT is a **single gateway process** that:
 
 - **Multi-channel communication**: Handles Telegram, WhatsApp, Discord, WebChat, and 30+ other channels
 - **Autonomous task execution**: SOWWY mission control with persona-based routing and approval workflows
+- **High-throughput parallelism**: Designed to maximize computational throughput—parallel execution lanes per persona, concurrent agent sessions, and SMT-scalable limits so backends like MiniMax M2.1 can run hundreds of prompts per hour (see [§0.3](#03-computational-throughput-triumph))
 - **Identity-aware**: Learns and applies user identity fragments for context-aware automation
 - **Self-modifying**: Controlled code editing with boundaries, validation, and safe reload
 - **Production-ready**: PM2 ecosystem, watchdog heartbeat, crash-loop detection, and optional rollback
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **SOWWY Mission Control** | Task OS with priority queues, retries, backoff, stuck detection, and audit trails |
-| **Identity Store** | LanceDB-backed vector storage for structured identity fragments (goals, constraints, preferences, beliefs) |
-| **Persona Routing** | Dev, LegalOps, ChiefOfStaff, RnD personas with dedicated executors |
-| **Self-Modification** | Safe code editing with allowlists, diff thresholds, syntax validation, and reload |
-| **Watchdog & Recovery** | Heartbeat monitoring, Healthchecks.io integration, optional crash-loop sentinel with auto-rollback |
-| **SMT Throttler** | Rate limiting for expensive operations (self-modify prompts, scheduler-driven LLM calls) |
-| **Approval Gates** | Centralized approval workflow for high-risk actions (email, browser navigate, financial, VPS ops) |
+| Feature                          | Description                                                                                                                                                                        |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SOWWY Mission Control**        | Task OS with priority queues, retries, backoff, stuck detection, and audit trails                                                                                                  |
+| **Identity Store**               | LanceDB-backed vector storage for structured identity fragments (goals, constraints, preferences, beliefs)                                                                         |
+| **Persona Routing**              | Dev, LegalOps, ChiefOfStaff, RnD personas with dedicated executors                                                                                                                 |
+| **Self-Modification**            | Safe code editing with allowlists, diff thresholds, syntax validation, and reload                                                                                                  |
+| **Watchdog & Recovery**          | Heartbeat monitoring, Healthchecks.io integration, optional crash-loop sentinel with auto-rollback                                                                                 |
+| **SMT Throttler**                | Rate limiting for expensive operations (self-modify prompts, scheduler-driven LLM calls)                                                                                           |
+| **Approval Gates**               | Centralized approval workflow for high-risk actions (email, browser navigate, financial, VPS ops)                                                                                  |
+| **High-Throughput Architecture** | Parallel execution lanes per persona, concurrent agent sessions, and scalable SMT limits—built to drive high-capacity backends (e.g. MiniMax M2.1) at hundreds of prompts per hour |
 
 ### When to Reference This Section
 
 **Read this section FIRST** when:
+
 - Starting a new NEURABOT project or fork
 - Explaining the system to stakeholders or new developers
 - Deciding whether NEURABOT fits your use case
@@ -91,12 +138,14 @@ NEURABOT is a **single gateway process** that:
 ### When to Use This Section
 
 **Implement this section** when:
+
 - Setting up a development environment for the first time
 - Onboarding new developers to the project
 - Testing NEURABOT on a new machine or server
 - Recovering from a corrupted environment
 
 **Skip this section** if:
+
 - You're already running NEURABOT and need to modify specific components
 - You're only reading to understand architecture (see [Architecture](#high-level-architecture))
 - You're implementing features (jump to relevant sections like [SOWWY](#sowwy--mission-control) or [Self-Modification](#self-modification-system))
@@ -111,6 +160,7 @@ NEURABOT is a **single gateway process** that:
 ### Implementation Checklist
 
 Before proceeding, verify:
+
 - [ ] Node.js version is 22.12.0+ (`node --version`)
 - [ ] pnpm is installed (`pnpm --version`)
 - [ ] You have API keys for at least one model provider
@@ -142,6 +192,7 @@ openclaw onboard
 ```
 
 The wizard will:
+
 - Configure model providers (MiniMax M2.1, OpenAI, Anthropic, etc.)
 - Set up workspace and gateway settings
 - Configure channels (Telegram, WhatsApp, etc.)
@@ -151,11 +202,13 @@ The wizard will:
 #### Option 2: Manual Configuration
 
 1. **Copy environment template**:
+
    ```bash
    cp .env.example .env
    ```
 
 2. **Configure SOWWY** (edit `.env`):
+
    ```bash
    # PostgreSQL (optional - uses in-memory if not set)
    SOWWY_POSTGRES_HOST=localhost
@@ -236,6 +289,7 @@ Open `http://127.0.0.1:18789` (or your configured port) in your browser to acces
 ### When to Reference This Section
 
 **Consult this section** when:
+
 - Designing new features that interact with multiple components
 - Debugging communication issues between channels and agents
 - Planning integration points for new channels or providers
@@ -243,6 +297,7 @@ Open `http://127.0.0.1:18789` (or your configured port) in your browser to acces
 - Onboarding architects or senior developers
 
 **Implementation context:** This section describes the **as-built** architecture. When adding new components:
+
 1. Identify which box in the diagram your component belongs to
 2. Check if you need to modify `src/gateway/server*.ts` for integration
 3. Verify whether your component needs SOWWY (task scheduler) access
@@ -316,6 +371,7 @@ When extending NEURABOT, here are the common integration patterns:
 ### When to Implement This Section
 
 **Set up PM2 topology** when:
+
 - Moving from development to production deployment
 - Implementing crash recovery and high availability
 - Setting up monitoring and alerting infrastructure
@@ -323,6 +379,7 @@ When extending NEURABOT, here are the common integration patterns:
 - Configuring automatic restarts after system reboots
 
 **Skip PM2 setup** when:
+
 - Running in development mode (`pnpm gateway:dev`)
 - Testing features locally
 - Running in containers (Docker/Kubernetes handle process management)
@@ -331,6 +388,7 @@ When extending NEURABOT, here are the common integration patterns:
 ### Implementation Prerequisites
 
 Before configuring PM2:
+
 - [ ] NEURABOT runs successfully in development mode
 - [ ] All required environment variables are set
 - [ ] You have decided on memory limits (default: 1GB, adjust in `ecosystem.config.cjs`)
@@ -381,17 +439,20 @@ flowchart LR
    - Adjust log paths if needed (default: `logs/`)
 
 2. **Start the gateway:**
+
    ```bash
    npx pm2 start ecosystem.config.cjs
    ```
 
 3. **Verify it's running:**
+
    ```bash
    npx pm2 list
    npx pm2 logs neurabot-gateway --lines 50
    ```
 
 4. **Enable startup on boot:**
+
    ```bash
    npx pm2 startup  # Run the command it outputs
    npx pm2 save
@@ -409,6 +470,7 @@ flowchart LR
 ### When to Reference This Section
 
 **Study this section** when:
+
 - Debugging message routing or delivery issues
 - Adding new message types or handling logic
 - Implementing custom message preprocessing
@@ -417,6 +479,7 @@ flowchart LR
 - Tracing why a message isn't triggering expected behavior
 
 **Implementation scenarios requiring this knowledge:**
+
 - Adding a new channel: Follow the flow from "Channel Plugin" → "Gateway Core"
 - Adding a new tool: Modify "Tools" box, called by "Agent Runner"
 - Implementing custom routing: Modify "Gateway" or "Auto-Reply Pipeline"
@@ -462,15 +525,15 @@ sequenceDiagram
 
 ### Key Files for Each Stage
 
-| Stage | Primary File | Modify When |
-|-------|-------------|-------------|
-| **Channel Plugin** | `extensions/*/src/index.ts` | Adding new channel, changing message normalization |
-| **Gateway Routing** | `src/gateway/server*.ts` | Adding routing logic, middleware, channel wiring |
-| **Auto-Reply** | `src/auto-reply/reply/*.ts` | Changing message classification, typing indicators |
-| **Followup Queue** | `src/auto-reply/followup-queue.ts` | Adjusting queue behavior, prioritization |
-| **Agent Runner** | `src/auto-reply/reply/agent-runner.ts` | Session handling, LLM integration, tool execution |
-| **Session Store** | `src/session/store*.ts` | Persistence, session lifecycle, cleanup |
-| **Tools** | `src/agents/tools/*.ts` | Adding/modifying tools, changing tool schemas |
+| Stage               | Primary File                           | Modify When                                        |
+| ------------------- | -------------------------------------- | -------------------------------------------------- |
+| **Channel Plugin**  | `extensions/*/src/index.ts`            | Adding new channel, changing message normalization |
+| **Gateway Routing** | `src/gateway/server*.ts`               | Adding routing logic, middleware, channel wiring   |
+| **Auto-Reply**      | `src/auto-reply/reply/*.ts`            | Changing message classification, typing indicators |
+| **Followup Queue**  | `src/auto-reply/followup-queue.ts`     | Adjusting queue behavior, prioritization           |
+| **Agent Runner**    | `src/auto-reply/reply/agent-runner.ts` | Session handling, LLM integration, tool execution  |
+| **Session Store**   | `src/session/store*.ts`                | Persistence, session lifecycle, cleanup            |
+| **Tools**           | `src/agents/tools/*.ts`                | Adding/modifying tools, changing tool schemas      |
 
 ### Common Debugging Entry Points
 
@@ -487,6 +550,7 @@ sequenceDiagram
 ### When to Implement This Section
 
 **Implement SOWWY** when:
+
 - Building autonomous task execution workflows
 - Adding background jobs that run independently of user messages
 - Implementing approval workflows for high-risk operations
@@ -495,6 +559,7 @@ sequenceDiagram
 - Implementing scheduled or recurring tasks
 
 **Skip SOWWY** when:
+
 - Building simple request-response chat features
 - All operations are synchronous and user-initiated
 - You don't need task persistence across restarts
@@ -503,6 +568,7 @@ sequenceDiagram
 ### Implementation Prerequisites
 
 Before implementing SOWWY components:
+
 - [ ] Decide on persistence: PostgreSQL (production) or in-memory (testing)
 - [ ] Review task categories in `src/sowwy/mission-control/schema.ts`
 - [ ] Understand persona model (which personas execute which task types)
@@ -591,6 +657,7 @@ flowchart TB
    - **Verify:** Persona exists in `PersonaOwner` enum in schema
 
 3. **Implement persona executor:**
+
    ```typescript
    // In src/gateway/server-sowwy.ts or dedicated file
    scheduler.registerPersona(PersonaOwner.Dev, async (task, context) => {
@@ -600,6 +667,7 @@ flowchart TB
      // 4. Return success/failure
    });
    ```
+
    - **Verify:** Run `pnpm build` and check for TypeScript errors
    - **Test:** Create a stub task and verify executor is called
 
@@ -618,31 +686,34 @@ flowchart TB
 
 ### Key Files for SOWWY Development
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| **Bootstrap** | `src/gateway/server-sowwy.ts` | Wires stores, scheduler, RPC handlers |
-| **Scheduler** | `src/sowwy/mission-control/scheduler.ts` | Polling loop, persona execution |
-| **Task Store** | `src/sowwy/mission-control/store.ts` | Task CRUD, status transitions |
-| **Schema** | `src/sowwy/mission-control/schema.ts` | Task types, categories, personas |
-| **Identity** | `src/sowwy/identity/store.ts` | Identity context for executors |
-| **Extensions** | `src/sowwy/extensions/loader.ts` | Load SOWWY-aware extensions |
-| **RPC Handlers** | `src/gateway/server-sowwy.ts` | RPC methods (list, create, approve) |
+| Component        | File                                     | Purpose                               |
+| ---------------- | ---------------------------------------- | ------------------------------------- |
+| **Bootstrap**    | `src/gateway/server-sowwy.ts`            | Wires stores, scheduler, RPC handlers |
+| **Scheduler**    | `src/sowwy/mission-control/scheduler.ts` | Polling loop, persona execution       |
+| **Task Store**   | `src/sowwy/mission-control/store.ts`     | Task CRUD, status transitions         |
+| **Schema**       | `src/sowwy/mission-control/schema.ts`    | Task types, categories, personas      |
+| **Identity**     | `src/sowwy/identity/store.ts`            | Identity context for executors        |
+| **Extensions**   | `src/sowwy/extensions/loader.ts`         | Load SOWWY-aware extensions           |
+| **RPC Handlers** | `src/gateway/server-sowwy.ts`            | RPC methods (list, create, approve)   |
 
 ### Common Patterns
 
 **Long-running task with checkpoints:**
+
 - Break into subtasks or use `payload` to store state
 - Update task status to `IN_PROGRESS` immediately
 - Store intermediate results in `payload`
 - On failure, scheduler retries with backoff
 
 **Task with approval gate:**
+
 - Set `requiresApproval: true`
 - Scheduler calls `notifyHuman` (not executor)
 - User calls `tasks.approve(taskId)`
 - Next poll picks up approved task and executes
 
 **Scheduled/recurring task:**
+
 - Create task with `scheduledAt` in future
 - Scheduler ignores until `scheduledAt` passes
 - For recurring: executor creates new task with next `scheduledAt`
@@ -654,6 +725,7 @@ flowchart TB
 ### When to Implement This Section
 
 **Implement identity/memory** when:
+
 - Building features that need persistent user context across sessions
 - Implementing personalized automation (user goals, preferences, constraints)
 - Creating agents that learn from past interactions
@@ -661,6 +733,7 @@ flowchart TB
 - Implementing semantic search over past conversations or decisions
 
 **Skip identity/memory** when:
+
 - Building stateless request-response features
 - All context fits in a single conversation
 - You don't need personalization or learning
@@ -669,6 +742,7 @@ flowchart TB
 ### Implementation Prerequisites
 
 Before implementing identity/memory:
+
 - [ ] Choose embedding provider (OpenAI, local model, etc.)
 - [ ] Decide on LanceDB storage location (`SOWWY_IDENTITY_PATH`)
 - [ ] Review 8-category schema (goal, constraint, preference, belief, risk, capability, relationship, historical_fact)
@@ -730,11 +804,11 @@ flowchart LR
 ```typescript
 // In agent, extension, or manual script
 await identityStore.add({
-  category: 'goal',
-  content: 'Launch iOS app to App Store by Q2 2026',
-  source: 'user-conversation',
+  category: "goal",
+  content: "Launch iOS app to App Store by Q2 2026",
+  source: "user-conversation",
   timestamp: new Date(),
-  metadata: { confidence: 0.9, channel: 'telegram' }
+  metadata: { confidence: 0.9, channel: "telegram" },
 });
 ```
 
@@ -743,46 +817,50 @@ await identityStore.add({
 ```typescript
 // In persona executor or agent runner
 const identity = await identityStore.query({
-  query: 'user goals related to iOS development',
+  query: "user goals related to iOS development",
   limit: 5,
-  categories: ['goal', 'constraint', 'preference']
+  categories: ["goal", "constraint", "preference"],
 });
 
 // Inject into agent prompt or task context
-const context = identity.map(f => `${f.category}: ${f.content}`).join('\n');
+const context = identity.map((f) => `${f.category}: ${f.content}`).join("\n");
 ```
 
 ### Key Files for Identity Development
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| **Identity Store Interface** | `src/sowwy/identity/store.ts` | Abstract interface for identity storage |
-| **LanceDB Implementation** | `src/sowwy/identity/lancedb-store.ts` | Vector storage with embeddings |
-| **Schema** | `src/sowwy/identity/schema.ts` | 8-category type definitions |
-| **Bootstrap** | `src/gateway/server-sowwy.ts` | Identity store initialization |
-| **Persona Executors** | (your code) | Use identity context in task execution |
+| Component                    | File                                  | Purpose                                 |
+| ---------------------------- | ------------------------------------- | --------------------------------------- |
+| **Identity Store Interface** | `src/sowwy/identity/store.ts`         | Abstract interface for identity storage |
+| **LanceDB Implementation**   | `src/sowwy/identity/lancedb-store.ts` | Vector storage with embeddings          |
+| **Schema**                   | `src/sowwy/identity/schema.ts`        | 8-category type definitions             |
+| **Bootstrap**                | `src/gateway/server-sowwy.ts`         | Identity store initialization           |
+| **Persona Executors**        | (your code)                           | Use identity context in task execution  |
 
 ### Common Patterns
 
 **Extract identity from conversations:**
+
 - Run LLM over conversation transcript
 - Use structured output to classify into 8 categories
 - Store each fragment with source metadata
 - Consolidate/dedupe similar fragments
 
 **Inject identity into agent prompts:**
+
 - Query relevant fragments before agent run
 - Format as structured context (e.g., "User goals: ...", "Constraints: ...")
 - Add to system prompt or user message prefix
 - Keep token budget in mind (limit to top-k most relevant)
 
 **Identity-driven task routing:**
+
 - Extract user capabilities (e.g., "can deploy to VPS")
 - Use in scheduler to decide which tasks are allowed
 - Block tasks that violate constraints
 - Prioritize tasks that align with goals
 
 **Consolidation/cleanup:**
+
 - Periodically review duplicate or conflicting fragments
 - Use LLM to merge similar goals/preferences
 - Archive outdated historical_facts
@@ -795,6 +873,7 @@ const context = identity.map(f => `${f.category}: ${f.content}`).join('\n');
 ### When to Implement This Section
 
 **Implement security/throttling** when:
+
 - Exposing high-risk tools (email, financial, VPS operations, browser control)
 - Building autonomous agents that run without user supervision
 - Deploying to production with quota-limited APIs
@@ -802,6 +881,7 @@ const context = identity.map(f => `${f.category}: ${f.content}`).join('\n');
 - Adding tools that can modify external systems
 
 **Priority levels:**
+
 1. **Critical (implement first):** Approval gates for destructive/expensive operations
 2. **High:** SMT throttler for self-modify and LLM-heavy tasks
 3. **Medium:** Rate limiting for external APIs
@@ -810,6 +890,7 @@ const context = identity.map(f => `${f.category}: ${f.content}`).join('\n');
 ### Implementation Prerequisites
 
 Before implementing security features:
+
 - [ ] List all high-risk operations in your system
 - [ ] Define which operations need approval vs. automatic execution
 - [ ] Choose quota limits (e.g., max LLM calls per window)
@@ -828,6 +909,7 @@ Before implementing security features:
 **Step 1: Define high-risk operations**
 
 Create a list in your docs or code comments:
+
 - ✅ **Needs approval:** Send email, VPS create/delete, financial transactions, code deployment
 - ❌ **No approval:** Read operations, internal calculations, status checks
 
@@ -836,25 +918,25 @@ Create a list in your docs or code comments:
 ```typescript
 // In tool implementation (e.g., src/agents/tools/email-tool.ts)
 export const emailTool = {
-  name: 'send_email',
+  name: "send_email",
   async execute(params) {
     // Create task with approval requirement
     const taskId = await taskStore.create({
       category: TaskCategory.EMAIL,
       personaOwner: PersonaOwner.ChiefOfStaff,
       requiresApproval: true,
-      payload: { to: params.to, subject: params.subject, body: params.body }
+      payload: { to: params.to, subject: params.subject, body: params.body },
     });
 
     // Notify user for approval
     await broadcaster.send({
-      channel: 'telegram',
-      message: `Approve email to ${params.to}? /approve ${taskId}`
+      channel: "telegram",
+      message: `Approve email to ${params.to}? /approve ${taskId}`,
     });
 
     // Return "pending approval" to agent
-    return { status: 'pending', taskId };
-  }
+    return { status: "pending", taskId };
+  },
 };
 ```
 
@@ -868,7 +950,7 @@ async function handleApprove(taskId: string, approverId: string) {
   await taskStore.update(taskId, {
     status: TaskStatus.READY,
     approvedBy: approverId,
-    approvedAt: new Date()
+    approvedAt: new Date(),
   });
 
   // Scheduler will pick up on next poll
@@ -880,6 +962,7 @@ async function handleApprove(taskId: string, approverId: string) {
 **Step 1: Configure limits**
 
 In `.env`:
+
 ```bash
 SOWWY_SMT_WINDOW_MS=18000000      # 5 hours in ms
 SOWWY_SMT_MAX_PROMPTS=100         # Max prompts per window
@@ -920,34 +1003,38 @@ console.log(`SMT usage: ${metrics.consumed}/${metrics.limit} (${metrics.utilizat
 
 ### Key Files for Security
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| **SMT Throttler** | `src/sowwy/smt/throttler.ts` | Rate limiting for expensive ops |
-| **Approval Logic** | `src/gateway/server-sowwy.ts` | RPC handlers for approval workflow |
-| **Env Validation** | `src/sowwy/config/validation.ts` | Validate required env vars at startup |
-| **Redaction** | `src/sowwy/security/redaction.ts` | PII/secret redaction in logs |
-| **Tool Wrappers** | `src/agents/tools/*-tool.ts` | Implement approval checks per tool |
+| Component          | File                              | Purpose                               |
+| ------------------ | --------------------------------- | ------------------------------------- |
+| **SMT Throttler**  | `src/sowwy/smt/throttler.ts`      | Rate limiting for expensive ops       |
+| **Approval Logic** | `src/gateway/server-sowwy.ts`     | RPC handlers for approval workflow    |
+| **Env Validation** | `src/sowwy/config/validation.ts`  | Validate required env vars at startup |
+| **Redaction**      | `src/sowwy/security/redaction.ts` | PII/secret redaction in logs          |
+| **Tool Wrappers**  | `src/agents/tools/*-tool.ts`      | Implement approval checks per tool    |
 
 ### Common Security Patterns
 
 **Tiered approval:**
+
 - Low-risk: Auto-approve (read operations)
 - Medium-risk: Single approver (send email to known contacts)
 - High-risk: Multi-approver or time-delayed (VPS delete, financial)
 
 **Quota management:**
+
 - Track per-window usage (SMT throttler)
 - Warn at 80% utilization
 - Block at 100% until window resets
 - Allow override for critical operations (with approval)
 
 **Secret management:**
+
 - Store in env vars or credentials file
 - Redact from logs and error messages
 - Rotate regularly (document process)
 - Use least-privilege API keys
 
 **Audit trail:**
+
 - Log all high-risk operations to AuditStore
 - Include: who, what, when, outcome, approver
 - Retain for compliance (configurable retention)
@@ -960,6 +1047,7 @@ console.log(`SMT usage: ${metrics.consumed}/${metrics.limit} (${metrics.utilizat
 ### When to Implement This Section
 
 **Implement self-modification** when:
+
 - Building agents that need to improve their own code
 - Implementing automated bug fixes or refactoring
 - Creating systems that adapt to changing requirements
@@ -967,6 +1055,7 @@ console.log(`SMT usage: ${metrics.consumed}/${metrics.limit} (${metrics.utilizat
 - Implementing controlled code evolution
 
 **DO NOT implement** if:
+
 - System stability is paramount (no runtime changes)
 - You don't have PM2 or process manager for safe restarts
 - Team is not comfortable with agent-written code
@@ -975,9 +1064,12 @@ console.log(`SMT usage: ${metrics.consumed}/${metrics.limit} (${metrics.utilizat
 
 **⚠️ Warning:** Self-modification is powerful but risky. Implement boundaries first, test extensively, and always review agent changes.
 
+**Continuous self-modify (README §0.2):** To run upgrade/validate cycles until you say stop, set `SOWWY_CONTINUOUS_SELF_MODIFY=true`. The system will create recurring `SELF_MODIFY` tasks every 15 minutes. To stop: call **sowwy.pause** (RPC/dashboard), set **SOWWY_KILL_SWITCH=true**, or tell the bot to stop via your channel.
+
 ### Implementation Prerequisites
 
 Before enabling self-modification:
+
 - [ ] PM2 or process manager configured for restarts
 - [ ] File allowlist defined (which files agents can edit)
 - [ ] Diff threshold set (max % of file that can change)
@@ -1042,10 +1134,10 @@ Edit `src/sowwy/self-modify/boundaries.ts`:
 
 ```typescript
 export const ALLOWED_PATHS = [
-  'src/agents/tools/**/*.ts',      // Agent tools
-  'src/agents/prompts/**/*.ts',    // Agent prompts
-  'extensions/*/src/**/*.ts',      // Extension code
-  'docs/**/*.md',                   // Documentation
+  "src/agents/tools/**/*.ts", // Agent tools
+  "src/agents/prompts/**/*.ts", // Agent prompts
+  "extensions/*/src/**/*.ts", // Extension code
+  "docs/**/*.md", // Documentation
   // NEVER allow:
   // - src/sowwy/self-modify/**  (boundaries, checklist, reload)
   // - src/gateway/server*.ts     (core gateway logic)
@@ -1054,8 +1146,8 @@ export const ALLOWED_PATHS = [
 ];
 
 export const DIFF_THRESHOLD = {
-  default: 0.5,   // 50% of file can change
-  poweruser: 0.9  // 90% in poweruser mode (requires approval)
+  default: 0.5, // 50% of file can change
+  poweruser: 0.9, // 90% in poweruser mode (requires approval)
 };
 ```
 
@@ -1071,7 +1163,7 @@ export async function runSelfEditChecklist(edits: Edit[]) {
   for (const edit of edits) {
     // 1. Check allowlist
     if (!isPathAllowed(edit.path)) {
-      results.push({ path: edit.path, error: 'Path not in allowlist' });
+      results.push({ path: edit.path, error: "Path not in allowlist" });
       continue;
     }
 
@@ -1083,27 +1175,27 @@ export async function runSelfEditChecklist(edits: Edit[]) {
     }
 
     // 3. Check TypeScript syntax (if .ts file)
-    if (edit.path.endsWith('.ts')) {
+    if (edit.path.endsWith(".ts")) {
       const syntaxValid = await validateTypeScript(edit.newContent);
       if (!syntaxValid) {
-        results.push({ path: edit.path, error: 'TypeScript syntax invalid' });
+        results.push({ path: edit.path, error: "TypeScript syntax invalid" });
         continue;
       }
     }
 
     // 4. Check for secrets
     if (containsSecrets(edit.newContent)) {
-      results.push({ path: edit.path, error: 'Contains secrets' });
+      results.push({ path: edit.path, error: "Contains secrets" });
       continue;
     }
 
     // 5. Check not editing boundaries
-    if (edit.path.includes('self-modify/')) {
-      results.push({ path: edit.path, error: 'Cannot edit self-modify code' });
+    if (edit.path.includes("self-modify/")) {
+      results.push({ path: edit.path, error: "Cannot edit self-modify code" });
       continue;
     }
 
-    results.push({ path: edit.path, status: 'ok' });
+    results.push({ path: edit.path, status: "ok" });
   }
 
   return results;
@@ -1130,23 +1222,23 @@ export async function requestSelfModifyReload(delayMs = 5000) {
 ```typescript
 // src/agents/tools/self-modify-tool.ts
 export const selfModifyTool = {
-  name: 'self_modify',
-  description: 'Validate code edits and request reload',
+  name: "self_modify",
+  description: "Validate code edits and request reload",
   parameters: {
-    edits: { type: 'array', description: 'Array of file edits' },
-    skipValidation: { type: 'boolean', default: false }
+    edits: { type: "array", description: "Array of file edits" },
+    skipValidation: { type: "boolean", default: false },
   },
 
   async execute({ edits, skipValidation }) {
     // Validate edits
     if (!skipValidation) {
       const results = await runSelfEditChecklist(edits);
-      const failures = results.filter(r => r.error);
+      const failures = results.filter((r) => r.error);
 
       if (failures.length > 0) {
         return {
-          status: 'validation_failed',
-          failures
+          status: "validation_failed",
+          failures,
         };
       }
     }
@@ -1159,24 +1251,25 @@ export const selfModifyTool = {
     // Request reload
     await requestSelfModifyReload(5000);
 
-    return { status: 'reload_requested' };
-  }
+    return { status: "reload_requested" };
+  },
 };
 ```
 
 ### Key Files for Self-Modification
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| **Boundaries** | `src/sowwy/self-modify/boundaries.ts` | Allowlist, diff thresholds |
-| **Checklist** | `src/sowwy/self-modify/checklist.ts` | Validation logic |
-| **Reload** | `src/sowwy/self-modify/reload.ts` | Safe process restart |
-| **Tool** | `src/agents/tools/self-modify-tool.ts` | Expose to agents |
-| **Rollback** | `src/sowwy/self-modify/rollback.ts` | Revert bad changes |
+| Component      | File                                   | Purpose                    |
+| -------------- | -------------------------------------- | -------------------------- |
+| **Boundaries** | `src/sowwy/self-modify/boundaries.ts`  | Allowlist, diff thresholds |
+| **Checklist**  | `src/sowwy/self-modify/checklist.ts`   | Validation logic           |
+| **Reload**     | `src/sowwy/self-modify/reload.ts`      | Safe process restart       |
+| **Tool**       | `src/agents/tools/self-modify-tool.ts` | Expose to agents           |
+| **Rollback**   | `src/sowwy/self-modify/rollback.ts`    | Revert bad changes         |
 
 ### Common Patterns
 
 **Agent-initiated refactoring:**
+
 1. Agent analyzes code and proposes changes
 2. Agent calls `edit` tool for each file
 3. Agent calls `self_modify.validate` to check boundaries
@@ -1184,6 +1277,7 @@ export const selfModifyTool = {
 5. Process exits, PM2 restarts with new code
 
 **Approval-gated self-modify:**
+
 1. Wrap self_modify in task with `requiresApproval: true`
 2. Agent proposes changes and creates pending task
 3. User reviews diff (via dashboard or Telegram)
@@ -1191,6 +1285,7 @@ export const selfModifyTool = {
 5. If approved, changes apply and reload happens
 
 **Rollback on failure:**
+
 1. Before self-modify, store git commit hash
 2. After reload, run health check
 3. If health check fails, call rollback script
@@ -1198,6 +1293,7 @@ export const selfModifyTool = {
 5. Optionally notify user of failure
 
 **Progressive self-modification:**
+
 1. Start with small allowlist (e.g., only docs)
 2. Expand to agent prompts
 3. Then agent tools
@@ -1226,17 +1322,20 @@ The self-modification implementation includes **incremental validation steps thr
    - Only proceeds if all checks pass
 
 **Unit tests:**
+
 - Test allowlist matching (positive and negative cases)
 - Test diff threshold calculation
 - Test TypeScript syntax validation
 - Test secret detection
 
 **Integration tests:**
+
 - Mock file edits and run checklist
 - Verify validation errors are caught
 - Test reload flow (without actual exit)
 
 **Manual testing:**
+
 1. Enable self-modify in safe environment
 2. Ask agent to edit a docs file (should succeed)
 3. Ask agent to edit gateway code (should fail)
@@ -1263,6 +1362,7 @@ The self-modification implementation includes **incremental validation steps thr
 ### When to Reference This Section
 
 **Read this section** when:
+
 - Deciding whether to use OpenClaw or NEURABOT
 - Explaining project rationale to stakeholders
 - Planning migration from OpenClaw to NEURABOT
@@ -1270,21 +1370,22 @@ The self-modification implementation includes **incremental validation steps thr
 - Writing proposals or architecture documents
 
 **Decision criteria:**
+
 - **Choose OpenClaw** if: You need a proven multi-channel AI assistant with no task orchestration requirements
 - **Choose NEURABOT** if: You need autonomous task execution, identity-aware behavior, self-modification, or production-ready process management
 
-| Area | OpenClaw (original) | NEURABOT (this fork) |
-|------|----------------------|------------------------|
-| **Process model** | Single process or ad-hoc systemd/cron | PM2 ecosystem: gateway + optional sentinel, memory limits, log rotation |
-| **Monitoring** | None or custom | Watchdog heartbeat (internal + optional Healthchecks.io), optional crash-loop sentinel |
-| **Recovery** | Manual restart, no rollback | Optional auto-rollback to `stable-checkpoint` on crash loop |
-| **Task system** | None | Full task OS: queue, personas, priority, retries, backoff, stuck detection, audit |
-| **Identity** | Not structured | Identity store (e.g. LanceDB) with 8-category schema, injected into task execution |
-| **Approval** | Per-tool / channel | Centralized approval gates and `tasks.approve` RPC |
-| **Throttling** | Per-provider / ad-hoc | SMT throttler for self-modify and scheduler-driven prompts |
-| **Self-modify** | Not built-in | Boundaries, checklist, reload, and `self_modify` tool |
-| **Extensions** | Plugins | Same + SOWWY extensions (e.g. Twilio, Hostinger) and extension foundation (scheduler, stores, identity) |
-| **Codebase** | One codebase | Same codebase with added `sowwy/`, `watchdog/`, optional `recovery/`, and gateway bootstrap wired to SOWWY |
+| Area              | OpenClaw (original)                   | NEURABOT (this fork)                                                                                       |
+| ----------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Process model** | Single process or ad-hoc systemd/cron | PM2 ecosystem: gateway + optional sentinel, memory limits, log rotation                                    |
+| **Monitoring**    | None or custom                        | Watchdog heartbeat (internal + optional Healthchecks.io), optional crash-loop sentinel                     |
+| **Recovery**      | Manual restart, no rollback           | Optional auto-rollback to `stable-checkpoint` on crash loop                                                |
+| **Task system**   | None                                  | Full task OS: queue, personas, priority, retries, backoff, stuck detection, audit                          |
+| **Identity**      | Not structured                        | Identity store (e.g. LanceDB) with 8-category schema, injected into task execution                         |
+| **Approval**      | Per-tool / channel                    | Centralized approval gates and `tasks.approve` RPC                                                         |
+| **Throttling**    | Per-provider / ad-hoc                 | SMT throttler for self-modify and scheduler-driven prompts                                                 |
+| **Self-modify**   | Not built-in                          | Boundaries, checklist, reload, and `self_modify` tool                                                      |
+| **Extensions**    | Plugins                               | Same + SOWWY extensions (e.g. Twilio, Hostinger) and extension foundation (scheduler, stores, identity)    |
+| **Codebase**      | One codebase                          | Same codebase with added `sowwy/`, `watchdog/`, optional `recovery/`, and gateway bootstrap wired to SOWWY |
 
 **In one sentence:** OpenClaw is a powerful multi-channel AI assistant; NEURABOT is that same assistant **plus** a task OS, identity layer, controlled self-modification, and a production-ready process and recovery model.
 
@@ -1322,16 +1423,19 @@ The self-modification implementation includes **incremental validation steps thr
 ### When Each NEURABOT Feature Becomes Critical
 
 **Immediately useful:**
+
 - PM2 ecosystem (production deployment)
 - Watchdog heartbeat (monitoring)
 - Better error handling and logging
 
 **Useful after 1-2 weeks:**
+
 - Task system (autonomous operations)
 - Approval gates (safety for production)
 - Identity store (personalization)
 
 **Useful for advanced use cases:**
+
 - Self-modification (agent-driven development)
 - SMT throttler (quota management)
 - Crash-loop recovery (high availability)
@@ -1343,6 +1447,7 @@ The self-modification implementation includes **incremental validation steps thr
 ### When to Reference This Section
 
 **Use this section** when:
+
 - Looking for specific functionality to modify
 - Debugging issues and need to find relevant code
 - Planning where to add new features
@@ -1350,57 +1455,63 @@ The self-modification implementation includes **incremental validation steps thr
 - Creating architecture documentation
 
 **Quick navigation tips:**
+
 - **Gateway/routing issues?** → Start with `src/gateway/server*.ts`
 - **SOWWY/tasks issues?** → Check `src/sowwy/mission-control/`
 - **Channel problems?** → Look in `src/gateway/server-channels.ts` and `extensions/*/`
 - **Agent/LLM issues?** → Start with `src/auto-reply/reply/agent-runner.ts`
 - **Tool problems?** → Check `src/agents/tools/`
 
-| Path | Purpose |
-|------|--------|
-| `src/index.ts` | CLI entry; `gateway` subcommand starts the gateway |
-| `src/gateway/server-sowwy.ts` | SOWWY bootstrap: stores, identity, SMT, scheduler, RPC handlers, watchdog |
-| `src/gateway/server*.ts` | HTTP/WS servers, routing, health, startup |
-| `src/gateway/server-channels.ts` | Channel plugin loading and lifecycle |
-| `src/sowwy/mission-control/scheduler.ts` | Task scheduler loop and persona execution |
-| `src/sowwy/mission-control/store.ts` | Task store interface (implementations: memory, pg) |
-| `src/sowwy/mission-control/schema.ts` | Task schema, status, persona, category |
-| `src/sowwy/identity/store.ts` | Identity store interface |
-| `src/sowwy/identity/lancedb-store.ts` | LanceDB-backed identity store |
-| `src/sowwy/smt/throttler.ts` | SMT rate limiting |
-| `src/sowwy/self-modify/*.ts` | Boundaries, checklist, reload, rollback |
-| `src/sowwy/extensions/loader.ts` | Loads SOWWY extensions (e.g. Twilio) |
-| `src/watchdog/heartbeat.ts` | Watchdog startup, heartbeat timer, healthchecks ping |
-| `src/auto-reply/reply/agent-runner.ts` | Main agent run loop (session, LLM, tools, reply) |
-| `src/agents/tools/self-modify-tool.ts` | `self_modify` tool (validate + reload) |
-| `ecosystem.config.cjs` | PM2 app definitions (gateway, optional sentinel) |
+| Path                                     | Purpose                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------- |
+| `src/index.ts`                           | CLI entry; `gateway` subcommand starts the gateway                        |
+| `src/gateway/server-sowwy.ts`            | SOWWY bootstrap: stores, identity, SMT, scheduler, RPC handlers, watchdog |
+| `src/gateway/server*.ts`                 | HTTP/WS servers, routing, health, startup                                 |
+| `src/gateway/server-channels.ts`         | Channel plugin loading and lifecycle                                      |
+| `src/sowwy/mission-control/scheduler.ts` | Task scheduler loop and persona execution                                 |
+| `src/sowwy/mission-control/store.ts`     | Task store interface (implementations: memory, pg)                        |
+| `src/sowwy/mission-control/schema.ts`    | Task schema, status, persona, category                                    |
+| `src/sowwy/identity/store.ts`            | Identity store interface                                                  |
+| `src/sowwy/identity/lancedb-store.ts`    | LanceDB-backed identity store                                             |
+| `src/sowwy/smt/throttler.ts`             | SMT rate limiting                                                         |
+| `src/sowwy/self-modify/*.ts`             | Boundaries, checklist, reload, rollback                                   |
+| `src/sowwy/extensions/loader.ts`         | Loads SOWWY extensions (e.g. Twilio)                                      |
+| `src/watchdog/heartbeat.ts`              | Watchdog startup, heartbeat timer, healthchecks ping                      |
+| `src/auto-reply/reply/agent-runner.ts`   | Main agent run loop (session, LLM, tools, reply)                          |
+| `src/agents/tools/self-modify-tool.ts`   | `self_modify` tool (validate + reload)                                    |
+| `ecosystem.config.cjs`                   | PM2 app definitions (gateway, optional sentinel)                          |
 
 ### Implementation Context for Each Area
 
 **Adding/modifying channels:**
+
 - Primary: `src/gateway/server-channels.ts` (loading, lifecycle)
 - Secondary: `extensions/*/src/index.ts` (channel implementation)
 - Test: Create test messages in channel's test suite
 
 **Adding/modifying SOWWY features:**
+
 - Schema: `src/sowwy/mission-control/schema.ts` (add task categories, personas)
 - Store: `src/sowwy/mission-control/store.ts` (persistence logic)
 - Scheduler: `src/sowwy/mission-control/scheduler.ts` (execution logic)
 - Bootstrap: `src/gateway/server-sowwy.ts` (register executors, RPC handlers)
 
 **Adding/modifying tools:**
+
 - Tool implementation: `src/agents/tools/` (create `*-tool.ts`)
 - Tool registry: Register in agent runner or tool loader
 - Schema: Define parameters and return types
 - Test: Unit tests for tool logic
 
 **Adding/modifying identity/memory:**
+
 - Schema: `src/sowwy/identity/schema.ts` (categories, types)
 - Store: `src/sowwy/identity/store.ts` (interface)
 - Implementation: `src/sowwy/identity/lancedb-store.ts` (vector storage)
 - Usage: Inject into persona executors or agent prompts
 
 **Modifying self-modification:**
+
 - Boundaries: `src/sowwy/self-modify/boundaries.ts` (allowlist, thresholds)
 - Checklist: `src/sowwy/self-modify/checklist.ts` (validation rules)
 - Reload: `src/sowwy/self-modify/reload.ts` (restart logic)
@@ -1413,6 +1524,7 @@ The self-modification implementation includes **incremental validation steps thr
 ### When to Reference This Section
 
 **Use this section** when:
+
 - Planning next development phases after core NEURABOT is running
 - Prioritizing feature roadmap (iOS, email, calendar)
 - Architecting integrations with external services
@@ -1420,6 +1532,7 @@ The self-modification implementation includes **incremental validation steps thr
 - Expanding from chat to full automation
 
 **Implementation order recommendation:**
+
 1. **First:** Get core NEURABOT running (gateway, channels, SOWWY)
 2. **Then:** Choose ONE track based on priority:
    - iOS development (if mobile app is critical)
@@ -1434,6 +1547,7 @@ This section outlines concrete next-step directions in three areas: giving the s
 #### When to Implement iOS Development
 
 **Implement this track** when:
+
 - You need a native mobile app for NEURABOT
 - iOS is a primary channel for users
 - You have access to a Mac (local or remote via Desk.in)
@@ -1441,6 +1555,7 @@ This section outlines concrete next-step directions in three areas: giving the s
 - Push notifications or iOS-specific features are needed
 
 **Prerequisites:**
+
 - [ ] Mac accessible (local or via Desk.in)
 - [ ] Xcode installed and licensed
 - [ ] Apple Developer account with appropriate role
@@ -1514,6 +1629,7 @@ The aim is **not** to perform the final "Submit for Review" click for you, but t
 #### When to Implement Tuta Mail Integration
 
 **Implement this track** when:
+
 - Email is a critical communication channel
 - You need automated email processing (sorting, responding, extracting)
 - Real-time email alerts are required
@@ -1521,6 +1637,7 @@ The aim is **not** to perform the final "Submit for Review" click for you, but t
 - Tuta Mail is your email provider (or you can adapt to IMAP/SMTP)
 
 **Prerequisites:**
+
 - [ ] Tuta Mail account with API access or IMAP bridge enabled
 - [ ] Telegram bot configured for notifications
 - [ ] Decision on approval gates for sending email
@@ -1582,6 +1699,7 @@ Give the system **Tuta Mail** (Tutanota) access to **read** the archive, **respo
 #### When to Implement Calendar Integration
 
 **Implement this track** when:
+
 - Scheduling and time management are critical
 - Emails frequently contain meeting/event information
 - You need automated reminder system
@@ -1589,6 +1707,7 @@ Give the system **Tuta Mail** (Tutanota) access to **read** the archive, **respo
 - You want voice/Telegram-based schedule queries ("what's on today?")
 
 **Prerequisites:**
+
 - [ ] Calendar backend chosen (Google, CalDAV, Apple Calendar)
 - [ ] API keys / OAuth credentials obtained
 - [ ] Decision on which calendar(s) to read/write
@@ -1640,22 +1759,26 @@ Use the system to **organize calendar and reminders** and to **add important app
 ### Implementation Order and Integration
 
 **Phase 1: Foundation (if not done)**
+
 - Core NEURABOT running (gateway, channels, SOWWY)
 - At least one chat channel working (Telegram recommended)
 - Basic identity and task management
 
 **Phase 2: Choose Primary Track**
+
 - iOS: If mobile app is critical path
 - Tuta + Telegram: If email automation is priority
 - Calendar: If scheduling is most important
 
 **Phase 3: Integrate Tracks**
+
 - iOS app ↔ Gateway (authentication, push notifications)
 - Email → Calendar (automatic event extraction)
 - Email → Telegram (important email alerts)
 - Calendar → Telegram (reminders)
 
 **Phase 4: Autonomous Workflows**
+
 - Email triggers tasks (e.g., invoice → payment approval task)
 - Calendar events trigger preparations (e.g., meeting → gather docs task)
 - iOS app can create/approve tasks on the go
@@ -1667,6 +1790,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 ### When to Reference This Section
 
 **Use this section** when:
+
 - NEURABOT isn't starting or crashing
 - Features aren't working as expected
 - Debugging production issues
@@ -1674,6 +1798,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - Setting up monitoring and alerts
 
 **Debugging strategy:**
+
 1. Check logs first (`logs/` directory or `npx pm2 logs`)
 2. Verify environment variables and configuration
 3. Test dependencies (Node version, PostgreSQL, network)
@@ -1685,6 +1810,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 #### Gateway Won't Start
 
 **Symptoms:**
+
 - Process exits immediately after start
 - Error during bootstrap
 - Port binding failures
@@ -1692,23 +1818,27 @@ Use the system to **organize calendar and reminders** and to **add important app
 **Debugging steps:**
 
 1. **Check Node.js version:**
+
    ```bash
    node --version  # Should be 22.12.0+
    ```
 
 2. **Check dependencies:**
+
    ```bash
    pnpm install
    pnpm build
    ```
 
 3. **Check environment:**
+
    ```bash
    # Verify .env exists and has required variables
    cat .env | grep -E 'MINIMAX_API_KEY|SOWWY_'
    ```
 
 4. **Check ports:**
+
    ```bash
    # Default port is 18789
    lsof -i :18789  # Linux/Mac
@@ -1716,6 +1846,7 @@ Use the system to **organize calendar and reminders** and to **add important app
    ```
 
 5. **View logs:**
+
    ```bash
    # PM2 logs
    npx pm2 logs neurabot-gateway --lines 100
@@ -1726,6 +1857,7 @@ Use the system to **organize calendar and reminders** and to **add important app
    ```
 
 **Common fixes:**
+
 - **Port in use:** Change `GATEWAY_PORT` in `.env` or stop conflicting process
 - **Missing API key:** Add model provider key to `.env`
 - **Build failed:** Run `pnpm build` and check for TypeScript errors
@@ -1734,6 +1866,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 #### SOWWY Tasks Not Executing
 
 **Symptoms:**
+
 - Tasks stuck in READY status
 - Scheduler not polling
 - Tasks created but never run
@@ -1741,18 +1874,21 @@ Use the system to **organize calendar and reminders** and to **add important app
 **Debugging steps:**
 
 1. **Check PostgreSQL** (if using):
+
    ```bash
    # Test connection
    psql -h localhost -U sowwy -d sowwy -c "SELECT 1;"
    ```
 
 2. **Check scheduler:**
+
    ```bash
    # Look for scheduler logs
    npx pm2 logs neurabot-gateway | grep -i scheduler
    ```
 
 3. **Check approval:**
+
    ```bash
    # Tasks requiring approval won't execute until approved
    # Use RPC or dashboard to check task status
@@ -1765,6 +1901,7 @@ Use the system to **organize calendar and reminders** and to **add important app
    ```
 
 **Common fixes:**
+
 - **PostgreSQL not running:** Start PostgreSQL or switch to in-memory (remove PG env vars)
 - **Scheduler disabled:** Check `SOWWY_SCHEDULER_POLL_MS` is set (default: 5000)
 - **Approval required:** Approve task via `tasks.approve` RPC or dashboard
@@ -1774,6 +1911,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 #### PM2 Issues
 
 **Symptoms:**
+
 - Gateway keeps restarting
 - Memory limit exceeded
 - PM2 not starting on boot
@@ -1781,12 +1919,14 @@ Use the system to **organize calendar and reminders** and to **add important app
 **Debugging steps:**
 
 1. **Check PM2 status:**
+
    ```bash
    npx pm2 list
    npx pm2 info neurabot-gateway
    ```
 
 2. **Check restart count:**
+
    ```bash
    # High restart count indicates crash loop
    npx pm2 show neurabot-gateway | grep restarts
@@ -1798,6 +1938,7 @@ Use the system to **organize calendar and reminders** and to **add important app
    ```
 
 **Common fixes:**
+
 - **Memory limit:** Adjust `max_memory_restart` in `ecosystem.config.cjs` (default: 1024MB)
 - **Restart loop:** Check logs for crash reasons; consider enabling sentinel for auto-rollback
 - **Startup:** Run `npx pm2 startup` and execute the command it outputs to enable boot persistence
@@ -1806,6 +1947,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 #### Identity Store Issues
 
 **Symptoms:**
+
 - Identity queries failing
 - LanceDB errors
 - Vector search not working
@@ -1813,11 +1955,13 @@ Use the system to **organize calendar and reminders** and to **add important app
 **Debugging steps:**
 
 1. **Check LanceDB path:**
+
    ```bash
    ls -la $SOWWY_IDENTITY_PATH  # Should exist and be writable
    ```
 
 2. **Check disk space:**
+
    ```bash
    df -h  # Ensure sufficient space for vector storage
    ```
@@ -1828,6 +1972,7 @@ Use the system to **organize calendar and reminders** and to **add important app
    ```
 
 **Common fixes:**
+
 - **LanceDB path missing:** Ensure `SOWWY_IDENTITY_PATH` directory exists and is writable
 - **Vector search failing:** Verify LanceDB is properly initialized (check for `data/identity/` directory and files)
 - **Disk full:** Free up space or move identity store to larger volume
@@ -1836,16 +1981,19 @@ Use the system to **organize calendar and reminders** and to **add important app
 #### Channel-Specific Issues
 
 **Telegram:**
+
 - **Bot not responding:** Check bot token, verify bot is not blocked
 - **Webhook failed:** Check firewall, SSL certificate, webhook URL
 - **Messages delayed:** Check Telegram API status, network latency
 
 **WhatsApp:**
+
 - **QR code expired:** Restart session, scan new QR code
 - **Session lost:** Check `~/.openclaw/sessions/` for session files
 - **Rate limited:** Reduce message frequency
 
 **WebChat:**
+
 - **WebSocket disconnects:** Check network stability, WebSocket timeout settings
 - **CORS errors:** Verify CORS configuration in gateway
 - **UI not loading:** Check `dist/` directory built correctly
@@ -1853,6 +2001,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 ### Performance Issues
 
 **Symptoms:**
+
 - Slow response times
 - High CPU/memory usage
 - Queue buildup
@@ -1860,12 +2009,14 @@ Use the system to **organize calendar and reminders** and to **add important app
 **Debugging:**
 
 1. **Check queue depth:**
+
    ```bash
    # Look for followup queue metrics in logs
    grep -i "queue" logs/neurabot-out.log
    ```
 
 2. **Check LLM latency:**
+
    ```bash
    # Look for LLM request times
    grep -i "llm\|provider" logs/neurabot-out.log
@@ -1877,6 +2028,7 @@ Use the system to **organize calendar and reminders** and to **add important app
    ```
 
 **Optimizations:**
+
 - **Slow LLM:** Use faster model (e.g., MiniMax M2.1), reduce context size
 - **High memory:** Limit session history length, implement session cleanup
 - **Queue buildup:** Increase scheduler poll rate, parallelize persona executors
@@ -1891,6 +2043,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 ### Debug Checklist for Common Scenarios
 
 **"Nothing works" (fresh install):**
+
 - [ ] Node.js 22.12.0+ installed
 - [ ] `pnpm install` completed without errors
 - [ ] `pnpm build` completed successfully
@@ -1899,6 +2052,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - [ ] Can access `http://localhost:18789/health` and get 200 response
 
 **"Was working, now broken" (after update):**
+
 - [ ] Re-run `pnpm install` (dependencies may have changed)
 - [ ] Re-run `pnpm build` (code changes need recompilation)
 - [ ] Check if `.env` needs new variables (compare with `.env.example`)
@@ -1906,6 +2060,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - [ ] Review changelog for breaking changes
 
 **"Task not executing" (SOWWY issue):**
+
 - [ ] Task is in READY status (not BACKLOG or IN_PROGRESS)
 - [ ] Task doesn't require approval (or has been approved)
 - [ ] Persona executor is registered for task's personaOwner
@@ -1914,6 +2069,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - [ ] No errors in task execution (check audit log)
 
 **"Agent not responding" (message flow issue):**
+
 - [ ] Channel is connected (check channel logs)
 - [ ] Message reached gateway (check routing logs)
 - [ ] Followup queue picked up message (check queue logs)
