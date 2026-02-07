@@ -8,11 +8,13 @@ title: "Amazon Bedrock"
 
 # Amazon Bedrock
 
-OpenClaw can use **Amazon Bedrock** models via pi‑ai’s **Bedrock Converse**
+<!-- Self-modify test cycle 1 retry -->
+
+OpenClaw can use **Amazon Bedrock** models via pi‑ai's **Bedrock Converse**
 streaming provider. Bedrock auth uses the **AWS SDK default credential chain**,
 not an API key.
 
-## What pi‑ai supports
+## What pi-ai supports
 
 - Provider: `amazon-bedrock`
 - API: `bedrock-converse-stream`
@@ -172,5 +174,5 @@ openclaw models list
   default AWS SDK chain.
 - Reasoning support depends on the model; check the Bedrock model card for
   current capabilities.
-- If you prefer a managed key flow, you can also place an OpenAI‑compatible
+- If you prefer a managed key flow, you can also place an OpenAI-compatible
   proxy in front of Bedrock and configure it as an OpenAI provider instead.

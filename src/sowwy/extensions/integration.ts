@@ -1,5 +1,14 @@
 /**
- * Sowwy Extension Integration Guide
+ * @fileoverview Extension Foundation Interfaces
+ *
+ * Defines the core interfaces and types for the Sowwy extension system.
+ * Extensions integrate with the Sowwy core through these interfaces.
+ *
+ * Key concepts:
+ * - ExtensionFoundation: Bridge between extensions and Sowwy core
+ * - PersonaExecutor: Task execution handlers for specific personas
+ * - ExtensionLifecycle: Extension initialization/shutdown/tick hooks
+ * - Circuit Breaker: Resilience pattern for external dependencies
  *
  * How extensions integrate with the Sowwy foundation:
  * - Scheduler integration
@@ -140,6 +149,10 @@ export interface ExecutorResult {
 // Extension Config (inline definition)
 // ============================================================================
 
+/**
+ * Configuration options for an extension.
+ * Controls feature flags, circuit breaker settings, and persona mappings.
+ */
 interface ExtensionConfig {
   enabled: boolean;
   circuitBreaker?: {

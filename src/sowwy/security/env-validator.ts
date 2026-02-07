@@ -133,8 +133,8 @@ export function validateSowwyEnv(): ValidatedEnv {
 
   const smtResult = SMTConfigSchema.safeParse({
     windowMs: smtWindowMs ? parseInt(smtWindowMs, 10) : 18000000,
-    maxPrompts: smtMaxPrompts ? parseInt(smtMaxPrompts, 10) : 100,
-    targetUtilization: smtTargetUtil ? parseFloat(smtTargetUtil) : 0.8,
+    maxPrompts: smtMaxPrompts ? parseInt(smtMaxPrompts, 10) : 500, // Default: 500 prompts (was 100)
+    targetUtilization: smtTargetUtil ? parseFloat(smtTargetUtil) : 0.95, // Match code default
     reservePercent: smtReserve ? parseFloat(smtReserve) : 0.2,
   });
 

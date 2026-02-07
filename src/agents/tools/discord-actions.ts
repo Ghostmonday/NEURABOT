@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Discord Actions Router - Central dispatcher for all Discord-related actions.
+ * Routes Discord action requests to appropriate handlers (messaging, guild, moderation)
+ * based on action type. Implements action gating based on configuration.
+ */
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { OpenClawConfig } from "../../config/config.js";
 import { createActionGate, readStringParam } from "./common.js";

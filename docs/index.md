@@ -5,6 +5,8 @@ read_when:
 title: "OpenClaw"
 ---
 
+<!-- Throughput mode cycle 3 -->
+
 # OpenClaw 🦞
 
 > _"EXFOLIATE! EXFOLIATE!"_ — A space lobster, probably
@@ -257,3 +259,5 @@ MIT — Free as a lobster in the ocean 🦞
 ---
 
 _"We're all just playing with our own prompts."_ — An AI, probably high on tokens
+
+_Self-modify test: Sat Feb 7 04:32:58 AM PST 2026_

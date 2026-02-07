@@ -43,6 +43,10 @@ export class TwilioSMSExtension implements ExtensionLifecycle {
   }
 
   private createExecutor(): PersonaExecutor {
+    /**
+     * Creates a PersonaExecutor for handling SMS tasks.
+     * Validates payload and sends SMS via Twilio with circuit breaker protection.
+     */
     return {
       persona: "Any", // Generic executor or specific persona
       canHandle: (task: Task) => (task.category as string) === "SMS" || task.command === "sms.send",

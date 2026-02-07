@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Discord Messaging Actions - Handles message sending, editing, and reactions.
+ * Provides full message lifecycle management including reading, searching, reactions,
+ * polls, stickers, threads, pins, and permissions for Discord channels.
+ */
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { DiscordActionConfig } from "../../config/config.js";
 import {

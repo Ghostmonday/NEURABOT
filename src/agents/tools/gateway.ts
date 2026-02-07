@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Gateway Utilities - Core functions for communicating with the Gateway service.
+ * Provides retry logic, option resolution, and tool wrapper for gateway API calls.
+ * Used by all tools that need to communicate with the gateway daemon.
+ */
 import { callGateway } from "../../gateway/call.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 

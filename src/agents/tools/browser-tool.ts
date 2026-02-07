@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Browser Tool - Provides browser automation capabilities for agents.
+ * Supports multiple browser backends including host browser, sandbox browser, and
+ * node-hosted browser proxy. Enables actions like navigation, snapshot, screenshot,
+ * and interactive UI automation through a unified interface.
+ */
 import crypto from "node:crypto";
 import {
   browserAct,

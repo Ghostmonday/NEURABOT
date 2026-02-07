@@ -56,6 +56,12 @@ import { checkAlertThresholds } from "../monitoring/metrics.js";
 import { checkResources } from "../monitoring/resource-monitor.js";
 import { redactError, redactString } from "../security/redact.js";
 import { EventBus } from "./event-bus.js";
+import {
+  DefaultFitnessAssessor,
+  DefaultFitnessReassessmentTaskCreator,
+  type FitnessAssessor,
+  type FitnessReassessmentTaskCreator,
+} from "./fitness-assessor.js";
 import { PersonaOwner, Task, TaskOutcome, TaskStatus } from "./schema.js";
 
 // ============================================================================
@@ -69,6 +75,8 @@ export interface SchedulerConfig {
   backoffBaseMs: number;
   /** Max concurrent tasks per persona (sub-agents in parallel). Default 1; set >1 to run multiple tasks per persona. */
   maxConcurrentPerPersona: number;
+  /** Timeout for tasks waiting on human approval (ms). Default 4 hours. */
+  approvalTimeoutMs: number;
 }
 
 // ============================================================================
@@ -81,6 +89,7 @@ export const DEFAULT_SCHEDULER_CONFIG: SchedulerConfig = {
   stuckTaskThresholdMs: 3600000, // 1 hour = stuck
   backoffBaseMs: 5000, // Base backoff: 5s, 10s, 20s...
   maxConcurrentPerPersona: 2, // Concurrent tasks per persona for parallel sub-agents; override via SOWWY_MAX_CONCURRENT_PER_PERSONA
+  approvalTimeoutMs: 4 * 60 * 60 * 1000, // 4 hours = approval timeout
 };
 
 // ============================================================================
@@ -107,9 +116,6 @@ export interface TaskExecutionResult {
 }
 
 // ============================================================================
-// Scheduler Class
-// ============================================================================
-// ============================================================================
 // Broadcaster Type
 // ============================================================================
 
@@ -123,12 +129,17 @@ export type Broadcaster = (
 // Scheduler Class
 // ============================================================================
 
+export type PostTaskHook = (task: Task, result: TaskExecutionResult) => Promise<void>;
+
 export class TaskScheduler {
   private config: SchedulerConfig;
   private state: SchedulerState;
   private taskStore: TaskStore;
   private identityStore: IdentityStore;
   private smt: SMTThrottler;
+  private fitnessAssessor: FitnessAssessor;
+  private fitnessReassessmentCreator: FitnessReassessmentTaskCreator;
+  private postTaskHooks: PostTaskHook[] = [];
   private personaExecutors: Map<
     string,
     ((task: Task, context: string) => Promise<TaskExecutionResult>)[]
@@ -147,6 +158,8 @@ export class TaskScheduler {
     smt: SMTThrottler,
     config: Partial<SchedulerConfig> = {},
     auditStore?: AuditStore,
+    fitnessAssessor?: FitnessAssessor,
+    fitnessReassessmentCreator?: FitnessReassessmentTaskCreator,
   ) {
     this.config = { ...DEFAULT_SCHEDULER_CONFIG, ...config };
     this.state = {
@@ -158,6 +171,9 @@ export class TaskScheduler {
     this.taskStore = taskStore;
     this.identityStore = identityStore;
     this.smt = smt;
+    this.fitnessAssessor = fitnessAssessor ?? new DefaultFitnessAssessor(0.7);
+    this.fitnessReassessmentCreator =
+      fitnessReassessmentCreator ?? new DefaultFitnessReassessmentTaskCreator();
     this.personaExecutors = new Map();
     this.eventBus = new EventBus();
   }
@@ -183,6 +199,14 @@ export class TaskScheduler {
    */
   getEventBus(): EventBus {
     return this.eventBus;
+  }
+
+  /**
+   * Register a post-task hook that runs after successful task completion.
+   * Useful for identity extraction, metrics collection, etc.
+   */
+  registerPostTaskHook(hook: PostTaskHook): void {
+    this.postTaskHooks.push(hook);
   }
 
   /**
@@ -258,8 +282,40 @@ export class TaskScheduler {
       return;
     }
 
+    // SAFETY CHECK: Verify system can handle more tasks
+    try {
+      const { getSafetyLimits } = await import("./safety-limits.js");
+      const safetyLimits = getSafetyLimits();
+
+      // Count current queue and concurrent tasks
+      const queueSize = await this.taskStore.count({});
+      const concurrent = await this.taskStore.count({ status: TaskStatus.IN_PROGRESS });
+
+      const safetyCheck = safetyLimits.canAcceptTasks(queueSize, concurrent);
+      if (!safetyCheck.allowed) {
+        this.log.warn("[Scheduler] Throttled by safety limits", {
+          reason: safetyCheck.reason,
+          queueSize,
+          concurrent,
+        });
+        return;
+      }
+    } catch (err) {
+      // If safety limits module not available, log warning but continue
+      // (graceful degradation - don't break existing functionality)
+      this.log.debug("Safety limits check skipped", {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+
     const personas = Array.from(this.personaExecutors.keys()) as PersonaOwner[];
     const maxPerPersona = Math.max(1, this.config.maxConcurrentPerPersona);
+
+    // SAFETY: Get current concurrent count for adaptive throttling
+    const currentConcurrent = Array.from(this.activeCountByPersona.values()).reduce(
+      (a, b) => a + b,
+      0,
+    );
 
     // Parallel task fetch across all personas (high-throughput optimization)
     try {
@@ -271,8 +327,48 @@ export class TaskScheduler {
             return;
           }
 
+          // SAFETY: Adaptive throttling - reduce slots if system is under load
+          let adaptiveSlots = slotsAvailable;
+          try {
+            const { getSafetyLimits } = await import("./safety-limits.js");
+            const safetyLimits = getSafetyLimits();
+            const status = safetyLimits.getStatus();
+
+            // Reduce concurrency if memory is throttled
+            if (status.memoryThrottled) {
+              adaptiveSlots = Math.max(1, Math.floor(slotsAvailable * 0.5)); // Reduce to 50%
+            }
+            // Further reduce if approaching hard limit
+            if (status.memoryHardLimited) {
+              adaptiveSlots = 1; // Only one task at a time
+            }
+          } catch {
+            // Ignore safety limits errors (graceful degradation)
+          }
+
           // Fetch multiple ready tasks at once (up to available slots)
-          for (let i = 0; i < slotsAvailable; i++) {
+          for (let i = 0; i < adaptiveSlots; i++) {
+            // SAFETY: Check global concurrent limit before fetching more tasks
+            const nowConcurrent = Array.from(this.activeCountByPersona.values()).reduce(
+              (a, b) => a + b,
+              0,
+            );
+            try {
+              const { getSafetyLimits } = await import("./safety-limits.js");
+              const safetyLimits = getSafetyLimits();
+              const queueSize = await this.taskStore.count({});
+              const safetyCheck = safetyLimits.canAcceptTasks(queueSize, nowConcurrent);
+              if (!safetyCheck.allowed) {
+                this.log.debug("[Scheduler] Stopping task fetch due to safety limits", {
+                  reason: safetyCheck.reason,
+                  concurrent: nowConcurrent,
+                });
+                break;
+              }
+            } catch {
+              // Ignore safety limits errors
+            }
+
             const task = await this.taskStore.getNextReady({ personaOwner: persona });
             if (!task) {
               break;
@@ -319,6 +415,18 @@ export class TaskScheduler {
     const totalActive = Array.from(this.activeCountByPersona.values()).reduce((a, b) => a + b, 0);
     if (totalActive < personas.length * maxPerPersona) {
       await this.promoteHighestPriorityBacklog();
+    }
+
+    // Create fitness re-assessment tasks (README §0.4 - MANDATORY FIRMWARE)
+    try {
+      await this.fitnessReassessmentCreator.createReassessmentTasks(this.taskStore, {
+        defaultReAssessmentIntervalHours: 168, // Weekly
+      });
+    } catch (error) {
+      // Don't fail scheduler tick on fitness reassessment creation errors
+      this.log.warn("Fitness reassessment task creation failed", {
+        error: redactError(error),
+      });
     }
 
     // Check alert thresholds and broadcast if needed
@@ -371,6 +479,16 @@ export class TaskScheduler {
         // Record SMT usage for task execution
         this.smt.record("task.execute");
 
+        // Fitness gate: verify outcome before marking DONE (README §0.4 - MANDATORY FIRMWARE)
+        const fitness = await this.fitnessAssessor.assessFitness(task, result);
+        if (!fitness.passed) {
+          await this.handleTaskFailure(
+            task,
+            new Error(`Fitness check failed: ${fitness.reason ?? "Unknown reason"}`),
+          );
+          return;
+        }
+
         // Update task
         await this.taskStore.update(task.taskId, {
           status: "DONE",
@@ -385,6 +503,20 @@ export class TaskScheduler {
         this.log.info(
           `[Scheduler] Task ${redactString(task.taskId)} completed: ${redactString(result.outcome)}`,
         );
+
+        // Run post-task hooks (e.g., identity extraction)
+        for (const hook of this.postTaskHooks) {
+          try {
+            await hook(task, result);
+          } catch (error) {
+            // Don't fail task completion if hooks fail
+            this.log.warn("Post-task hook failed", {
+              taskId: task.taskId,
+              error: redactError(error),
+            });
+          }
+        }
+
         return; // Success, exit
       } catch (error) {
         lastError = error as Error;
@@ -512,6 +644,9 @@ export class TaskScheduler {
             );
           }
         }
+
+        // Check for tasks waiting on human approval that have timed out
+        await this.checkApprovalTimeouts();
       } catch (error) {
         this.log.error("[Scheduler] Stuck task detection error:", redactError(error));
       }
@@ -590,6 +725,7 @@ export class TaskScheduler {
       this.log.error("[Scheduler] Approval timeout check error:", redactError(error));
     }
   }
+
   private async sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Cron Tool - Manages Gateway cron jobs for scheduled task execution.
+ * Supports status checks, job listing, creation, updates, removal, immediate runs,
+ * and wake events. Enables autonomous scheduling of agent self-modification and
+ * periodic tasks with flexible schedule types (at, every, cron expressions).
+ */
 import { Type } from "@sinclair/typebox";
 import { loadConfig } from "../../config/config.js";
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
@@ -7,6 +13,8 @@ import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import { type AnyAgentTool, jsonResult, readStringParam } from "./common.js";
 import { callGatewayTool, type GatewayCallOptions } from "./gateway.js";
 import { resolveInternalSessionKey, resolveMainSessionAlias } from "./sessions-helpers.js";
+
+// Self-modify test comment - tracking Level 1 progress (retry 1)
 
 // NOTE: We use Type.Object({}, { additionalProperties: true }) for job/patch
 // instead of CronAddParamsSchema/CronJobPatchSchema because the gateway schemas

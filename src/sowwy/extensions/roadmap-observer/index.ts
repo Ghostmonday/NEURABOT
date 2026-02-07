@@ -184,6 +184,41 @@ class RoadmapObserverExecutor implements PersonaExecutor {
         }
       }
 
+      // FITNESS ASSESSMENT INTEGRATION (README §0.4 - MANDATORY FIRMWARE):
+      // Create fitness assessment task for roadmap track modules
+      try {
+        const incompleteTracks = roadmap.tracks.filter((t) => t.status !== "COMPLETED");
+        if (incompleteTracks.length > 0) {
+          await taskStore.create({
+            title: "Fitness Re-Assessment for Roadmap Track Modules",
+            description: `README §0.4: Periodic fitness check for modules in roadmap tracks. Tracks: ${incompleteTracks.map((t) => t.name).join(", ")}. Verifies correctness, reliability, and efficiency metrics.`,
+            category: "FITNESS_CHECK",
+            personaOwner: "ChiefOfStaff",
+            urgency: 3,
+            importance: 4,
+            risk: 1,
+            stressCost: 2,
+            requiresApproval: false,
+            maxRetries: 3,
+            dependencies: [task.taskId],
+            contextLinks: {
+              readme: "README.md#where-to-go-from-here",
+            },
+            payload: {
+              action: "fitness_reassessment",
+              source: "roadmap-observer",
+              tracks: incompleteTracks.map((t) => ({ id: t.id, name: t.name })),
+            },
+            createdBy: "roadmap-observer",
+          });
+        }
+      } catch (fitnessError) {
+        // Don't fail roadmap parsing if fitness task creation fails
+        this.log.warn("Fitness assessment task creation failed", {
+          error: fitnessError instanceof Error ? fitnessError.message : String(fitnessError),
+        });
+      }
+
       // Check if we should persist (create follow-up task)
       const persistUntilComplete = task.payload?.persist_until_complete === true;
       const allTracksComplete = roadmap.tracks.every((t) => t.status === "COMPLETED");

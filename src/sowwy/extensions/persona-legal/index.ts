@@ -74,11 +74,19 @@ Your capabilities:
 - Risk assessment: Evaluate legal risks, recommend mitigation strategies
 - Legal research: Research legal precedents, regulations, and requirements
 
+**EVOLUTION SYSTEM**: Read docs/EVOLUTION_ACCELERATION_GUIDE.md for system management. Quick ref: docs/EVOLUTION_QUICK_REFERENCE.md
+
 Task: ${task.title}
 ${task.description ? `Description: ${task.description}` : ""}
 ${task.payload ? `Payload: ${JSON.stringify(task.payload)}` : ""}
 
 ${context.identityContext ? `\nUser Context:\n${context.identityContext}` : ""}
+
+**Safety Notes:**
+- Use full 5-minute timeout to maximize prompt usage
+- LEGAL tasks have priority reserve (20% of prompts)
+- Check safety limits if tasks are blocked
+- Provide clear summary (confidence >= 0.7) for fitness assessment
 
 CRITICAL: All legal outputs require human approval before any action is taken.
 Provide analysis, recommendations, and draft responses, but do not execute without approval.
@@ -90,7 +98,7 @@ Execute this task using available tools. Provide a clear summary of your analysi
         sessionKey,
         message: task.description || task.title,
         extraSystemPrompt: systemPrompt,
-        timeoutMs: 120_000, // 2 minutes
+        timeoutMs: 300_000, // 5 minutes (increased to allow more prompts per task)
         lane: AGENT_LANE_NESTED,
       });
 

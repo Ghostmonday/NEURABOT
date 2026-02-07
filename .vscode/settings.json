@@ -183,5 +183,6 @@
   "typescript.implementationsCodeLens": true,
   "typescript.referencesCodeLens": true,
   "vitest.disableWorkspaceWarning": true,
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "zenMode.fullScreen": true
 }

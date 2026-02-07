@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Discord Guild Actions - Handles server/guild management actions.
+ * Supports member/role/channel info, emoji/sticker uploads, role management,
+ * scheduled events, and channel permission controls for Discord servers.
+ */
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { DiscordActionConfig } from "../../config/config.js";
 import { getPresence } from "../../discord/monitor/presence-cache.js";

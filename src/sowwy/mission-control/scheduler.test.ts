@@ -1,3 +1,7 @@
+/**
+ * Unit tests for the TaskScheduler module.
+ * Tests cover task prioritization, promotion logic, and SMT (State Machine Throttler) integration.
+ */
 import { describe, expect, it, vi } from "vitest";
 import type { IdentityStore } from "../identity/store.js";
 import { SMTThrottler, getMetrics } from "../smt/throttler.js";

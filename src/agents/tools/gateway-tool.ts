@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Gateway Tool - Manages gateway service operations for agents.
+ * Supports gateway restart, configuration retrieval, schema inspection, partial/full
+ * config updates, and in-place updates. Enables agents to manage the gateway lifecycle.
+ */
 import { Type } from "@sinclair/typebox";
 import type { OpenClawConfig } from "../../config/config.js";
 import { loadConfig, resolveConfigSnapshotHash } from "../../config/io.js";
@@ -14,6 +19,11 @@ import { callGatewayTool } from "./gateway.js";
 
 const DEFAULT_UPDATE_TIMEOUT_MS = 20 * 60_000;
 
+/**
+ * Extract base hash from config snapshot for change detection.
+ * @param snapshot - Config snapshot object
+ * @returns Hash string or undefined if not found
+ */
 function resolveBaseHashFromSnapshot(snapshot: unknown): string | undefined {
   if (!snapshot || typeof snapshot !== "object") {
     return undefined;

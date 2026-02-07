@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Message Tool - Unified messaging interface for all channel plugins.
+ * Provides send, delete, react, poll, pin, threads, and channel management across
+ * supported messaging platforms (Telegram, Discord, WhatsApp, Slack, etc.).
+ */
 import { Type } from "@sinclair/typebox";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { AnyAgentTool } from "./common.js";

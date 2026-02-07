@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Agents List Tool - Lists available agent IDs based on allowlists configuration.
+ * This tool enables agents to discover and target other agents via sessions_spawn by
+ * exposing the configured agent allowlists. It respects the agent scope configuration
+ * to determine which agents are accessible to the requesting agent.
+ */
 import { Type } from "@sinclair/typebox";
 import type { AnyAgentTool } from "./common.js";
 import { loadConfig } from "../../config/config.js";
@@ -23,6 +29,7 @@ export function createAgentsListTool(opts?: {
   /** Explicit agent ID override for cron/hook sessions. */
   requesterAgentIdOverride?: string;
 }): AnyAgentTool {
+  /** List available agent IDs based on allowlists. */
   return {
     label: "Agents",
     name: "agents_list",

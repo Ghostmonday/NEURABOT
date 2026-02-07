@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Image Tool - Enables image analysis using vision-capable models.
+ * Accepts image paths, URLs, or data URLs with a prompt. Resolves appropriate
+ * vision models from configuration and handles fallback chains.
+ */
 import { type Api, type Context, complete, type Model } from "@mariozechner/pi-ai";
 import { Type } from "@sinclair/typebox";
 import fs from "node:fs/promises";

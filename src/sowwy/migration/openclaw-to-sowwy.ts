@@ -5,6 +5,8 @@
  * - Sessions → Tasks (for historical context)
  * - Skills → Persona skills
  * - Config → Sowwy config
+ *
+ * @throws Error if migration fails unexpectedly
  */
 
 import { safeStringify } from "../security/redact.js";

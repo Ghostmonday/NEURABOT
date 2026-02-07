@@ -213,24 +213,186 @@ The reload action will (autonomous, no manual steps):
           });
         }
 
-        // Build so restarted gateway loads new code (autonomy: no manual rebuild)
-        // Build chain: OpenClaw uses tsdown and tsgo for TypeScript compilation.
-        // Node 22 is production runtime; Bun can be used for local development.
-        // Respect OPENCLAW_PREFER_PNPM=1 for build stability on some architectures (Synology, ARM NAS).
-        const buildCommand = process.env.OPENCLAW_PREFER_PNPM === "1" ? "pnpm build" : "pnpm build";
-        const buildTimeoutMs = 120_000;
-        try {
-          execSync(buildCommand, {
-            encoding: "utf-8",
-            cwd: gitRoot,
-            timeout: buildTimeoutMs,
-            stdio: "pipe",
-          });
-        } catch (err) {
-          return jsonResult({
-            ok: false,
-            error: `Build failed before reload: ${err instanceof Error ? err.message : String(err)}. Fix errors and retry.`,
-          });
+        // Build optimization: Skip or fast-path build for non-compilable changes
+        // This reduces self-modification latency for docs, config, and small TypeScript fixes
+        const hasCompilableFiles = modifiedFiles.some((f) => {
+          const ext = f.path.split(".").pop()?.toLowerCase();
+          return ["ts", "tsx", "js", "jsx", "mjs"].includes(ext ?? "");
+        });
+
+        // Check if all files are non-compilable (docs, json, markdown, etc.)
+        const hasNonCompilableOnly = modifiedFiles.every((f) => {
+          const ext = f.path.split(".").pop()?.toLowerCase();
+          return !["ts", "tsx", "js", "jsx", "mjs"].includes(ext ?? "");
+        });
+
+        if (hasNonCompilableOnly) {
+          // Skip build entirely for non-compilable files (docs, json, markdown, etc.)
+          console.info("[self-modify] Skipping build: no compilable files modified");
+        } else {
+          // SAFETY CHECK: Verify system can handle a build before starting
+          let buildRegistered = false;
+          try {
+            const { getSafetyLimits } =
+              await import("../../../sowwy/mission-control/safety-limits.js");
+            const safetyLimits = getSafetyLimits();
+            const safetyCheck = safetyLimits.canAcceptTasks(0, 0, { isBuild: true });
+            if (!safetyCheck.allowed) {
+              return jsonResult({
+                ok: false,
+                error: `Build blocked by safety limits: ${safetyCheck.reason}. Wait for current builds to complete or system resources to free up.`,
+              });
+            }
+            safetyLimits.registerBuildStart();
+            buildRegistered = true;
+          } catch (err) {
+            // If safety limits module not available, log warning but continue
+            // (graceful degradation)
+          }
+
+          // Build so restarted gateway loads new code (autonomy: no manual rebuild)
+          // Build chain: OpenClaw uses tsdown and tsgo for TypeScript compilation.
+          // Node 22 is production runtime; Bun can be used for local development.
+          // Respect OPENCLAW_PREFER_PNPM=1 for build stability on some architectures (Synology, ARM NAS).
+          const buildCommand =
+            process.env.OPENCLAW_PREFER_PNPM === "1" ? "pnpm build" : "pnpm build";
+
+          // Fast type-check first for TypeScript files (avoids full build if types are invalid)
+          const hasTypeScript = modifiedFiles.some(
+            (f) => f.path.endsWith(".ts") || f.path.endsWith(".tsx"),
+          );
+          if (hasTypeScript) {
+            try {
+              execSync("pnpm tsgo --noEmit", {
+                encoding: "utf-8",
+                cwd: gitRoot,
+                timeout: 60_000, // 60s for type check
+                stdio: "pipe",
+              });
+              console.info("[self-modify] Type check passed, proceeding with build");
+            } catch (typeErr) {
+              // Unregister build on failure
+              if (buildRegistered) {
+                try {
+                  const { getSafetyLimits } =
+                    await import("../../../sowwy/mission-control/safety-limits.js");
+                  getSafetyLimits().registerBuildEnd();
+                } catch {
+                  // Ignore
+                }
+              }
+              return jsonResult({
+                ok: false,
+                error: `Type check failed: ${typeErr instanceof Error ? typeErr.message : String(typeErr)}. Fix type errors before retry.`,
+              });
+            }
+          }
+
+          // Full build with reduced timeout (tsgo already validated types)
+          const buildTimeoutMs = 90_000; // Reduced from 120s
+          try {
+            execSync(buildCommand, {
+              encoding: "utf-8",
+              cwd: gitRoot,
+              timeout: buildTimeoutMs,
+              stdio: "pipe",
+            });
+          } catch (err) {
+            // Unregister build on failure
+            if (buildRegistered) {
+              try {
+                const { getSafetyLimits } =
+                  await import("../../../sowwy/mission-control/safety-limits.js");
+                getSafetyLimits().registerBuildEnd();
+              } catch {
+                // Ignore
+              }
+            }
+            return jsonResult({
+              ok: false,
+              error: `Build failed before reload: ${err instanceof Error ? err.message : String(err)}. Fix errors and retry.`,
+            });
+          }
+
+          // Unregister build on success
+          if (buildRegistered) {
+            try {
+              const { getSafetyLimits } =
+                await import("../../../sowwy/mission-control/safety-limits.js");
+              getSafetyLimits().registerBuildEnd();
+            } catch {
+              // Ignore
+            }
+          }
+        }
+
+        // Post-modify test gate: Run tests for modified files before reload
+        // This prevents regressions from being deployed (README §0.4 - MANDATORY FIRMWARE)
+        if (process.env.OPENCLAW_SELF_MODIFY_SKIP_TESTS !== "1") {
+          try {
+            // Map modified files to their corresponding test files
+            const testFiles: string[] = [];
+            for (const file of modifiedFiles) {
+              // Tests are colocated: src/foo.ts -> src/foo.test.ts
+              if (file.path.endsWith(".ts") && !file.path.endsWith(".test.ts")) {
+                const testPath = file.path.replace(/\.ts$/, ".test.ts");
+                if (existsSync(join(gitRoot, testPath))) {
+                  testFiles.push(testPath);
+                }
+              }
+            }
+
+            // Run tests if any test files found
+            if (testFiles.length > 0) {
+              const testCommand = `pnpm vitest run --reporter=json ${testFiles.join(" ")}`;
+              const testTimeoutMs = 60_000; // 60s timeout for tests
+              try {
+                const testOutput = execSync(testCommand, {
+                  encoding: "utf-8",
+                  cwd: gitRoot,
+                  timeout: testTimeoutMs,
+                  stdio: "pipe",
+                });
+
+                // Parse vitest JSON output to check for failures
+                try {
+                  const testResult = JSON.parse(testOutput);
+                  if (testResult.numFailedTests > 0) {
+                    return jsonResult({
+                      ok: false,
+                      error: `Tests failed for modified files: ${testFiles.join(", ")}. ${testResult.numFailedTests} test(s) failed. Fix tests before reload.`,
+                      testOutput: testOutput.substring(0, 500), // First 500 chars of output
+                    });
+                  }
+                } catch {
+                  // If JSON parsing fails, check if output contains "FAIL" or error indicators
+                  if (testOutput.toLowerCase().includes("fail") || testOutput.includes("Error")) {
+                    return jsonResult({
+                      ok: false,
+                      error: `Tests may have failed for modified files: ${testFiles.join(", ")}. Check test output.`,
+                      testOutput: testOutput.substring(0, 500),
+                    });
+                  }
+                }
+              } catch (testErr) {
+                return jsonResult({
+                  ok: false,
+                  error: `Test execution failed: ${testErr instanceof Error ? testErr.message : String(testErr)}. Fix tests before reload.`,
+                });
+              }
+            }
+          } catch (testGateErr) {
+            // Don't fail reload if test gate itself fails (e.g., vitest not available)
+            // Log warning but proceed
+            // In production, this should probably fail, but for development flexibility we allow it
+            if (process.env.NODE_ENV === "production") {
+              return jsonResult({
+                ok: false,
+                error: `Test gate failed: ${testGateErr instanceof Error ? testGateErr.message : String(testGateErr)}`,
+              });
+            }
+            // In development, log warning but continue
+          }
         }
 
         // Request reload

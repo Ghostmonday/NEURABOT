@@ -27,84 +27,93 @@ interface CheckResult {
   message: string;
 }
 
-// Batch validation accepts multiple files. Parallel validation for large batches
-// is supported via Promise.all in calling code. This function validates all files
-// sequentially for simplicity and deterministic error reporting.
+// Batch validation accepts multiple files. Validation checks run in parallel
+// for each file, with results combined into a single ChecklistResult.
 export async function runSelfEditChecklist(
   files: Array<{ path: string; oldContent: string; newContent: string }>,
 ): Promise<ChecklistResult> {
   const checks: CheckResult[] = [];
   const blockingErrors: string[] = [];
 
-  // 1. Boundary check (all files in allowlist)
-  for (const file of files) {
-    const validation = validateSelfModifyPath(file.path);
+  // Run all validation checks in parallel for each file
+  const fileResults = await Promise.all(
+    files.map(async (file) => {
+      const [boundaryResult, diffResult, syntaxResult, secretsResult] = await Promise.all([
+        checkBoundary(file),
+        checkDiffRatio(file, getDiffThreshold(), isPoweruserModeEnabled()),
+        checkSyntax(file),
+        checkSecrets(file),
+      ]);
+      return {
+        boundary: boundaryResult,
+        diff: diffResult,
+        syntax: syntaxResult,
+        secrets: secretsResult,
+      };
+    }),
+  );
+
+  // Collect boundary check results
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const result = fileResults[i].boundary;
     checks.push({
       name: `boundary:${file.path}`,
-      passed: validation.allowed,
-      message: validation.reason,
+      passed: result.allowed,
+      message: result.reason,
     });
-    if (!validation.allowed) {
+    if (!result.allowed) {
       blockingErrors.push(`File not in allowlist: ${file.path}`);
     }
   }
 
-  // 2. Diff check (changes are minimal, not full overwrites)
-  // Environment-driven diff threshold:
-  // - Default: 50% (0.5)
-  // - Poweruser mode: 90% (0.9) via OPENCLAW_SELF_MODIFY_POWERUSER=1
-  // - Override: OPENCLAW_SELF_MODIFY_DIFF_THRESHOLD=0.75
-  const isPoweruser = isPoweruserModeEnabled();
-  const diffThreshold = getDiffThreshold();
-
-  for (const file of files) {
-    const diffRatio = computeDiffRatio(file.oldContent, file.newContent);
-    const isMinimal = diffRatio < diffThreshold;
+  // Collect diff check results
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const result = fileResults[i].diff;
     checks.push({
       name: `minimal-diff:${file.path}`,
-      passed: isMinimal,
-      message: `Diff ratio: ${(diffRatio * 100).toFixed(1)}% (threshold: ${(diffThreshold * 100).toFixed(0)}%, poweruser: ${isPoweruser})`,
+      passed: result.passed,
+      message: result.message,
     });
-    if (!isMinimal) {
-      blockingErrors.push(
-        `Edit too large (${(diffRatio * 100).toFixed(0)}% > ${(diffThreshold * 100).toFixed(0)}%): ${file.path}`,
-      );
+    if (!result.passed) {
+      blockingErrors.push(`Edit too large (${result.diffRatio! * 100}%): ${file.path}`);
     }
   }
 
-  // 3. Syntax check (TypeScript files must parse)
-  for (const file of files) {
-    if (file.path.endsWith(".ts") || file.path.endsWith(".tsx")) {
-      const syntaxResult = await checkTypeScriptSyntax(file.newContent, file.path);
+  // Collect syntax check results
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const result = fileResults[i].syntax;
+    if (result.checked) {
       checks.push({
         name: `syntax:${file.path}`,
-        passed: syntaxResult.valid,
-        message: syntaxResult.valid
+        passed: result.valid,
+        message: result.valid
           ? "Valid TypeScript"
-          : `Syntax error: ${syntaxResult.error ?? "Unknown error"}`,
+          : `Syntax error: ${result.error ?? "Unknown error"}`,
       });
-      if (!syntaxResult.valid) {
-        blockingErrors.push(
-          `Syntax error in ${file.path}: ${syntaxResult.error ?? "Unknown error"}`,
-        );
+      if (!result.valid) {
+        blockingErrors.push(`Syntax error in ${file.path}: ${result.error ?? "Unknown error"}`);
       }
     }
   }
 
-  // 4. No secrets check
-  for (const file of files) {
-    const hasSecrets = detectSecrets(file.newContent);
+  // Collect secrets check results
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const result = fileResults[i].secrets;
     checks.push({
       name: `no-secrets:${file.path}`,
-      passed: !hasSecrets,
-      message: hasSecrets ? "Potential secrets detected" : "No secrets",
+      passed: !result.hasSecrets,
+      message: result.hasSecrets ? "Potential secrets detected" : "No secrets",
     });
-    if (hasSecrets) {
+    if (result.hasSecrets) {
       blockingErrors.push(`Secrets detected in: ${file.path}`);
     }
   }
 
-  // 5. Loop detection (not editing self-modify code)
+  // 5. Loop detection (not editing self-modify code) - operates on full file list
   const selfModifyFiles = files.filter(
     (f) => f.path.includes("self-modify") || f.path.includes("boundaries"),
   );
@@ -124,17 +133,68 @@ export async function runSelfEditChecklist(
   };
 }
 
-// Line-based diff ratio for simple change detection.
-// Consider AST-based diffing for semantic change detection in future.
-// Character-based diff available as alternative metric.
+// Helper function for boundary check
+async function checkBoundary(file: {
+  path: string;
+}): Promise<{ allowed: boolean; reason: string }> {
+  return validateSelfModifyPath(file.path);
+}
+
+// Helper function for diff ratio check
+async function checkDiffRatio(
+  file: { path: string; oldContent: string; newContent: string },
+  diffThreshold: number,
+  isPoweruser: boolean,
+): Promise<{ passed: boolean; message: string; diffRatio: number }> {
+  const diffRatio = computeDiffRatio(file.oldContent, file.newContent);
+  const isMinimal = diffRatio < diffThreshold;
+  return {
+    passed: isMinimal,
+    message: `Diff ratio: ${(diffRatio * 100).toFixed(1)}% (threshold: ${(diffThreshold * 100).toFixed(0)}%, poweruser: ${isPoweruser})`,
+    diffRatio,
+  };
+}
+
+// Helper function for syntax check
+async function checkSyntax(file: { path: string; newContent: string }): Promise<{
+  checked: boolean;
+  valid: boolean;
+  error?: string;
+}> {
+  if (!file.path.endsWith(".ts") && !file.path.endsWith(".tsx")) {
+    return { checked: false, valid: true };
+  }
+  const result = await checkTypeScriptSyntax(file.newContent, file.path);
+  return { checked: true, ...result };
+}
+
+// Helper function for secrets check
+async function checkSecrets(file: { newContent: string }): Promise<{ hasSecrets: boolean }> {
+  return { hasSecrets: detectSecrets(file.newContent) };
+}
+
+// Line-based diff ratio using set comparison for actual change detection.
+// Counts added and removed lines rather than just line count difference.
+// This better reflects semantic changes in the file.
 function computeDiffRatio(old: string, new_: string): number {
-  const oldLines = old.split("\n").length;
-  const newLines = new_.split("\n").length;
-  const maxLines = Math.max(oldLines, newLines);
-  if (maxLines === 0) {
+  const oldLines = old.split("\n");
+  const newLines = new_.split("\n");
+  const oldSet = new Set(oldLines);
+  const newSet = new Set(newLines);
+
+  // Count lines that exist in old but not in new (removed)
+  const removed = oldLines.filter((l) => !newSet.has(l)).length;
+  // Count lines that exist in new but not in old (added)
+  const added = newLines.filter((l) => !oldSet.has(l)).length;
+
+  const totalLines = Math.max(oldLines.length, newLines.length);
+  if (totalLines === 0) {
     return 0;
   }
-  return Math.abs(newLines - oldLines) / maxLines;
+
+  // Ratio: (added + removed) / (2 * totalLines)
+  // Dividing by 2 normalizes so complete rewrite = 1.0
+  return (added + removed) / (2 * totalLines);
 }
 
 async function checkTypeScriptSyntax(

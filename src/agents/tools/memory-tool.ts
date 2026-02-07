@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Memory Tool - Provides semantic search and retrieval from memory files.
+ * Enables agents to search MEMORY.md and memory/*.md files semantically, with optional
+ * citation generation and mode-based behavior (auto/on/off).
+ */
 import { Type } from "@sinclair/typebox";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { MemoryCitationsMode } from "../../config/types.memory.js";

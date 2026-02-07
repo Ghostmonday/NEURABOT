@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Sessions Announce Target - Resolves announcement target for sessions.
+ * Determines the channel, recipient, and account for session announcements by
+ * resolving session keys and consulting channel plugins.
+ */
 import type { AnnounceTarget } from "./sessions-send-helpers.js";
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { callGateway } from "../../gateway/call.js";

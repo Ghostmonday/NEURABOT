@@ -24,6 +24,11 @@ type ParagraphBreak = {
   length: number;
 };
 
+/**
+ * Handles streaming text chunking for embedded PI responses while preserving
+ * Markdown structure. Manages fenced code block boundaries to ensure valid
+ * Markdown output when splitting text into chunks.
+ */
 export class EmbeddedBlockChunker {
   #buffer = "";
   readonly #chunking: BlockReplyChunking;

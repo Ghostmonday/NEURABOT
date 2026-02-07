@@ -1022,7 +1022,7 @@ In `.env`:
 
 ```bash
 SOWWY_SMT_WINDOW_MS=18000000      # 5 hours in ms
-SOWWY_SMT_MAX_PROMPTS=100         # Max prompts per window
+SOWWY_SMT_MAX_PROMPTS=500         # Max prompts per window (default: 500, can increase to 1000+)
 SOWWY_SMT_TARGET_UTILIZATION=0.80 # Start throttling at 80%
 ```
 

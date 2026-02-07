@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Image Tool Helpers - Utility functions for image processing.
+ * Provides data URL decoding, assistant text coercion, and model configuration
+ * resolution for the image analysis tool.
+ */
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../../config/config.js";
 import { extractAssistantText } from "../pi-embedded-utils.js";

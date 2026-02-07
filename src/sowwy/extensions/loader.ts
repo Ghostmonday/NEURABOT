@@ -1,6 +1,7 @@
 import type { ExtensionFoundation, ExtensionLifecycle } from "./integration.js";
 import { getChildLogger } from "../../logging/logger.js";
 import { ContinuousSelfModifyExtension } from "./continuous-self-modify/index.js";
+import { IdentityExtractionExtension } from "./identity-extraction/index.js";
 import { startOverseer, stopOverseer } from "./overseer/index.js";
 import { PersonaChiefOfStaffExtension } from "./persona-cos/index.js";
 import { PersonaDevExtension } from "./persona-dev/index.js";
@@ -11,9 +12,16 @@ import { TutaEmailExtension } from "./tuta-email/index.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";
 
 /**
- * Extension Loader
+ * @fileoverview Extension Loader
  *
  * Manages the lifecycle of all Sowwy extensions.
+ * Provides initialization, shutdown, and periodic tick functionality.
+ *
+ * Features:
+ * - Extension registration and initialization
+ * - Persona executor registration (Dev, ChiefOfStaff, LegalOps, RnD)
+ * - Foundry Overseer for autonomous self-improvement
+ *
  * Foundry Overseer: Hourly scheduler for autonomous self-improvement.
  * - Prunes stale patterns (unused > 7 days)
  * - Tracks tool sequence success rates
@@ -24,12 +32,19 @@ export class ExtensionLoader {
   private extensions: ExtensionLifecycle[] = [];
 
   constructor(private foundation: ExtensionFoundation) {}
+  /**
+   * Creates a new ExtensionLoader with the given foundation.
+   * @param foundation - The ExtensionFoundation instance for extensions to use
+   */
 
   async load(): Promise<void> {
     // Register extensions here
     this.extensions.push(new TwilioSMSExtension());
     this.extensions.push(new RoadmapObserverExtension());
     this.extensions.push(new ContinuousSelfModifyExtension());
+
+    // Identity extraction (must have write access to identity store)
+    this.extensions.push(new IdentityExtractionExtension());
 
     // Persona executors
     this.extensions.push(new PersonaDevExtension());
@@ -68,6 +83,13 @@ export class ExtensionLoader {
     for (const extension of this.extensions) {
       await extension.tick();
     }
+  }
+
+  /**
+   * Get all loaded extensions (for wiring purposes).
+   */
+  getExtensions(): ExtensionLifecycle[] {
+    return [...this.extensions];
   }
 }
 

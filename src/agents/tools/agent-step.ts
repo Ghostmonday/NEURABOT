@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Agent Step Utilities - Provides functionality for running agent steps
+ * and reading assistant replies within nested agent sessions. These utilities enable
+ * hierarchical agent execution where one agent can invoke another and wait for results.
+ */
 import crypto from "node:crypto";
 import { callGateway } from "../../gateway/call.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../../utils/message-channel.js";

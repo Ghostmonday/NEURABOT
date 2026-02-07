@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Canvas Tool - Provides control over node-hosted canvases for UI visualization.
+ * Supports presenting, hiding, navigating, evaluating JavaScript, capturing snapshots,
+ * and pushing A2UI JSONL content to canvases. Used for headless UI rendering and testing.
+ */
 import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";

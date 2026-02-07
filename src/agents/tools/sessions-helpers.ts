@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Sessions Helpers - Shared utilities for session management.
+ * Provides session key resolution, classification, display formatting, text sanitization,
+ * and message processing for session-based operations.
+ */
 import type { OpenClawConfig } from "../../config/config.js";
 import { callGateway } from "../../gateway/call.js";
 import { isAcpSessionKey, normalizeMainKey } from "../../routing/session-key.js";

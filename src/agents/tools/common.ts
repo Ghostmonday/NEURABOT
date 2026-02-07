@@ -1,7 +1,15 @@
+/**
+ * @fileoverview Common Tool Utilities - Shared helper functions for agent tools.
+ * Provides utilities for reading parameters (strings, numbers, arrays), creating
+ * action gates, formatting JSON/image results, and processing reaction parameters.
+ * Used across all agent tools for consistent parameter handling and output formatting.
+ */
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import fs from "node:fs/promises";
 import { detectMime } from "../../media/mime.js";
 import { sanitizeToolResultImages } from "../tool-images.js";
+
+// Throughput cycle 4
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export type AnyAgentTool = AgentTool<any, unknown>;

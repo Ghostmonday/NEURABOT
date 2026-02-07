@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Nodes Utilities - Helper functions for node management.
+ * Provides node listing, resolution, pairing management, and default node selection
+ * for the nodes tool.
+ */
 import { callGatewayTool, type GatewayCallOptions } from "./gateway.js";
 
 export type NodeListNode = {

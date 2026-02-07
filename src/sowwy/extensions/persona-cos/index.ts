@@ -75,11 +75,19 @@ Your capabilities:
 - Communication: Facilitate inter-persona coordination, summarize status updates
 - Administration: Handle routine tasks, manage workflows, track progress
 
+**EVOLUTION SYSTEM**: Read docs/EVOLUTION_ACCELERATION_GUIDE.md for system management. Quick ref: docs/EVOLUTION_QUICK_REFERENCE.md
+
 Task: ${task.title}
 ${task.description ? `Description: ${task.description}` : ""}
 ${task.payload ? `Payload: ${JSON.stringify(task.payload)}` : ""}
 
 ${context.identityContext ? `\nUser Context:\n${context.identityContext}` : ""}
+
+**Safety Notes:**
+- Monitor system health: queue size, memory, concurrent tasks
+- Use full 5-minute timeout to maximize prompt usage
+- Check safety limits when coordinating tasks
+- Provide clear summary (confidence >= 0.7) for fitness assessment
 
 IMPORTANT: All email sends and high-risk actions require approval. Draft content and request approval before sending.
 
@@ -90,7 +98,7 @@ Execute this task using available tools. Provide a clear summary of what you did
         sessionKey,
         message: task.description || task.title,
         extraSystemPrompt: systemPrompt,
-        timeoutMs: 120_000, // 2 minutes
+        timeoutMs: 300_000, // 5 minutes (increased to allow more prompts per task)
         lane: AGENT_LANE_NESTED,
       });
 

@@ -215,6 +215,13 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     writeAccessAllowed: false,
   });
 
+  // Create identity store with write access for extraction pipeline
+  const identityStoreWithWrite = await createLanceDBIdentityStore({
+    dbPath: env.identityPath,
+    embeddingProvider,
+    writeAccessAllowed: true,
+  });
+
   const stateDir = resolveStateDir(process.env);
   const smt = new SMTThrottler({
     windowMs: env.smt.windowMs,
@@ -322,9 +329,34 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     identityStore,
     stores.tasks,
     stores.audit,
+    identityStoreWithWrite,
   );
   const loader = new ExtensionLoader(foundation);
   await loader.load();
+
+  // Wire identity extraction extension to scheduler post-task hook
+  try {
+    const extensions = loader.getExtensions();
+    for (const ext of extensions) {
+      // Check if extension has extractFromTask method (identity extraction extension)
+      if (
+        ext &&
+        typeof ext === "object" &&
+        "extractFromTask" in ext &&
+        typeof ext.extractFromTask === "function"
+      ) {
+        scheduler.registerPostTaskHook(async (task, result) => {
+          await (
+            ext as { extractFromTask(task: unknown, result: unknown): Promise<void> }
+          ).extractFromTask(task, result);
+        });
+        log.info("Identity extraction extension wired to scheduler");
+        break;
+      }
+    }
+  } catch (err) {
+    log.warn("Failed to wire identity extraction extension", { error: redactError(err) });
+  }
 
   return {
     sowwyHandlers,

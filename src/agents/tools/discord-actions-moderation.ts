@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Discord Moderation Actions - Handles server moderation actions.
+ * Provides timeout, kick, and ban functionality for Discord server management.
+ */
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import type { DiscordActionConfig } from "../../config/config.js";
 import { banMemberDiscord, kickMemberDiscord, timeoutMemberDiscord } from "../../discord/send.js";

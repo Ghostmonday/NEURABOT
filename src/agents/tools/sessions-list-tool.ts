@@ -24,9 +24,15 @@ const SessionsListToolSchema = Type.Object({
 });
 
 function resolveSandboxSessionToolsVisibility(cfg: ReturnType<typeof loadConfig>) {
+  /** Determine visibility of session tools in sandboxed contexts. */
   return cfg.agents?.defaults?.sandbox?.sessionToolsVisibility ?? "spawned";
 }
 
+/**
+ * Create the sessions_list tool for querying active sessions.
+ * @param opts - Options for agent session key and sandbox mode
+ * @returns AnyAgentTool for session listing
+ */
 export function createSessionsListTool(opts?: {
   agentSessionKey?: string;
   sandboxed?: boolean;

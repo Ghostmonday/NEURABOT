@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Nodes Tool - Manages paired companion devices and nodes.
+ * Provides discovery, status, camera/screen/location capture, command execution,
+ * and remote invocation for connected companion apps.
+ */
 import type { AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";

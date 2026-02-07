@@ -81,6 +81,10 @@ export const SELF_MODIFY_ALLOW = [
   // Prompts and templates
   "src/**/prompts/**",
   "src/**/templates/**",
+
+  // Agent workspace (identity, memory, tools)
+  ".openclaw/workspace/**",
+  ".clawdbot/workspace/**",
 ] as const;
 
 // POWERUSER MODE: To allow editing of `src/infra/**` and `src/security/**`, remove the

@@ -1,3 +1,4 @@
+// Throughput mode cycle 7
 import { Type } from "@sinclair/typebox";
 import {
   CHANNEL_TARGET_DESCRIPTION,

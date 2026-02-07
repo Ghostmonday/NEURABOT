@@ -1,4 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+/**
+ * TwilioSMS Extension Tests
+ *
+ * Tests for TwilioSMSExtension initialization and SMS sending functionality.
+ * Verifies circuit breaker registration, persona executor setup, and error handling.
+ */
 import type { Task } from "../mission-control/schema.js";
 import type { ExtensionFoundation } from "./integration.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";

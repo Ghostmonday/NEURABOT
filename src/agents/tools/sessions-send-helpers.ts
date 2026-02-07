@@ -17,6 +17,11 @@ export type AnnounceTarget = {
   threadId?: string; // Forum topic/thread ID
 };
 
+/**
+ * Parses a session key and resolves the announce target details.
+ * @param sessionKey - The session key to parse (e.g., "agent:main:channel:discord:channel:123456")
+ * @returns AnnounceTarget with channel, to, accountId, and threadId, or null if invalid
+ */
 export function resolveAnnounceTargetFromKey(sessionKey: string): AnnounceTarget | null {
   const rawParts = sessionKey.split(":").filter(Boolean);
   const parts = rawParts.length >= 3 && rawParts[0] === "agent" ? rawParts.slice(2) : rawParts;

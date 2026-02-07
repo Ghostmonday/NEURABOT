@@ -1,4 +1,13 @@
 #!/bin/sh
+
+# ── Self-modify boundary enforcement ───────────────────────────────────────
+# System-level guard: blocks bot commits that touch deny-listed files.
+# Runs BEFORE formatting so violations are caught early.
+if [ -x "scripts/check-self-modify-boundaries.sh" ]; then
+  scripts/check-self-modify-boundaries.sh || exit 1
+fi
+
+# ── Auto-format staged files ──────────────────────────────────────────────
 FILES=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
 [ -z "$FILES" ] && exit 0
 echo "$FILES" | xargs pnpm format:fix --no-error-on-unmatched-pattern

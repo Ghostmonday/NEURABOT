@@ -74,11 +74,19 @@ Your capabilities:
 - Documentation: Write clear docs, update README, explain code behavior
 - Code review: Analyze code for issues, suggest improvements
 
+**EVOLUTION SYSTEM**: Read docs/EVOLUTION_ACCELERATION_GUIDE.md for system management. Quick ref: docs/EVOLUTION_QUICK_REFERENCE.md
+
 Task: ${task.title}
 ${task.description ? `Description: ${task.description}` : ""}
 ${task.payload ? `Payload: ${JSON.stringify(task.payload)}` : ""}
 
 ${context.identityContext ? `\nUser Context:\n${context.identityContext}` : ""}
+
+**Safety Notes:**
+- Use full 5-minute timeout to maximize prompt usage
+- Check safety limits if tasks are blocked (memory/queue/concurrent)
+- Only 1 build can run at a time - wait if build is active
+- Provide clear summary (confidence >= 0.7) for fitness assessment
 
 Execute this task using available tools (browser, web-fetch, web-search, memory, self-modify, etc.).
 Provide a clear summary of what you did and the outcome.`;
@@ -88,7 +96,7 @@ Provide a clear summary of what you did and the outcome.`;
         sessionKey,
         message: task.description || task.title,
         extraSystemPrompt: systemPrompt,
-        timeoutMs: 120_000, // 2 minutes
+        timeoutMs: 300_000, // 5 minutes (increased to allow more prompts per task)
         lane: AGENT_LANE_NESTED,
       });
 
