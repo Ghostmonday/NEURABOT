@@ -7,6 +7,34 @@ if [ -x "scripts/check-self-modify-boundaries.sh" ]; then
   scripts/check-self-modify-boundaries.sh || exit 1
 fi
 
+# ── Rust validation ─────────────────────────────────────────────────────────
+# Fast Rust validation: check for .rs file modifications and run cargo check + clippy
+if [ -d "neurabot-native" ] && git diff --cached --name-only --diff-filter=ACMR | grep -q '\.rs$'; then
+  if [ -x "$HOME/.cargo/bin/cargo" ]; then
+    echo "[pre-commit] Running Rust checks..."
+    cd neurabot-native || exit 1
+    export PATH="$HOME/.cargo/bin:$PATH"
+    
+    # Fast check for compilation errors
+    cargo check --workspace --color=always || {
+      echo "[pre-commit] ✗ cargo check failed"
+      exit 1
+    }
+    
+    # Clippy for lint and logic issues
+    cargo clippy --all-targets --color=always -- -D warnings || {
+      echo "[pre-commit] ✗ cargo clippy failed"
+      exit 1
+    }
+    
+    echo "[pre-commit] ✓ Rust validation passed"
+    cd ..
+  else
+    echo "[pre-commit] Warning: cargo not found, skipping Rust checks"
+    echo "[pre-commit] Install Rust toolchain: https://rustup.rs/"
+  fi
+fi
+
 # ── Auto-format staged files ──────────────────────────────────────────────
 FILES=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
 [ -z "$FILES" ] && exit 0

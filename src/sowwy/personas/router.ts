@@ -83,6 +83,9 @@ export class PersonaRouter {
       SMS: "ChiefOfStaff",
       MISSION_CONTROL: "ChiefOfStaff",
       SELF_MODIFY: "Dev",
+      FITNESS_CHECK: "Dev",
+      RUST_CHECK: "Dev",
+      RUST_FIX: "Dev",
     };
     return mapping[category];
   }

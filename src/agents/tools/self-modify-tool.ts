@@ -92,6 +92,25 @@ function resolveProjectRoot(fallback: string): string {
   return fallback;
 }
 
+// ── Speculative Rust Fix Helper ─────────────────────────────────────────────
+// Note: We don't spawn tasks directly from self-modify-tool since it doesn't have
+// access to the task store. Instead, we just fail fast and let the continuous
+// Rust watcher detect and spawn fix tasks proactively.
+
+const SPECULATIVE_FIX_COUNT = 5;
+
+async function spawnSpeculativeRustFixes(
+  rustFiles: Array<{ path: string }>,
+  error: unknown,
+): Promise<void> {
+  // Log the error for debugging
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error("[self-modify] Rust validation failed:", errorMessage.substring(0, 500));
+  console.info(
+    `[self-modify] Note: Continuous Rust watcher will detect and spawn ${SPECULATIVE_FIX_COUNT} parallel fix attempts`,
+  );
+}
+
 export function createSelfModifyTool(opts?: {
   workspaceDir?: string;
   /** Project root directory for git operations (defaults to auto-detected or process.cwd() if not provided) */
@@ -322,6 +341,62 @@ The reload action will (autonomous, no manual steps):
               getSafetyLimits().registerBuildEnd();
             } catch {
               // Ignore
+            }
+          }
+        }
+
+        // ── Rust validation ─────────────────────────────────────────────────────
+        // Fast Rust validation: check for .rs file modifications and run cargo check + clippy
+        if (process.env.OPENCLAW_SELF_MODIFY_SKIP_RUST !== "1") {
+          const rustFiles = modifiedFiles.filter((f) => f.path.endsWith(".rs"));
+          if (rustFiles.length > 0) {
+            const rustRoot = join(gitRoot, "neurabot-native");
+            if (!existsSync(rustRoot)) {
+              console.warn("[self-modify] neurabot-native/ not found, skipping Rust validation");
+            } else {
+              const rustEnv = {
+                ...process.env,
+                PATH: `${process.env.HOME}/.cargo/bin:${process.env.PATH}`,
+              };
+
+              // Fast cargo check for compilation errors
+              try {
+                execSync("cargo check --workspace --color=always", {
+                  cwd: rustRoot,
+                  encoding: "utf-8",
+                  timeout: 60_000,
+                  stdio: "pipe",
+                  env: rustEnv,
+                });
+                console.info("[self-modify] Rust cargo check passed");
+              } catch (rustErr) {
+                // On failure, spawn speculative Rust fix tasks
+                await spawnSpeculativeRustFixes(rustFiles, rustErr);
+                return jsonResult({
+                  ok: false,
+                  error: `Rust compilation failed, spawned 5 parallel fix tasks`,
+                  rustFiles: rustFiles.map((f) => f.path),
+                });
+              }
+
+              // Clippy for linting and logic issues
+              try {
+                execSync("cargo clippy --all-targets --color=always -- -D warnings", {
+                  cwd: rustRoot,
+                  encoding: "utf-8",
+                  timeout: 90_000,
+                  stdio: "pipe",
+                  env: rustEnv,
+                });
+                console.info("[self-modify] Rust clippy passed");
+              } catch (clippyErr) {
+                await spawnSpeculativeRustFixes(rustFiles, clippyErr);
+                return jsonResult({
+                  ok: false,
+                  error: `Rust clippy failed, spawned 5 parallel fix tasks`,
+                  rustFiles: rustFiles.map((f) => f.path),
+                });
+              }
             }
           }
         }

@@ -29,6 +29,10 @@ export const TaskCategory = {
   SELF_MODIFY: "SELF_MODIFY",
   /** Fitness assessment tasks (README §0.4 - MANDATORY FIRMWARE). */
   FITNESS_CHECK: "FITNESS_CHECK",
+  /** Rust validation tasks - cargo check, clippy, and speculative fixes. */
+  RUST_CHECK: "RUST_CHECK",
+  /** Auto-fix spawned for Rust compilation/clippy errors. */
+  RUST_FIX: "RUST_FIX",
 } as const;
 
 export type TaskCategory = (typeof TaskCategory)[keyof typeof TaskCategory];

@@ -86,6 +86,18 @@ jobs:
           - runtime: node
             task: format
             command: pnpm format
+          - runtime: node
+            task: rust
+            command: |
+              if [ -d "neurabot-native" ]; then
+                cd neurabot-native
+                export PATH="$HOME/.cargo/bin:$PATH"
+                cargo check --workspace --all-targets --color=always
+                cargo clippy --all-targets --color=always -- -D warnings
+                cargo test --workspace
+              else
+                echo "neurabot-native/ not found, skipping Rust checks"
+              fi
           - runtime: bun
             task: test
             command: pnpm canvas:a2ui:bundle && bunx vitest run
@@ -133,12 +145,23 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup Rust toolchain
+        if: matrix.task == 'rust'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
       - name: Runtime versions
         run: |
           node -v
           npm -v
           bun -v
           pnpm -v
+          if [ "${{ matrix.task }}" = "rust" ]; then
+            cargo --version
+            rustc --version
+            cargo clippy --version
+          fi
 
       - name: Capture node path
         run: echo "NODE_BIN=$(dirname \"$(node -p \"process.execPath\")\")" >> "$GITHUB_ENV"

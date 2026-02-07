@@ -14,7 +14,8 @@
  * Degradation: If stable module fails → reset streak, re-enter optimization
  */
 
-import type { Task, TaskExecutionResult } from "./schema.js";
+import type { TaskExecutionResult } from "./scheduler.js";
+import type { Task } from "./schema.js";
 
 // ============================================================================
 // Fitness Assessment Result

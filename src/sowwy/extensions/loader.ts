@@ -1,5 +1,6 @@
 import type { ExtensionFoundation, ExtensionLifecycle } from "./integration.js";
 import { getChildLogger } from "../../logging/logger.js";
+import { ContinuousRustWatcherExtension } from "./continuous-rust-watcher/index.js";
 import { ContinuousSelfModifyExtension } from "./continuous-self-modify/index.js";
 import { IdentityExtractionExtension } from "./identity-extraction/index.js";
 import { startOverseer, stopOverseer } from "./overseer/index.js";
@@ -7,6 +8,7 @@ import { PersonaChiefOfStaffExtension } from "./persona-cos/index.js";
 import { PersonaDevExtension } from "./persona-dev/index.js";
 import { PersonaLegalOpsExtension } from "./persona-legal/index.js";
 import { PersonaRnDExtension } from "./persona-rnd/index.js";
+import { RustPersonaExecutor } from "./persona-rust/index.js";
 import { RoadmapObserverExtension } from "./roadmap-observer/index.js";
 import { TutaEmailExtension } from "./tuta-email/index.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";
@@ -42,6 +44,7 @@ export class ExtensionLoader {
     this.extensions.push(new TwilioSMSExtension());
     this.extensions.push(new RoadmapObserverExtension());
     this.extensions.push(new ContinuousSelfModifyExtension());
+    this.extensions.push(new ContinuousRustWatcherExtension());
 
     // Identity extraction (must have write access to identity store)
     this.extensions.push(new IdentityExtractionExtension());
@@ -51,6 +54,11 @@ export class ExtensionLoader {
     this.extensions.push(new PersonaChiefOfStaffExtension());
     this.extensions.push(new PersonaLegalOpsExtension());
     this.extensions.push(new PersonaRnDExtension());
+
+    // Rust executor (handles RUST_CHECK and RUST_FIX tasks)
+    const rustExecutor = new RustPersonaExecutor(this.foundation);
+    this.foundation.registerPersonaExecutor("Dev", rustExecutor);
+    this.foundation.registerPersonaExecutor("RnD", rustExecutor);
 
     // Email integration
     this.extensions.push(new TutaEmailExtension());
