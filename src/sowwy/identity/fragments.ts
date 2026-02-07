@@ -92,6 +92,8 @@ export const IdentityFragmentSchema = {
       originalMessage: { type: "string" },
       extractionModel: { type: "string" },
       reviewedByHuman: { type: "boolean" },
+      migratedFromZeroVector: { type: "boolean" },
+      migratedAt: { type: "string" },
     },
   },
   createdAt: { type: "string", format: "date-time" },
@@ -109,6 +111,8 @@ export interface IdentityFragment {
     originalMessage?: string;
     extractionModel?: string;
     reviewedByHuman?: boolean;
+    migratedFromZeroVector?: boolean;
+    migratedAt?: string;
   };
   createdAt: string;
   embedding?: number[];

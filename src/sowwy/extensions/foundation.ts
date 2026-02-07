@@ -1,7 +1,12 @@
 import type { Logger as TsLogger } from "tslog";
 import type { IdentityCategory, IdentityStore } from "../identity/store.js";
 import type { TaskScheduler } from "../mission-control/scheduler.js";
-import type { PersonaOwner, TaskCreateInput, TaskUpdateInput } from "../mission-control/schema.js";
+import type {
+  PersonaOwner,
+  TaskCreateInput,
+  TaskFilter,
+  TaskUpdateInput,
+} from "../mission-control/schema.js";
 import type { AuditLogEntry, AuditStore, TaskStore } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 import type { ExtensionFoundation, PersonaExecutor } from "./integration.js";
@@ -87,6 +92,7 @@ export class ExtensionFoundationImpl implements ExtensionFoundation {
       create: (input: TaskCreateInput) => this.taskStore.create(input),
       update: (taskId: string, input: TaskUpdateInput) => this.taskStore.update(taskId, input),
       get: (taskId: string) => this.taskStore.get(taskId),
+      count: (filter?: TaskFilter) => this.taskStore.count(filter),
     };
   }
 

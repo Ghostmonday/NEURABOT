@@ -99,6 +99,9 @@ export type OpenClawConfig = {
   gateway?: GatewayConfig;
   memory?: MemoryConfig;
   selfModify?: SelfModifyConfig;
+  outbound?: {
+    failover?: Record<string, string[]>;
+  };
 };
 
 export type ConfigValidationIssue = {

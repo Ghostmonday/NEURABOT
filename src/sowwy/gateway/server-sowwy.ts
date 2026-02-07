@@ -96,6 +96,7 @@ export async function initializeSowwyGateway(
     },
     identityStore,
     smt,
+    scheduler,
     userId: "sowwy",
   };
 
@@ -129,12 +130,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
           taskLog.debug("Audit", { action: entry.action });
         },
       },
-      logger: taskLog as {
-        info(msg: string, meta?: Record<string, unknown>): void;
-        warn(msg: string, meta?: Record<string, unknown>): void;
-        error(msg: string, meta?: Record<string, unknown>): void;
-        debug(msg: string, meta?: Record<string, unknown>): void;
-      },
+      logger: taskLog,
     });
   });
 
@@ -153,12 +149,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
           taskLog.debug("Audit", { action: entry.action });
         },
       },
-      logger: taskLog as {
-        info(msg: string, meta?: Record<string, unknown>): void;
-        warn(msg: string, meta?: Record<string, unknown>): void;
-        error(msg: string, meta?: Record<string, unknown>): void;
-        debug(msg: string, meta?: Record<string, unknown>): void;
-      },
+      logger: taskLog,
     });
   });
 
@@ -177,12 +168,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
           taskLog.debug("Audit", { action: entry.action });
         },
       },
-      logger: taskLog as {
-        info(msg: string, meta?: Record<string, unknown>): void;
-        warn(msg: string, meta?: Record<string, unknown>): void;
-        error(msg: string, meta?: Record<string, unknown>): void;
-        debug(msg: string, meta?: Record<string, unknown>): void;
-      },
+      logger: taskLog,
     });
   });
 
@@ -201,12 +187,7 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
           taskLog.debug("Audit", { action: entry.action });
         },
       },
-      logger: taskLog as {
-        info(msg: string, meta?: Record<string, unknown>): void;
-        warn(msg: string, meta?: Record<string, unknown>): void;
-        error(msg: string, meta?: Record<string, unknown>): void;
-        debug(msg: string, meta?: Record<string, unknown>): void;
-      },
+      logger: taskLog,
     });
   });
 

@@ -26,6 +26,8 @@
  * The solution is elsewhere, not in throttling safety systems.
  */
 
+import { existsSync, unlinkSync, writeFileSync } from "node:fs";
+
 // ============================================================================
 // SMT Configuration
 // ============================================================================
@@ -41,6 +43,7 @@ export interface SMTConfig {
   maxPrompts: number; // Max operations per window (default: 500)
   targetUtilization: number; // Target utilization (default: 0.80)
   reservePercent: number; // Reserve for priority categories (default: 0.20)
+  lockFilePath?: string; // Persisted kill switch lock
 }
 
 // ============================================================================
@@ -84,15 +87,20 @@ export interface SMTState {
 export class SMTThrottler {
   private config: SMTConfig;
   private state: SMTState;
+  private readonly lockFilePath?: string;
 
   constructor(config: Partial<SMTConfig> = {}) {
     this.config = { ...DEFAULT_SMT_CONFIG, ...config };
+    this.lockFilePath = this.config.lockFilePath;
     this.state = {
       usedInWindow: 0,
       windowStart: Date.now(),
       isPaused: false,
       burstMode: false,
     };
+    if (this.lockFilePath && existsSync(this.lockFilePath)) {
+      this.state.isPaused = true;
+    }
   }
 
   /**
@@ -170,6 +178,13 @@ export class SMTThrottler {
    */
   pause(): void {
     this.state.isPaused = true;
+    if (this.lockFilePath) {
+      try {
+        writeFileSync(this.lockFilePath, new Date().toISOString(), "utf-8");
+      } catch {
+        // Best-effort persistence; keep paused in memory.
+      }
+    }
   }
 
   /**
@@ -177,6 +192,13 @@ export class SMTThrottler {
    */
   resume(): void {
     this.state.isPaused = false;
+    if (this.lockFilePath) {
+      try {
+        unlinkSync(this.lockFilePath);
+      } catch {
+        // Best-effort cleanup; resume anyway.
+      }
+    }
   }
 
   /**

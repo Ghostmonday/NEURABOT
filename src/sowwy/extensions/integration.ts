@@ -12,11 +12,16 @@
 import type { Logger as TsLogger } from "tslog";
 import type { IdentityFragment, SearchResult } from "../identity/fragments.js";
 // Import types from foundation modules
-import type { Task, TaskCreateInput, TaskUpdateInput } from "../mission-control/schema.js";
+import type {
+  Task,
+  TaskCreateInput,
+  TaskFilter,
+  TaskUpdateInput,
+} from "../mission-control/schema.js";
 import type { AuditLogEntry } from "../mission-control/store.js";
 export type ExtensionAuditLogEntry = Omit<
   AuditLogEntry,
-  "id" | "createdAt" | "taskId" | "performedBy"
+  "id" | "createdAt" | "taskId" | "performedBy" | "hash"
 >;
 
 // ============================================================================
@@ -71,6 +76,7 @@ export interface ExtensionFoundation {
     create(input: TaskCreateInput): Promise<Task>;
     update(taskId: string, input: TaskUpdateInput): Promise<Task | null>;
     get(taskId: string): Promise<Task | null>;
+    count(filter?: TaskFilter): Promise<number>;
   };
 
   // ========================================================================

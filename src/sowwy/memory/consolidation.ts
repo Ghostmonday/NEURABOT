@@ -16,14 +16,15 @@
 
 import { createHash } from "node:crypto";
 import type { AuditStore } from "../mission-control/store.js";
-import type { LanceDBMemoryStore, EmbeddingProvider } from "./lancedb-store.js";
+import type { EmbeddingProvider, LanceDBMemoryStore } from "./lancedb-store.js";
 import type {
   IdentityCategory,
+  MemoryEntry,
   PostgresMemoryStore,
   PreferenceEntry,
-  MemoryEntry,
 } from "./pg-store.js";
 import { getChildLogger } from "../../logging/logger.js";
+import { createRedactedLogger } from "../security/redact.js";
 
 // ============================================================================
 // Types
@@ -106,7 +107,9 @@ class UnionFind {
 // ============================================================================
 
 export class MemoryConsolidationService {
-  private readonly log = getChildLogger({ subsystem: "memory-consolidation" });
+  private readonly log = createRedactedLogger(
+    getChildLogger({ subsystem: "memory-consolidation" }),
+  );
 
   constructor(
     private pgStore: PostgresMemoryStore,

@@ -18,6 +18,7 @@
 
 import * as lancedb from "@lancedb/lancedb";
 import { randomUUID } from "node:crypto";
+import { appendFileSync } from "node:fs";
 import type {
   FragmentSource,
   IdentityCategory,
@@ -164,7 +165,7 @@ export class LanceDBIdentityStore implements IdentityStore {
 
     await this.table!.add([row]);
 
-    return {
+    const result: IdentityFragment = {
       id,
       category: fragment.category,
       content: fragment.content,
@@ -175,6 +176,8 @@ export class LanceDBIdentityStore implements IdentityStore {
       createdAt: new Date(now).toISOString(),
       embedding,
     };
+    this.appendBackup(result);
+    return result;
   }
 
   /**
@@ -241,6 +244,9 @@ export class LanceDBIdentityStore implements IdentityStore {
     }
 
     await this.table!.add(rows);
+    for (const result of results) {
+      this.appendBackup(result);
+    }
     return results;
   }
 
@@ -474,6 +480,19 @@ export class LanceDBIdentityStore implements IdentityStore {
   }
 
   // Private helpers
+
+  private appendBackup(fragment: IdentityFragment): void {
+    const backupPath = `${this.dbPath}.backup.jsonl`;
+    const line = `${JSON.stringify(fragment)}\n`;
+    try {
+      appendFileSync(backupPath, line, "utf-8");
+    } catch (error) {
+      this.log.error("Identity backup append failed", {
+        error: error instanceof Error ? error.message : String(error),
+        backupPath,
+      });
+    }
+  }
 
   private rowToFragment(row: IdentityFragmentRow): IdentityFragment {
     return {

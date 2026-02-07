@@ -13,7 +13,6 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import type { Task } from "../../mission-control/schema.js";
 import type {
   ExecutorResult,
   ExtensionFoundation,
@@ -23,6 +22,7 @@ import type {
 import { AGENT_LANE_NESTED } from "../../../agents/lanes.js";
 import { runAgentStep } from "../../../agents/tools/agent-step.js";
 import { getChildLogger } from "../../../logging/logger.js";
+import { TaskCategory, TaskStatus, type Task } from "../../mission-control/schema.js";
 import { redactError } from "../../security/redact.js";
 
 const CONTINUOUS_INTERVAL_MS = 5 * 60 * 1000; // 5 min (high-throughput: was 15 min)
@@ -73,6 +73,25 @@ export class ContinuousSelfModifyExtension implements ExtensionLifecycle {
     // allowing execution to proceed when the SMT window resets.
 
     const store = f.getTaskStore();
+    const MAX_PENDING = 16;
+    const pendingStatuses = [
+      TaskStatus.BACKLOG,
+      TaskStatus.READY,
+      TaskStatus.IN_PROGRESS,
+      TaskStatus.BLOCKED,
+      TaskStatus.WAITING_ON_HUMAN,
+    ];
+    const pendingCounts = await Promise.all(
+      pendingStatuses.map((status) => store.count({ status, category: TaskCategory.SELF_MODIFY })),
+    );
+    const pending = pendingCounts.reduce((sum: number, count: number) => sum + count, 0);
+    if (pending >= MAX_PENDING) {
+      log.debug("Skipping cycle: too many pending SELF_MODIFY tasks", {
+        pending,
+        maxPending: MAX_PENDING,
+      });
+      return;
+    }
     const PARALLEL_CYCLES = 4; // Create 4 parallel tasks per interval
 
     // High-throughput: create multiple SELF_MODIFY tasks in parallel across personas
