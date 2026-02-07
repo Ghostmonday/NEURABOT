@@ -532,6 +532,64 @@ export class TaskScheduler {
     this.log.info("[Scheduler] Stuck task detection started"); // No secrets in this log
   }
 
+  /**
+   * Check for tasks waiting on human approval that have exceeded the timeout.
+   * High urgency tasks (>= 4) are auto-approved.
+   * Low urgency tasks are moved to BLOCKED.
+   */
+  private async checkApprovalTimeouts(): Promise<void> {
+    try {
+      // Get tasks waiting on human longer than approval timeout
+      const waitingTasks = await this.taskStore.getByStatus("WAITING_ON_HUMAN");
+
+      const now = Date.now();
+      const timedOutTasks: Task[] = [];
+
+      for (const task of waitingTasks) {
+        const updatedAt = new Date(task.updatedAt).getTime();
+        if (now - updatedAt > this.config.approvalTimeoutMs) {
+          timedOutTasks.push(task);
+        }
+      }
+
+      if (timedOutTasks.length > 0) {
+        this.log.warn(
+          `[Scheduler] Found ${timedOutTasks.length} task(s) awaiting approval timeout`,
+        );
+
+        for (const task of timedOutTasks) {
+          const updatedAt = new Date(task.updatedAt).getTime();
+          const hoursWaiting = Math.round((now - updatedAt) / (1000 * 60 * 60));
+
+          if ((task.urgency ?? 0) >= 4) {
+            // High urgency: auto-approve and move to READY
+            await this.taskStore.update(task.taskId, {
+              status: "READY",
+              outcome: undefined,
+              decisionSummary: `Auto-approved after ${hoursWaiting}h timeout (urgency ${task.urgency}).`,
+            });
+
+            this.log.info(
+              `[Scheduler] Auto-approved timed-out task ${redactString(task.taskId)}: ${redactString(task.title)} (urgency: ${task.urgency})`,
+            );
+          } else {
+            // Low urgency: move to BLOCKED
+            await this.taskStore.update(task.taskId, {
+              status: "BLOCKED",
+              outcome: "BLOCKED",
+              decisionSummary: `Approval timeout exceeded after ${hoursWaiting}h. Blocked pending human review.`,
+            });
+
+            this.log.warn(
+              `[Scheduler] Blocked timed-out task ${redactString(task.taskId)}: ${redactString(task.title)} (urgency: ${task.urgency})`,
+            );
+          }
+        }
+      }
+    } catch (error) {
+      this.log.error("[Scheduler] Approval timeout check error:", redactError(error));
+    }
+  }
   private async sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
