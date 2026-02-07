@@ -1,0 +1,20 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"default\"]",
+  "declared_features": "[\"default\", \"image\"]",
+  "target": 5408242616063297496,
+  "profile": 7409704062750675268,
+  "path": 508844210010157199,
+  "deps": [[1035178698636953719, "napi_build", false, 17763178143972549268]],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/core-native-14e1368fb01d8578/dep-build-script-build-script-build",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

@@ -13,14 +13,17 @@ import type { IdentityStore } from "../../identity/store.js";
 import type { Task } from "../../mission-control/schema.js";
 import type { ExecutorResult, ExtensionFoundation, ExtensionLifecycle } from "../integration.js";
 import { getChildLogger } from "../../../logging/logger.js";
-import { createIdentityExtractionPipeline } from "../../identity/extraction-pipeline.js";
+import {
+  createIdentityExtractionPipeline,
+  type IdentityExtractionPipeline,
+} from "../../identity/extraction-pipeline.js";
 import { redactError } from "../../security/redact.js";
 
 const log = getChildLogger({ subsystem: "identity-extraction-extension" });
 
 export class IdentityExtractionExtension implements ExtensionLifecycle {
   private foundation: ExtensionFoundation | null = null;
-  private extractionPipeline: ReturnType<typeof createIdentityExtractionPipeline> | null = null;
+  private extractionPipeline: IdentityExtractionPipeline | null = null;
 
   async initialize(foundation: ExtensionFoundation): Promise<void> {
     this.foundation = foundation;

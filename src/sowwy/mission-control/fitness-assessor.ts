@@ -16,6 +16,7 @@
 
 import type { TaskExecutionResult } from "./scheduler.js";
 import type { Task } from "./schema.js";
+import type { TaskStore } from "./store.js";
 
 // ============================================================================
 // Fitness Assessment Result
@@ -145,28 +146,7 @@ export interface FitnessReassessmentTaskCreator {
    * @param config - Re-assessment configuration
    * @returns Number of tasks created
    */
-  createReassessmentTasks(
-    taskStore: {
-      create(input: {
-        title: string;
-        description: string;
-        category: string;
-        personaOwner: string;
-        urgency: number;
-        importance: number;
-        risk: number;
-        stressCost: number;
-        requiresApproval: boolean;
-        maxRetries: number;
-        dependencies: string[];
-        contextLinks: Record<string, string>;
-        payload?: unknown;
-        createdBy: string;
-      }): Promise<{ taskId: string }>;
-      count(filter: { category: string; status: string }): Promise<number>;
-    },
-    config: FitnessReassessmentConfig,
-  ): Promise<number>;
+  createReassessmentTasks(taskStore: TaskStore, config: FitnessReassessmentConfig): Promise<number>;
 }
 
 /**
@@ -176,25 +156,7 @@ export interface FitnessReassessmentTaskCreator {
  */
 export class DefaultFitnessReassessmentTaskCreator implements FitnessReassessmentTaskCreator {
   async createReassessmentTasks(
-    taskStore: {
-      create(input: {
-        title: string;
-        description: string;
-        category: string;
-        personaOwner: string;
-        urgency: number;
-        importance: number;
-        risk: number;
-        stressCost: number;
-        requiresApproval: boolean;
-        maxRetries: number;
-        dependencies: string[];
-        contextLinks: Record<string, string>;
-        payload?: unknown;
-        createdBy: string;
-      }): Promise<{ taskId: string }>;
-      count(filter: { category: string; status: string }): Promise<number>;
-    },
+    taskStore: TaskStore,
     config: FitnessReassessmentConfig,
   ): Promise<number> {
     // Check if there are already pending fitness check tasks

@@ -253,7 +253,7 @@ The reload action will (autonomous, no manual steps):
           let buildRegistered = false;
           try {
             const { getSafetyLimits } =
-              await import("../../../sowwy/mission-control/safety-limits.js");
+              await import("../../sowwy/mission-control/safety-limits.js");
             const safetyLimits = getSafetyLimits();
             const safetyCheck = safetyLimits.canAcceptTasks(0, 0, { isBuild: true });
             if (!safetyCheck.allowed) {
@@ -294,7 +294,7 @@ The reload action will (autonomous, no manual steps):
               if (buildRegistered) {
                 try {
                   const { getSafetyLimits } =
-                    await import("../../../sowwy/mission-control/safety-limits.js");
+                    await import("../../sowwy/mission-control/safety-limits.js");
                   getSafetyLimits().registerBuildEnd();
                 } catch {
                   // Ignore
@@ -321,7 +321,7 @@ The reload action will (autonomous, no manual steps):
             if (buildRegistered) {
               try {
                 const { getSafetyLimits } =
-                  await import("../../../sowwy/mission-control/safety-limits.js");
+                  await import("../../sowwy/mission-control/safety-limits.js");
                 getSafetyLimits().registerBuildEnd();
               } catch {
                 // Ignore
@@ -337,7 +337,7 @@ The reload action will (autonomous, no manual steps):
           if (buildRegistered) {
             try {
               const { getSafetyLimits } =
-                await import("../../../sowwy/mission-control/safety-limits.js");
+                await import("../../sowwy/mission-control/safety-limits.js");
               getSafetyLimits().registerBuildEnd();
             } catch {
               // Ignore
