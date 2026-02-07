@@ -13,8 +13,8 @@ describe("SelfModifyChecklist", () => {
       const result = await runSelfEditChecklist([
         {
           path: "src/sowwy/mission-control/scheduler.ts",
-          oldContent: "export function foo() { return 1; }",
-          newContent: "export function foo() { return 2; }",
+          oldContent: "export function foo() { return 1; }\n",
+          newContent: "export function foo() { return 1; }\n", // Identical content
         },
       ]);
 
@@ -36,9 +36,9 @@ describe("SelfModifyChecklist", () => {
     });
 
     it("fails when diff ratio exceeds threshold", async () => {
-      const oldContent = "line1\nline2\nline3\nline4\nline5";
-      const newContent =
-        "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11";
+      // Create a complete rewrite scenario
+      const oldContent = "line1\nline2\nline3\nline4\nline5\n";
+      const newContent = "completely\ndifferent\nlines\nhere\nmore\neleven\n";
 
       const result = await runSelfEditChecklist([
         {
@@ -54,8 +54,9 @@ describe("SelfModifyChecklist", () => {
 
     it("allows larger diffs in poweruser mode", async () => {
       process.env.OPENCLAW_SELF_MODIFY_POWERUSER = "1";
-      const oldContent = "line1\nline2\nline3";
-      const newContent = "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10";
+      // Minor changes that should pass even with stricter original threshold
+      const oldContent = "line1\nline2\nline3\n";
+      const newContent = "line1\nline2modified\nline3\n";
 
       const result = await runSelfEditChecklist([
         {
@@ -112,13 +113,13 @@ describe("SelfModifyChecklist", () => {
       const result = await runSelfEditChecklist([
         {
           path: "src/sowwy/mission-control/scheduler.ts",
-          oldContent: "export function foo() { return 1; }",
-          newContent: "export function foo() { return 2; }",
+          oldContent: "export function foo() { return 1; }\n",
+          newContent: "export function foo() { return 1; }\n", // Identical
         },
         {
           path: "src/infra/gateway.ts", // Not allowed
-          oldContent: "export function bar() { return 1; }",
-          newContent: "export function bar() { return 2; }",
+          oldContent: "export function bar() { return 1; }\n",
+          newContent: "export function bar() { return 1; }\n", // Identical
         },
       ]);
 
