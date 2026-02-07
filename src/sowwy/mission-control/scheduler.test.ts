@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { IdentityStore } from "../identity/store.js";
-import { SMTThrottler } from "../smt/throttler.js";
+import { SMTThrottler, getMetrics } from "../smt/throttler.js";
 import { InMemoryTaskStore } from "./memory-store.js";
 import { TaskScheduler } from "./scheduler.js";
 import { TaskCategory, TaskStatus, type Task } from "./schema.js";
@@ -97,5 +97,73 @@ describe("TaskScheduler", () => {
     expect(promotedTask?.status).toBe(TaskStatus.DONE);
     expect(promotedTask?.outcome).toBe("COMPLETED");
     expect(otherTask?.status).toBe(TaskStatus.BACKLOG);
+  });
+
+  it("SHC: records SMT usage for each executed task", async () => {
+    const taskStore = new InMemoryTaskStore();
+    const identityStore = createIdentityStore();
+    const windowMs = 5 * 60 * 60 * 1000; // 5 hours
+    const smt = new SMTThrottler({ maxPrompts: 500, windowMs });
+    const scheduler = new TaskScheduler(taskStore, identityStore, smt, {
+      pollIntervalMs: 1,
+      maxConcurrentPerPersona: 1,
+    });
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    scheduler.registerPersona("Dev", async () => ({
+      success: true,
+      outcome: "COMPLETED",
+      summary: "done",
+      confidence: 0.9,
+    }));
+
+    // Create 10 dummy tasks
+    const tasks: Task[] = [];
+    for (let i = 0; i < 10; i++) {
+      const task = await taskStore.create({
+        title: `Dummy task ${i + 1}`,
+        category: TaskCategory.DEV,
+        personaOwner: "Dev",
+        urgency: 3,
+        importance: 3,
+        risk: 1,
+        stressCost: 1,
+        createdBy: "shc-test",
+      });
+      tasks.push(task);
+    }
+
+    // Verify initial metrics
+    const initialMetrics = getMetrics(smt);
+    expect(initialMetrics.utilization).toBe(0);
+    expect(initialMetrics.remaining).toBe(Math.floor(500 * 0.95)); // 475 with 0.95 targetUtilization
+
+    // Execute tasks by triggering scheduler ticks
+    try {
+      for (let i = 0; i < 20; i++) {
+        await scheduler.triggerTick();
+        await new Promise((r) => setTimeout(r, 10));
+      }
+    } finally {
+      logSpy.mockRestore();
+    }
+
+    // Verify SMT metrics after execution
+    const finalMetrics = getMetrics(smt);
+    const state = smt.getState();
+
+    // Should have recorded 10 usages
+    expect(state.usedInWindow).toBe(10);
+    expect(finalMetrics.remaining).toBe(Math.floor(500 * 0.95) - 10); // 465
+    expect(finalMetrics.utilization).toBeCloseTo(10 / (500 * 0.95), 3);
+
+    // Verify windowEnd is correct (windowStart + windowMs)
+    expect(finalMetrics.windowEnd).toBe(state.windowStart + windowMs);
+
+    // Verify all 10 tasks completed
+    for (const task of tasks) {
+      const updated = await taskStore.get(task.taskId);
+      expect(updated?.status).toBe(TaskStatus.DONE);
+    }
   });
 });

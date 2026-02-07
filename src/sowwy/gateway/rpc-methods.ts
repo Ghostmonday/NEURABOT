@@ -84,6 +84,7 @@ export interface SowwyRPCMethods extends TaskRPCMethods {
   // Monitoring
   "sowwy.metrics": () => Promise<Metrics>;
   "sowwy.health": () => Promise<HealthStatus>;
+  "sowwy.capabilities": () => Promise<SystemCapabilities>;
 }
 
 // ============================================================================
@@ -120,6 +121,93 @@ export interface HealthStatus {
     lancedb: boolean;
     smt: boolean;
     scheduler: boolean;
+  };
+}
+
+export interface SystemCapabilities {
+  // Core systems
+  systems: {
+    scheduler: {
+      available: boolean;
+      running: boolean;
+      maxConcurrentPerPersona: number;
+      pollIntervalMs: number;
+    };
+    eventBus: {
+      available: boolean;
+      activeTopics: string[];
+      ringBufferSize: number;
+    };
+    resourceMonitor: {
+      available: boolean;
+      thresholds: {
+        memoryWarn: number;
+        memoryCritical: number;
+        diskWarnMB: number;
+        diskCriticalMB: number;
+      };
+    };
+    metricsCollector: {
+      available: boolean;
+      historyEnabled: boolean;
+      historyPath?: string;
+    };
+    circuitBreakers: {
+      available: boolean;
+      breakers: string[];
+    };
+  };
+  // Storage systems
+  storage: {
+    postgres: {
+      available: boolean;
+      stores: string[];
+    };
+    lancedb: {
+      available: boolean;
+      purpose: string;
+    };
+    memory: {
+      consolidation: boolean;
+      verification: boolean;
+    };
+  };
+  // Communication systems
+  communication: {
+    channels: string[];
+    failover: {
+      enabled: boolean;
+      mappings: Record<string, string[]>;
+    };
+    eventBus: {
+      enabled: boolean;
+      pubSub: boolean;
+    };
+  };
+  // Self-modification
+  selfModify: {
+    enabled: boolean;
+    boundaries: {
+      allowlist: string[];
+      blocklist: string[];
+    };
+    rollback: {
+      enabled: boolean;
+      strategies: string[];
+    };
+  };
+  // Available RPC methods
+  rpcMethods: string[];
+  // Available tools
+  tools: {
+    exec: {
+      enabled: boolean;
+      security: string;
+      askMode: string;
+    };
+    read: boolean;
+    edit: boolean;
+    message: boolean;
   };
 }
 
@@ -373,6 +461,7 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
         await stores.tasks.count();
         checks.postgres = true;
       } catch {
+        // INTENTIONAL: Health check is supposed to catch failures and report false
         checks.postgres = false;
       }
 
@@ -381,6 +470,7 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
         await identityStore.count();
         checks.lancedb = true;
       } catch {
+        // INTENTIONAL: Health check is supposed to catch failures and report false
         checks.lancedb = false;
       }
 
@@ -389,6 +479,7 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
         smt.getUtilization();
         checks.smt = true;
       } catch {
+        // INTENTIONAL: Health check is supposed to catch failures and report false
         checks.smt = false;
       }
 
@@ -408,6 +499,140 @@ export function registerSowwyRPCMethods(context: GatewayContext): Record<string,
       return {
         overall,
         checks,
+      };
+    },
+
+    "sowwy.capabilities": async (): Promise<SystemCapabilities> => {
+      const schedulerState = scheduler?.getState();
+      const eventBus = scheduler?.getEventBus();
+      const pgHost = process.env.SOWWY_POSTGRES_HOST;
+      const postgresAvailable = !!pgHost && pgHost !== "";
+
+      // Get available RPC methods
+      const rpcMethods = [
+        "tasks.list",
+        "tasks.create",
+        "tasks.update",
+        "tasks.get",
+        "tasks.nextReady",
+        "tasks.approve",
+        "tasks.complete",
+        "tasks.cancel",
+        "tasks.audit",
+        "tasks.decisions",
+        "sowwy.status",
+        "sowwy.pause",
+        "sowwy.resume",
+        "sowwy.metrics",
+        "sowwy.health",
+        "sowwy.capabilities",
+        "identity.search",
+        "identity.stats",
+      ];
+
+      // Get circuit breaker names (if available)
+      const circuitBreakers: string[] = [];
+      try {
+        const { CircuitBreakerRegistry } = await import("../integrations/circuit-breaker.js");
+        const registry = new CircuitBreakerRegistry();
+        // Common breakers
+        circuitBreakers.push("twilio", "proton", "browser", "database");
+      } catch {
+        // INTENTIONAL: Circuit breakers module is optional; absence is not an error
+      }
+
+      // Get event bus topics
+      const activeTopics = eventBus?.getActiveTopics() ?? [];
+
+      // Get self-modify boundaries
+      const { SELF_MODIFY_ALLOW, SELF_MODIFY_DENY } = await import("../self-modify/boundaries.js");
+
+      return {
+        systems: {
+          scheduler: {
+            available: !!scheduler,
+            running: schedulerState?.running ?? false,
+            maxConcurrentPerPersona: scheduler
+              ? ((scheduler as any).config?.maxConcurrentPerPersona ?? 1)
+              : 1,
+            pollIntervalMs: scheduler ? ((scheduler as any).config?.pollIntervalMs ?? 5000) : 5000,
+          },
+          eventBus: {
+            available: !!eventBus,
+            activeTopics,
+            ringBufferSize: 100,
+          },
+          resourceMonitor: {
+            available: true,
+            thresholds: {
+              memoryWarn: 0.85,
+              memoryCritical: 0.95,
+              diskWarnMB: 1024,
+              diskCriticalMB: 500,
+            },
+          },
+          metricsCollector: {
+            available: true,
+            historyEnabled: true,
+            historyPath: process.env.OPENCLAW_STATE_DIR
+              ? `${process.env.OPENCLAW_STATE_DIR}/workspace/data/metrics-history.jsonl`
+              : undefined,
+          },
+          circuitBreakers: {
+            available: circuitBreakers.length > 0,
+            breakers: circuitBreakers,
+          },
+        },
+        storage: {
+          postgres: {
+            available: postgresAvailable,
+            stores: postgresAvailable ? ["tasks", "audit", "decisions"] : [],
+          },
+          lancedb: {
+            available: true,
+            purpose: "identity fragments and embeddings",
+          },
+          memory: {
+            consolidation: true,
+            verification: true,
+          },
+        },
+        communication: {
+          channels: ["telegram", "webchat", "signal", "whatsapp", "discord", "slack"],
+          failover: {
+            enabled: true,
+            mappings: {
+              telegram: ["webchat"],
+              webchat: ["telegram"],
+            },
+          },
+          eventBus: {
+            enabled: !!eventBus,
+            pubSub: true,
+          },
+        },
+        selfModify: {
+          enabled: true,
+          boundaries: {
+            allowlist: Array.from(SELF_MODIFY_ALLOW),
+            blocklist: Array.from(SELF_MODIFY_DENY),
+          },
+          rollback: {
+            enabled: true,
+            strategies: ["file-scoped", "full-checkout", "git-reset"],
+          },
+        },
+        rpcMethods,
+        tools: {
+          exec: {
+            enabled: true,
+            security: "allowlist",
+            askMode: "on-miss",
+          },
+          read: true,
+          edit: true,
+          message: true,
+        },
       };
     },
   };

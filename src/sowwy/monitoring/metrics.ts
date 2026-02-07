@@ -140,3 +140,114 @@ export const ALERT_THRESHOLDS = {
   authFailuresHigh: 5,
   pairingRequestsHigh: 10,
 };
+
+// ============================================================================
+// Alert Types
+// ============================================================================
+
+export interface Alert {
+  severity: "critical" | "warning";
+  name: string;
+  message: string;
+  value: number | string | boolean;
+  threshold: number | string | boolean;
+}
+
+/**
+ * Check metrics against alert thresholds and return triggered alerts
+ */
+export function checkAlertThresholds(metrics: SowwyMetrics): Alert[] {
+  const alerts: Alert[] = [];
+
+  // PostgreSQL down
+  if (!metrics.healthCheckStatus.postgres) {
+    alerts.push({
+      severity: "critical",
+      name: "postgresDown",
+      message: "PostgreSQL is unavailable",
+      value: false,
+      threshold: ALERT_THRESHOLDS.postgresDown,
+    });
+  }
+
+  // LanceDB unavailable
+  if (!metrics.healthCheckStatus.lancedb) {
+    alerts.push({
+      severity: "warning",
+      name: "lancedbUnavailable",
+      message: "LanceDB is unavailable",
+      value: false,
+      threshold: ALERT_THRESHOLDS.lancedbUnavailable,
+    });
+  }
+
+  // SMT utilization high
+  if (metrics.smtUtilization >= ALERT_THRESHOLDS.smtUtilizationHigh) {
+    alerts.push({
+      severity: "warning",
+      name: "smtUtilizationHigh",
+      message: `SMT utilization is ${Math.round(metrics.smtUtilization * 100)}% (threshold: ${Math.round(ALERT_THRESHOLDS.smtUtilizationHigh * 100)}%)`,
+      value: metrics.smtUtilization,
+      threshold: ALERT_THRESHOLDS.smtUtilizationHigh,
+    });
+  }
+
+  // Task queue depth high
+  if (metrics.taskQueueDepth >= ALERT_THRESHOLDS.taskQueueDepthHigh) {
+    alerts.push({
+      severity: "warning",
+      name: "taskQueueDepthHigh",
+      message: `Task queue depth is ${metrics.taskQueueDepth} (threshold: ${ALERT_THRESHOLDS.taskQueueDepthHigh})`,
+      value: metrics.taskQueueDepth,
+      threshold: ALERT_THRESHOLDS.taskQueueDepthHigh,
+    });
+  }
+
+  // Identity extraction rate zero
+  if (ALERT_THRESHOLDS.identityExtractionRateZero && metrics.identityExtractionRate === 0) {
+    alerts.push({
+      severity: "warning",
+      name: "identityExtractionRateZero",
+      message: "Identity extraction rate is zero",
+      value: 0,
+      threshold: true,
+    });
+  }
+
+  // Auth failures high
+  if (metrics.authFailures >= ALERT_THRESHOLDS.authFailuresHigh) {
+    alerts.push({
+      severity: "warning",
+      name: "authFailuresHigh",
+      message: `Auth failures: ${metrics.authFailures} (threshold: ${ALERT_THRESHOLDS.authFailuresHigh})`,
+      value: metrics.authFailures,
+      threshold: ALERT_THRESHOLDS.authFailuresHigh,
+    });
+  }
+
+  // Pairing requests high
+  if (metrics.pairingRequests >= ALERT_THRESHOLDS.pairingRequestsHigh) {
+    alerts.push({
+      severity: "warning",
+      name: "pairingRequestsHigh",
+      message: `Pairing requests: ${metrics.pairingRequests} (threshold: ${ALERT_THRESHOLDS.pairingRequestsHigh})`,
+      value: metrics.pairingRequests,
+      threshold: ALERT_THRESHOLDS.pairingRequestsHigh,
+    });
+  }
+
+  // Circuit breakers open
+  for (const [name, state] of Object.entries(metrics.circuitBreakerStates)) {
+    if (state === "OPEN") {
+      alerts.push({
+        severity: "critical",
+        name: `circuitBreakerOpen:${name}`,
+        message: `Circuit breaker ${name} is OPEN`,
+        value: state,
+        threshold: "CLOSED",
+      });
+    }
+  }
+
+  return alerts;
+}

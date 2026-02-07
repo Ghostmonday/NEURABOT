@@ -3,6 +3,8 @@ import {
   resolveGatewayLaunchAgentLabel,
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
+import { getChildLogger } from "../logging/logger.js";
+import { redactError } from "../sowwy/security/redact.js";
 
 export type RestartAttempt = {
   ok: boolean;
@@ -281,8 +283,10 @@ export function scheduleGatewaySigusr1Restart(opts?: {
       } else {
         process.kill(pid, "SIGUSR1");
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      // LOG-AND-CONTINUE: Process may have already exited or doesn't exist - non-fatal
+      const log = getChildLogger({ subsystem: "restart" });
+      log.warn("Failed to send SIGUSR1", { error: redactError(err) });
     }
   }, delayMs);
 

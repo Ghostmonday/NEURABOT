@@ -65,17 +65,17 @@ function serviceSummary(label: string, svc: BonjourService): string {
   try {
     fqdn = svc.getFQDN();
   } catch {
-    // ignore
+    // INTENTIONAL: mDNS discovery is best-effort; missing FQDN is non-fatal
   }
   try {
     hostname = svc.getHostname();
   } catch {
-    // ignore
+    // INTENTIONAL: mDNS discovery is best-effort; missing hostname is non-fatal
   }
   try {
     port = svc.getPort();
   } catch {
-    // ignore
+    // INTENTIONAL: mDNS discovery is best-effort; missing port is non-fatal
   }
   const state = typeof svc.serviceState === "string" ? svc.serviceState : "unknown";
   return `${label} fqdn=${fqdn} host=${hostname} port=${port} state=${state}`;
@@ -229,7 +229,7 @@ export async function startGatewayBonjourAdvertiser(
       try {
         key = `${label}:${svc.getFQDN()}`;
       } catch {
-        // ignore
+        // INTENTIONAL: mDNS discovery is best-effort; using label-only as fallback
       }
       const now = Date.now();
       const last = lastRepairAttempt.get(key) ?? 0;
@@ -266,13 +266,13 @@ export async function startGatewayBonjourAdvertiser(
         try {
           await svc.destroy();
         } catch {
-          /* ignore */
+          // INTENTIONAL: Service cleanup is best-effort; destroy failures during shutdown are non-fatal
         }
       }
       try {
         await responder.shutdown();
       } catch {
-        /* ignore */
+        // INTENTIONAL: Responder shutdown is best-effort; errors during shutdown are non-fatal
       } finally {
         ciaoCancellationRejectionHandler?.();
       }

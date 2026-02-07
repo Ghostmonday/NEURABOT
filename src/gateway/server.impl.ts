@@ -37,6 +37,7 @@ import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js
 // TODO: Call checkSelfModifyRollback() early in startup sequence, before channel
 // initialization. If rollback occurred, log warning and continue startup. Add startup
 // health check that runs after all services are initialized.
+import { redactError } from "../sowwy/security/redact.js";
 import { checkSelfModifyRollback } from "../sowwy/self-modify/rollback.js";
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
@@ -210,7 +211,9 @@ export async function startGatewayServer(
           .join("\n")}`,
       );
     } catch (err) {
-      log.warn(`gateway: failed to persist plugin auto-enable changes: ${String(err)}`);
+      log.warn("gateway: failed to persist plugin auto-enable changes", {
+        error: redactError(err),
+      });
     }
   }
 

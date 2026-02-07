@@ -50,7 +50,7 @@ export interface SMTConfig {
 export const DEFAULT_SMT_CONFIG: SMTConfig = {
   windowMs: 5 * 60 * 60 * 1000, // 5 hours
   maxPrompts: 500, // Minimax Enterprise
-  targetUtilization: 0.8, // 70-85% target
+  targetUtilization: 0.95, // 95% target utilization
   reservePercent: 0.2, // 20% reserve
 };
 
@@ -187,6 +187,21 @@ export class SMTThrottler {
   }
 
   /**
+   * Check if burst mode is enabled
+   */
+  getBurstMode(): boolean {
+    return this.state.burstMode;
+  }
+
+  /**
+   * Get the timestamp when the current window ends
+   */
+  getWindowEnd(): number {
+    this.checkWindowReset();
+    return this.state.windowStart + this.config.windowMs;
+  }
+
+  /**
    * Get current state (read-only, for tests and debugging)
    */
   getState(): Readonly<SMTState> {
@@ -243,7 +258,7 @@ export function getMetrics(throttler: SMTThrottler): SMTMetrics {
     utilization: throttler.getUtilization(),
     remaining: throttler.getRemaining(),
     isPaused: throttler.isPaused(),
-    burstMode: false, // Would need to track this
-    windowEnd: Date.now() + 5 * 60 * 60 * 1000, // Would need actual window end
+    burstMode: throttler.getBurstMode(),
+    windowEnd: throttler.getWindowEnd(),
   };
 }

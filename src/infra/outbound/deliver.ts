@@ -236,8 +236,35 @@ export async function deliverOutboundPayloads(params: {
   const sendTextChunks = async (text: string) => {
     throwIfAborted(abortSignal);
     if (!handler.chunker || textLimit === undefined) {
-      results.push(await handler.sendText(text));
-      return;
+      try {
+        results.push(await handler.sendText(text));
+        return;
+      } catch (err) {
+        // Try failover channel if configured (hardcoded for now until config schema supports it)
+        const failoverMap: Record<string, string[]> = {
+          telegram: ["webchat"],
+          webchat: ["telegram"],
+        };
+        const failoverChannels = failoverMap[channel];
+        if (failoverChannels && failoverChannels.length > 0) {
+          console.warn(`[Failover] Channel ${channel} failed, trying ${failoverChannels[0]}`);
+          const failoverHandler = await createChannelHandler({
+            cfg,
+            channel: failoverChannels[0] as Exclude<OutboundChannel, "none">,
+            to,
+            accountId,
+            replyToId,
+            threadId,
+            deps: params.deps,
+            gifPlayback: params.gifPlayback,
+          }).catch(() => null);
+          if (failoverHandler) {
+            results.push(await failoverHandler.sendText(text));
+            return;
+          }
+        }
+        throw err;
+      }
     }
     if (chunkMode === "newline") {
       const mode = handler.chunkerMode ?? "text";
@@ -256,7 +283,30 @@ export async function deliverOutboundPayloads(params: {
         }
         for (const chunk of chunks) {
           throwIfAborted(abortSignal);
-          results.push(await handler.sendText(chunk));
+          try {
+            results.push(await handler.sendText(chunk));
+          } catch (err) {
+            // Try failover channel if configured
+            const failoverChannels = cfg.outbound?.failover?.[channel];
+            if (failoverChannels && failoverChannels.length > 0) {
+              console.warn(`[Failover] Channel ${channel} failed, trying ${failoverChannels[0]}`);
+              const failoverHandler = await createChannelHandler({
+                cfg,
+                channel: failoverChannels[0] as Exclude<OutboundChannel, "none">,
+                to,
+                accountId,
+                replyToId,
+                threadId,
+                deps: params.deps,
+                gifPlayback: params.gifPlayback,
+              }).catch(() => null);
+              if (failoverHandler) {
+                results.push(await failoverHandler.sendText(chunk));
+                continue;
+              }
+            }
+            throw err;
+          }
         }
       }
       return;
@@ -348,7 +398,30 @@ export async function deliverOutboundPayloads(params: {
         if (isSignalChannel) {
           results.push(await sendSignalMedia(caption, url));
         } else {
-          results.push(await handler.sendMedia(caption, url));
+          try {
+            results.push(await handler.sendMedia(caption, url));
+          } catch (err) {
+            // Try failover channel if configured
+            const failoverChannels = cfg.outbound?.failover?.[channel];
+            if (failoverChannels && failoverChannels.length > 0) {
+              console.warn(`[Failover] Channel ${channel} failed, trying ${failoverChannels[0]}`);
+              const failoverHandler = await createChannelHandler({
+                cfg,
+                channel: failoverChannels[0] as Exclude<OutboundChannel, "none">,
+                to,
+                accountId,
+                replyToId,
+                threadId,
+                deps: params.deps,
+                gifPlayback: params.gifPlayback,
+              }).catch(() => null);
+              if (failoverHandler) {
+                results.push(await failoverHandler.sendMedia(caption, url));
+                continue;
+              }
+            }
+            throw err;
+          }
         }
       }
     } catch (err) {

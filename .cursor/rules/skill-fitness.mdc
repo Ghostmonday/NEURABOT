@@ -1,0 +1,73 @@
+---
+description: MANDATORY skill fitness assessment protocol - all modules must pass fitness gates
+globs: **/*.ts
+alwaysApply: true
+---
+
+# Skill Fitness Functions (MANDATORY FIRMWARE)
+
+## CRITICAL: This is not optional guidance. This is enforced protocol.
+
+**ALL** skills, features, extensions, and modules MUST:
+1. Define a fitness function before being marked complete
+2. Pass fitness assessment before deployment
+3. Undergo periodic re-assessment even after marked "stable"
+4. Re-enter optimization if fitness degrades
+
+## Enforcement Points
+
+- **Scheduler**: MUST NOT mark tasks DONE until fitness function passes
+- **Self-Modify**: MUST prioritize fitness-failing modules over stable ones
+- **Continuous Self-Modify**: MUST include fitness re-assessment in its cycle
+- **Roadmap Observer**: MUST create fitness assessment tasks for all modules
+
+## Fitness Function Template (REQUIRED)
+
+Every module MUST include this in its source file header or adjacent documentation:
+
+```
+SKILL FITNESS (MANDATORY):
+  module: <name>
+  correctness: <externally verifiable outcome — what human would check>
+  reliability: <consecutive successes required — minimum 3>
+  efficiency: <max prompts per successful execution>
+  reAssessmentInterval: <hours between re-checks — default 168 (weekly)>
+  convergence: all three pass for 3 consecutive runs → mark stable
+  degradation: if stable module fails → reset streak, re-enter optimization
+```
+
+## Correctness Metric Selection (MANDATORY PROCESS)
+
+1. Ask: "What would the human check to know this worked?"
+2. That check IS the metric. Not a proxy. Not a log message. The actual outcome.
+3. If you cannot verify it programmatically, the module is INCOMPLETE and MUST NOT be deployed.
+
+## Anti-Patterns (FORBIDDEN as correctness metrics)
+
+- "No errors in logs" — absence of evidence is not evidence
+- "Function returned true" — internal state, not user outcome
+- "Task marked DONE" — scheduler status, not actual result
+- "Build passed" — necessary but not sufficient
+
+## Mandatory Re-Assessment Protocol
+
+**ALL** modules, including those marked "stable", MUST:
+
+1. Run fitness assessment at configured `reAssessmentInterval` (default: weekly)
+2. If assessment fails, immediately reset stability status and re-enter optimization
+3. Log all assessment results to audit store with module name, timestamp, and pass/fail status
+4. The scheduler MUST create re-assessment tasks automatically — do not wait for human request
+
+## Integration Requirements
+
+- **Continuous Self-Modify (§0.2)**: MUST include fitness re-assessment in its cycle
+- **Scheduler**: MUST check fitness status before executing any module
+- **Audit Store**: MUST log all fitness assessments (pass/fail, metrics, timestamps)
+- **Dashboard**: MUST display fitness status per module (stable/unstable/failing)
+
+## Implementation Notes
+
+- Fitness assessments are NOT optional — they are part of the module lifecycle
+- A module without a fitness function is considered INCOMPLETE and MUST NOT be used in production
+- Stable modules that fail re-assessment MUST be immediately flagged and optimized
+- The system MUST prevent "false positives" by requiring 3 consecutive passes before marking stable

@@ -154,7 +154,7 @@ export function validateSowwyEnv(): ValidatedEnv {
   const schedulerResult = SchedulerConfigSchema.safeParse({
     pollIntervalMs: schedulerPoll ? parseInt(schedulerPoll, 10) : fastMode ? 1000 : 5000,
     maxRetries: schedulerRetries ? parseInt(schedulerRetries, 10) : 3,
-    stuckTaskThresholdMs: schedulerStuck ? parseInt(schedulerStuck, 10) : 3600000,
+    stuckTaskThresholdMs: schedulerStuck ? parseInt(schedulerStuck, 10) : 7200000, // 2 hours (was 1 hour) - SELF_MODIFY tasks can legitimately take longer
     maxConcurrentPerPersona: maxConcurrent ? parseInt(maxConcurrent, 10) : fastMode ? 2 : 1,
   });
 

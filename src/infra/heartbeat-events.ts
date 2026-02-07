@@ -42,7 +42,7 @@ export function emitHeartbeatEvent(evt: Omit<HeartbeatEventPayload, "ts">) {
     try {
       listener(enriched);
     } catch {
-      /* ignore */
+      // INTENTIONAL: Heartbeat event listeners are best-effort; failures should not crash the system
     }
   }
 }

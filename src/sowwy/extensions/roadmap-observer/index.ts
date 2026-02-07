@@ -9,6 +9,10 @@
  * - The Brain (§6): Creates and manages sub-tasks via SOWWY
  * - The Hands (§5): Sub-tasks executed by Dev/ChiefOfStaff executors
  * - The Safety Net (§8-9): Approval gates, SMT throttle, audit logging
+ *
+ * FITNESS ASSESSMENT INTEGRATION (README §0.4 - MANDATORY FIRMWARE):
+ * This extension MUST create fitness assessment tasks for all modules.
+ * TODO: Add fitness assessment task creation alongside roadmap sub-tasks.
  */
 
 import fs from "node:fs";
@@ -20,12 +24,16 @@ import type {
   ExtensionLifecycle,
   PersonaExecutor,
 } from "../integration.js";
+import { getChildLogger } from "../../../logging/logger.js";
+import { redactError } from "../../security/redact.js";
 import { parseRoadmap, type Track } from "./parser.js";
 
 const MAX_SUBTASKS_PER_EXECUTION = process.env.SOWWY_FAST_MODE === "true" ? 20 : 10;
 const FOLLOW_UP_INTERVAL_MS =
   process.env.SOWWY_FAST_MODE === "true" ? 15 * 60 * 1000 : 60 * 60 * 1000; // 15 min fast vs 1 hour
 const README_PATH = path.join(process.cwd(), "README.md");
+
+const log = getChildLogger({ subsystem: "roadmap-observer" });
 
 export class RoadmapObserverExtension implements ExtensionLifecycle {
   private foundation: ExtensionFoundation | null = null;
@@ -37,11 +45,11 @@ export class RoadmapObserverExtension implements ExtensionLifecycle {
     const executor = new RoadmapObserverExecutor(foundation);
     foundation.registerPersonaExecutor("ChiefOfStaff", executor);
 
-    console.log("[RoadmapObserver] Extension initialized");
+    log.info("Extension initialized");
   }
 
   async shutdown(): Promise<void> {
-    console.log("[RoadmapObserver] Extension shutting down");
+    log.info("Extension shutting down");
   }
 
   async tick(): Promise<void> {
@@ -51,6 +59,7 @@ export class RoadmapObserverExtension implements ExtensionLifecycle {
 
 class RoadmapObserverExecutor implements PersonaExecutor {
   persona = "ChiefOfStaff";
+  private readonly log = getChildLogger({ subsystem: "roadmap-observer" });
 
   constructor(private foundation: ExtensionFoundation) {}
 
@@ -64,6 +73,11 @@ class RoadmapObserverExecutor implements PersonaExecutor {
       identityContext: string;
       smt: { recordUsage(op: string): void };
       audit: { log(entry: { action: string; details: unknown }): Promise<void> };
+      logger: {
+        info(msg: string, meta?: Record<string, unknown>): void;
+        warn(msg: string, meta?: Record<string, unknown>): void;
+        error(msg: string, meta?: Record<string, unknown>): void;
+      };
     },
   ): Promise<ExecutorResult> {
     try {
@@ -96,6 +110,7 @@ class RoadmapObserverExecutor implements PersonaExecutor {
       try {
         readmeContent = fs.readFileSync(README_PATH, "utf-8");
       } catch (err) {
+        this.log.error("Failed to read README.md", { error: redactError(err) });
         return {
           success: false,
           outcome: "READ_ERROR",
@@ -157,6 +172,7 @@ class RoadmapObserverExecutor implements PersonaExecutor {
           await this.createSubTask(task, track, taskStore, context);
           subtasksCreated++;
         } catch (err) {
+          this.log.warn("Subtask creation failed", { trackId: track.id, error: redactError(err) });
           await context.audit.log({
             action: "subtask_creation_failed",
             details: {
@@ -164,7 +180,6 @@ class RoadmapObserverExecutor implements PersonaExecutor {
               error: err instanceof Error ? err.message : String(err),
             },
           });
-          console.warn(`[RoadmapObserver] Failed to create sub-task for ${track.id}:`, err);
           // Continue to next track
         }
       }
@@ -211,6 +226,7 @@ class RoadmapObserverExecutor implements PersonaExecutor {
         confidence: 0.9,
       };
     } catch (err) {
+      this.log.error("Roadmap observer execution failed", { error: redactError(err) });
       return {
         success: false,
         outcome: "EXECUTION_ERROR",

@@ -10,7 +10,12 @@
  * - Error rates by operation
  */
 
+import { promises as fs } from "node:fs";
+import { join } from "node:path";
+import type { CircuitBreakerRegistry } from "../integrations/circuit-breaker.js";
 import type { SowwyMetrics, MetricsCollector } from "./metrics.js";
+import { getChildLogger } from "../../logging/logger.js";
+import { redactError } from "../security/redact.js";
 
 // ============================================================================
 // In-Memory Metrics Collector
@@ -21,9 +26,122 @@ export class InMemoryMetricsCollector implements MetricsCollector {
   private gauges: Record<string, number> = {};
   private timings: Record<string, number[]> = {};
   private startTime: number;
+  private circuitBreakerRegistry: CircuitBreakerRegistry | null = null;
+  private metricsHistoryPath: string | null = null;
+  private snapshotInterval: NodeJS.Timeout | null = null;
+  private readonly MAX_HISTORY_LINES = 10_000;
+  private readonly log = getChildLogger({ subsystem: "metrics-collector" });
 
-  constructor() {
+  constructor(circuitBreakerRegistry?: CircuitBreakerRegistry, metricsHistoryPath?: string) {
     this.startTime = Date.now();
+    this.circuitBreakerRegistry = circuitBreakerRegistry ?? null;
+    this.metricsHistoryPath = metricsHistoryPath ?? null;
+    if (this.metricsHistoryPath) {
+      this.startPeriodicSnapshots();
+    }
+  }
+
+  setCircuitBreakerRegistry(registry: CircuitBreakerRegistry): void {
+    this.circuitBreakerRegistry = registry;
+  }
+
+  setMetricsHistoryPath(path: string): void {
+    this.metricsHistoryPath = path;
+    if (!this.snapshotInterval) {
+      this.startPeriodicSnapshots();
+    }
+  }
+
+  private startPeriodicSnapshots(): void {
+    if (!this.metricsHistoryPath) {
+      return;
+    }
+    // Write snapshot every 5 minutes
+    this.snapshotInterval = setInterval(
+      () => {
+        void this.writeSnapshot();
+      },
+      5 * 60 * 1000,
+    );
+  }
+
+  private async writeSnapshot(): Promise<void> {
+    if (!this.metricsHistoryPath) {
+      return;
+    }
+    try {
+      const metrics = this.getMetrics();
+      const snapshot = {
+        timestamp: Date.now(),
+        metrics,
+      };
+      const line = JSON.stringify(snapshot) + "\n";
+      await fs.appendFile(this.metricsHistoryPath, line, "utf8");
+      await this.rotateHistoryIfNeeded();
+    } catch (err) {
+      this.log.warn("Failed to write snapshot", { error: redactError(err) });
+    }
+  }
+
+  private async rotateHistoryIfNeeded(): Promise<void> {
+    if (!this.metricsHistoryPath) {
+      return;
+    }
+    try {
+      const content = await fs.readFile(this.metricsHistoryPath, "utf8");
+      const lines = content.split("\n").filter((l) => l.trim());
+      if (lines.length > this.MAX_HISTORY_LINES) {
+        // Keep only the most recent MAX_HISTORY_LINES
+        const recentLines = lines.slice(-this.MAX_HISTORY_LINES);
+        await fs.writeFile(this.metricsHistoryPath, recentLines.join("\n") + "\n", "utf8");
+      }
+    } catch (err) {
+      // File might not exist yet, ignore
+      if ((err as { code?: string }).code !== "ENOENT") {
+        this.log.warn("Failed to rotate history", { error: redactError(err) });
+      }
+    }
+  }
+
+  /**
+   * Get metrics history within a time window
+   */
+  async getMetricsHistory(
+    hours: number,
+  ): Promise<Array<{ timestamp: number; metrics: SowwyMetrics }>> {
+    if (!this.metricsHistoryPath) {
+      return [];
+    }
+    try {
+      const content = await fs.readFile(this.metricsHistoryPath, "utf8");
+      const lines = content.split("\n").filter((l) => l.trim());
+      const cutoffTime = Date.now() - hours * 60 * 60 * 1000;
+      const snapshots: Array<{ timestamp: number; metrics: SowwyMetrics }> = [];
+      for (const line of lines) {
+        try {
+          const snapshot = JSON.parse(line) as { timestamp: number; metrics: SowwyMetrics };
+          if (snapshot.timestamp >= cutoffTime) {
+            snapshots.push(snapshot);
+          }
+        } catch {
+          // INTENTIONAL: Skip invalid JSON lines in history file (corrupted entries are non-fatal)
+        }
+      }
+      return snapshots;
+    } catch (err) {
+      if ((err as { code?: string }).code === "ENOENT") {
+        return [];
+      }
+      this.log.warn("Failed to read history", { error: redactError(err) });
+      return [];
+    }
+  }
+
+  destroy(): void {
+    if (this.snapshotInterval) {
+      clearInterval(this.snapshotInterval);
+      this.snapshotInterval = null;
+    }
   }
 
   // Increment counters
@@ -127,7 +245,7 @@ export class InMemoryMetricsCollector implements MetricsCollector {
       },
 
       // Circuit breaker metrics
-      circuitBreakerStates: {},
+      circuitBreakerStates: this.getCircuitBreakerStates(),
 
       // Error metrics
       errorRateByOperation: {},
@@ -155,6 +273,18 @@ export class InMemoryMetricsCollector implements MetricsCollector {
       }
     }
     return result;
+  }
+
+  private getCircuitBreakerStates(): Record<string, string> {
+    if (!this.circuitBreakerRegistry) {
+      return {};
+    }
+    const states: Record<string, string> = {};
+    const allStates = this.circuitBreakerRegistry.getAllStates();
+    for (const [name, state] of Object.entries(allStates)) {
+      states[name] = state.state;
+    }
+    return states;
   }
 }
 

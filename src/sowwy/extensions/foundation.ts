@@ -1,9 +1,11 @@
+import type { Logger as TsLogger } from "tslog";
 import type { IdentityCategory, IdentityStore } from "../identity/store.js";
 import type { TaskScheduler } from "../mission-control/scheduler.js";
 import type { PersonaOwner, TaskCreateInput, TaskUpdateInput } from "../mission-control/schema.js";
 import type { AuditLogEntry, AuditStore, TaskStore } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 import type { ExtensionFoundation, PersonaExecutor } from "./integration.js";
+import { getChildLogger } from "../../logging/logger.js";
 import { CircuitBreakerRegistry } from "../integrations/circuit-breaker.js";
 
 /**
@@ -43,6 +45,13 @@ export class ExtensionFoundationImpl implements ExtensionFoundation {
         throw new Error(`Executor for ${persona} cannot handle task ${task.taskId}`);
       }
 
+      // Create task-specific logger with metadata
+      const taskLogger = getChildLogger({
+        subsystem: "sowwy-executor",
+        taskId: task.taskId,
+        persona,
+      });
+
       return await executor.execute(task, {
         identityContext: context,
         smt: { recordUsage: (op) => this.recordUsage(op) },
@@ -59,6 +68,7 @@ export class ExtensionFoundationImpl implements ExtensionFoundation {
             });
           },
         },
+        logger: taskLogger as TsLogger<Record<string, unknown>>,
       });
     });
   }

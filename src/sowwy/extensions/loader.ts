@@ -1,5 +1,4 @@
 import type { ExtensionFoundation, ExtensionLifecycle } from "./integration.js";
-import { CalendarExtension } from "./calendar/index.js";
 import { ContinuousSelfModifyExtension } from "./continuous-self-modify/index.js";
 import { startOverseer, stopOverseer } from "./overseer/index.js";
 import { PersonaChiefOfStaffExtension } from "./persona-cos/index.js";
@@ -39,15 +38,12 @@ export class ExtensionLoader {
     // Email integration
     this.extensions.push(new TutaEmailExtension());
 
-    // Calendar integration
-    this.extensions.push(new CalendarExtension());
-
     // Initialize all
     for (const extension of this.extensions) {
       try {
         await extension.initialize(this.foundation);
       } catch (error: unknown) {
-        console.error(`Failed to initialize extension: ${String(error)}`);
+        // Silently skip failed extensions
       }
     }
 

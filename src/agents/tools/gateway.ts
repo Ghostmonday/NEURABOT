@@ -22,7 +22,7 @@ export function resolveGatewayOptions(opts?: GatewayCallOptions) {
   const timeoutMs =
     typeof opts?.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
       ? Math.max(1, Math.floor(opts.timeoutMs))
-      : 10_000;
+      : 30_000;
   return { url, token, timeoutMs };
 }
 
@@ -33,15 +33,31 @@ export async function callGatewayTool<T = Record<string, unknown>>(
   extra?: { expectFinal?: boolean },
 ) {
   const gateway = resolveGatewayOptions(opts);
-  return await callGateway<T>({
-    url: gateway.url,
-    token: gateway.token,
-    method,
-    params,
-    timeoutMs: gateway.timeoutMs,
-    expectFinal: extra?.expectFinal,
-    clientName: GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT,
-    clientDisplayName: "agent",
-    mode: GATEWAY_CLIENT_MODES.BACKEND,
-  });
+  const maxRetries = 2;
+  const backoffMs = [1_000, 3_000];
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await callGateway<T>({
+        url: gateway.url,
+        token: gateway.token,
+        method,
+        params,
+        timeoutMs: gateway.timeoutMs,
+        expectFinal: extra?.expectFinal,
+        clientName: GATEWAY_CLIENT_NAMES.GATEWAY_CLIENT,
+        clientDisplayName: "agent",
+        mode: GATEWAY_CLIENT_MODES.BACKEND,
+      });
+    } catch (err) {
+      lastError = err;
+      const isTimeout = String(err).includes("timeout");
+      if (!isTimeout || attempt >= maxRetries) {
+        throw err;
+      }
+      await new Promise((r) => setTimeout(r, backoffMs[attempt] ?? 3_000));
+    }
+  }
+  throw lastError;
 }

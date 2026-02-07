@@ -27,19 +27,25 @@ module.exports = {
       cwd: __dirname,
 
       // Environment
-      node_args: "--enable-source-maps",
+      node_args: "--enable-source-maps --max-old-space-size=896",
       env: {
         NODE_ENV: "production",
         // TODO(healthchecks): Get your free ping URL from https://healthchecks.io
         // Then uncomment and paste below:
         // HEALTHCHECKS_URL: "https://hc-ping.com/YOUR-UUID-HERE",
+        // PostgreSQL configuration (uncomment after running scripts/setup-postgres.sh)
+        // SOWWY_POSTGRES_HOST: "127.0.0.1",
+        // SOWWY_POSTGRES_PORT: "5432",
+        // SOWWY_POSTGRES_USER: "sowwy",
+        // SOWWY_POSTGRES_PASSWORD: "<password-from-setup-script>",
+        // SOWWY_POSTGRES_DB: "sowwy",
       },
 
       // Restart behavior
       autorestart: true,
       watch: false,
-      max_restarts: 10,
-      min_uptime: "10s",
+      max_restarts: 0, // 0 = unlimited restarts (PM2 convention) - ensures continuous operation
+      min_uptime: "5s", // Reduced so normal restarts (config reloads, self-modify reloads) don't count against restart budget
       restart_delay: 5000, // 5s between restarts
 
       // Memory management (high-throughput: increased to 1024M)
@@ -59,6 +65,18 @@ module.exports = {
 
       // Source maps for better stack traces
       source_map_support: true,
+    },
+    {
+      name: "neurabot-sentinel",
+      script: "scripts/pm2-sentinel.cjs",
+      cwd: __dirname,
+      autorestart: true,
+      max_restarts: 3,
+      restart_delay: 5000,
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      error_file: "./logs/sentinel-error.log",
+      out_file: "./logs/sentinel-out.log",
+      merge_logs: true,
     },
   ],
 };

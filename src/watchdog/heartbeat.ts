@@ -17,6 +17,11 @@
  *   3. Add to ecosystem.config.cjs env section
  */
 
+import { getChildLogger } from "../logging/logger.js";
+import { redactError } from "../sowwy/security/redact.js";
+
+const log = getChildLogger({ subsystem: "watchdog-heartbeat" });
+
 const HEALTHCHECKS_URL = process.env.HEALTHCHECKS_URL || "";
 const HEARTBEAT_INTERVAL_MS = parseInt(process.env.HEARTBEAT_INTERVAL_MS || "900000", 10); // 15 min
 const HEALTH_CHECK_INTERVAL_MS = parseInt(process.env.HEALTH_CHECK_INTERVAL_MS || "3600000", 10); // 60 min
@@ -41,13 +46,13 @@ async function sendHeartbeat(): Promise<void> {
     });
 
     if (response.ok) {
-      console.log(`[Heartbeat] Ping sent successfully at ${new Date().toISOString()}`);
+      log.info("Ping sent successfully", { timestamp: new Date().toISOString() });
     } else {
-      console.warn(`[Heartbeat] Ping failed with status ${response.status}`);
+      log.warn("Ping failed", { status: response.status });
     }
   } catch (error) {
     // Catch all errors (DNS, timeout, network) - do NOT crash the bot
-    console.warn(`[Heartbeat] Ping failed:`, error instanceof Error ? error.message : error);
+    log.warn("Ping failed", { error: redactError(error) });
   }
 }
 
@@ -62,9 +67,12 @@ function performHealthCheck(): void {
   const heapUsedMB = (memoryUsage.heapUsed / 1024 / 1024).toFixed(2);
   const rssMB = (memoryUsage.rss / 1024 / 1024).toFixed(2);
 
-  console.log(
-    `[HealthCheck] Status: OK | Uptime: ${uptimeHours}h | Heap: ${heapUsedMB}MB | RSS: ${rssMB}MB`,
-  );
+  log.info("Health check status", {
+    status: "OK",
+    uptimeHours: parseFloat(uptimeHours),
+    heapUsedMB: parseFloat(heapUsedMB),
+    rssMB: parseFloat(rssMB),
+  });
 }
 
 /**
@@ -76,24 +84,20 @@ export function startWatchdog(): void {
 
   // External heartbeat (Healthchecks.io)
   if (HEALTHCHECKS_URL) {
-    console.log(
-      `[Watchdog] Starting external heartbeat (interval: ${HEARTBEAT_INTERVAL_MS / 1000}s)`,
-    );
+    log.info("Starting external heartbeat", { intervalSeconds: HEARTBEAT_INTERVAL_MS / 1000 });
     // Send initial ping immediately
     sendHeartbeat();
     heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
   } else {
-    console.log("[Watchdog] HEALTHCHECKS_URL not set, external heartbeat disabled");
+    log.info("HEALTHCHECKS_URL not set, external heartbeat disabled");
   }
 
   // Internal health check
-  console.log(
-    `[Watchdog] Starting internal health check (interval: ${HEALTH_CHECK_INTERVAL_MS / 1000}s)`,
-  );
+  log.info("Starting internal health check", { intervalSeconds: HEALTH_CHECK_INTERVAL_MS / 1000 });
   performHealthCheck(); // Initial check
   healthCheckTimer = setInterval(performHealthCheck, HEALTH_CHECK_INTERVAL_MS);
 
-  console.log("[Watchdog] Watchdog system started");
+  log.info("Watchdog system started");
 }
 
 /**
@@ -108,7 +112,7 @@ export function stopWatchdog(): void {
     clearInterval(healthCheckTimer);
     healthCheckTimer = null;
   }
-  console.log("[Watchdog] Watchdog system stopped");
+  log.info("Watchdog system stopped");
 }
 
 /**

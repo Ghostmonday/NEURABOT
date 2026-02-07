@@ -16,6 +16,7 @@ import type {
 } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
 import type { GatewayContext } from "./rpc-methods.js";
+import { getChildLogger } from "../../logging/logger.js";
 import { PersonaOwner } from "../mission-control/schema.js";
 // Persona executors
 import { createChiefOfStaffPersonaSkill } from "../personas/cos-skill.js";
@@ -30,6 +31,11 @@ export interface SowwyGatewayConfig {
    */
   enablePersonas: boolean;
 }
+
+/**
+ * Module-level logger for gateway startup
+ */
+const log = getChildLogger({ subsystem: "sowwy-gateway" });
 
 /**
  * Initialize SOWWY gateway components
@@ -47,7 +53,7 @@ export async function initializeSowwyGateway(
     ...config,
   };
 
-  console.log("[SowwyGateway] Initializing...");
+  log.info("Initializing...");
 
   // Register persona executors
   if (finalConfig.enablePersonas) {
@@ -102,7 +108,11 @@ export async function initializeSowwyGateway(
  * Register all persona executors with the scheduler
  */
 function registerPersonaExecutors(scheduler: TaskScheduler): void {
-  console.log("[SowwyGateway] Registering persona executors...");
+  log.info("Registering persona executors...");
+
+  // Helper to create task-specific logger
+  const createTaskLogger = (persona: string, taskId: string) =>
+    getChildLogger({ subsystem: "sowwy-gateway", persona, taskId });
 
   // Register Dev persona
   const devExecutor = createDevPersonaSkill();
@@ -110,13 +120,20 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
     if (!devExecutor.canHandle(task)) {
       throw new Error(`Dev executor cannot handle task ${task.taskId}`);
     }
+    const taskLog = createTaskLogger("Dev", task.taskId);
     return devExecutor.execute(task, {
       identityContext: context,
-      smt: { recordUsage: (op) => console.log(`[Dev] SMT: ${op}`) },
+      smt: { recordUsage: (op) => taskLog.debug("SMT usage", { operation: op }) },
       audit: {
         log: async (entry) => {
-          console.log(`[Dev] Audit: ${entry.action}`);
+          taskLog.debug("Audit", { action: entry.action });
         },
+      },
+      logger: taskLog as {
+        info(msg: string, meta?: Record<string, unknown>): void;
+        warn(msg: string, meta?: Record<string, unknown>): void;
+        error(msg: string, meta?: Record<string, unknown>): void;
+        debug(msg: string, meta?: Record<string, unknown>): void;
       },
     });
   });
@@ -127,13 +144,20 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
     if (!legalOpsExecutor.canHandle(task)) {
       throw new Error(`LegalOps executor cannot handle task ${task.taskId}`);
     }
+    const taskLog = createTaskLogger("LegalOps", task.taskId);
     return legalOpsExecutor.execute(task, {
       identityContext: context,
-      smt: { recordUsage: (op) => console.log(`[LegalOps] SMT: ${op}`) },
+      smt: { recordUsage: (op) => taskLog.debug("SMT usage", { operation: op }) },
       audit: {
         log: async (entry) => {
-          console.log(`[LegalOps] Audit: ${entry.action}`);
+          taskLog.debug("Audit", { action: entry.action });
         },
+      },
+      logger: taskLog as {
+        info(msg: string, meta?: Record<string, unknown>): void;
+        warn(msg: string, meta?: Record<string, unknown>): void;
+        error(msg: string, meta?: Record<string, unknown>): void;
+        debug(msg: string, meta?: Record<string, unknown>): void;
       },
     });
   });
@@ -144,13 +168,20 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
     if (!cosExecutor.canHandle(task)) {
       throw new Error(`ChiefOfStaff executor cannot handle task ${task.taskId}`);
     }
+    const taskLog = createTaskLogger("ChiefOfStaff", task.taskId);
     return cosExecutor.execute(task, {
       identityContext: context,
-      smt: { recordUsage: (op) => console.log(`[ChiefOfStaff] SMT: ${op}`) },
+      smt: { recordUsage: (op) => taskLog.debug("SMT usage", { operation: op }) },
       audit: {
         log: async (entry) => {
-          console.log(`[ChiefOfStaff] Audit: ${entry.action}`);
+          taskLog.debug("Audit", { action: entry.action });
         },
+      },
+      logger: taskLog as {
+        info(msg: string, meta?: Record<string, unknown>): void;
+        warn(msg: string, meta?: Record<string, unknown>): void;
+        error(msg: string, meta?: Record<string, unknown>): void;
+        debug(msg: string, meta?: Record<string, unknown>): void;
       },
     });
   });
@@ -161,18 +192,25 @@ function registerPersonaExecutors(scheduler: TaskScheduler): void {
     if (!rndExecutor.canHandle(task)) {
       throw new Error(`RnD executor cannot handle task ${task.taskId}`);
     }
+    const taskLog = createTaskLogger("RnD", task.taskId);
     return rndExecutor.execute(task, {
       identityContext: context,
-      smt: { recordUsage: (op) => console.log(`[RnD] SMT: ${op}`) },
+      smt: { recordUsage: (op) => taskLog.debug("SMT usage", { operation: op }) },
       audit: {
         log: async (entry) => {
-          console.log(`[RnD] Audit: ${entry.action}`);
+          taskLog.debug("Audit", { action: entry.action });
         },
+      },
+      logger: taskLog as {
+        info(msg: string, meta?: Record<string, unknown>): void;
+        warn(msg: string, meta?: Record<string, unknown>): void;
+        error(msg: string, meta?: Record<string, unknown>): void;
+        debug(msg: string, meta?: Record<string, unknown>): void;
       },
     });
   });
 
-  console.log("[SowwyGateway] Registered 4 persona executors: Dev, LegalOps, ChiefOfStaff, RnD");
+  log.info("Registered 4 persona executors: Dev, LegalOps, ChiefOfStaff, RnD");
 }
 
 /**

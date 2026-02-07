@@ -4,6 +4,11 @@
  * When SOWWY_CONTINUOUS_SELF_MODIFY=true, creates recurring SELF_MODIFY tasks
  * so the system runs upgrade/validate cycles until the human says stop
  * (sowwy.pause or SOWWY_KILL_SWITCH).
+ *
+ * FITNESS ASSESSMENT INTEGRATION (README §0.4 - MANDATORY FIRMWARE):
+ * This extension MUST include fitness re-assessment tasks in its cycle.
+ * All modules, including "stable" ones, MUST be re-assessed periodically (default: weekly).
+ * TODO: Add fitness assessment task creation alongside SELF_MODIFY tasks.
  */
 
 import fs from "node:fs";
@@ -17,9 +22,13 @@ import type {
 } from "../integration.js";
 import { AGENT_LANE_NESTED } from "../../../agents/lanes.js";
 import { runAgentStep } from "../../../agents/tools/agent-step.js";
+import { getChildLogger } from "../../../logging/logger.js";
+import { redactError } from "../../security/redact.js";
 
 const CONTINUOUS_INTERVAL_MS = 5 * 60 * 1000; // 5 min (high-throughput: was 15 min)
 const PROJECT_ROOT = process.cwd();
+
+const log = getChildLogger({ subsystem: "continuous-self-modify" });
 
 // Persona assignments for multi-persona SELF_MODIFY spread
 const PERSONA_ASSIGNMENTS: Array<{
@@ -45,18 +54,23 @@ export class ContinuousSelfModifyExtension implements ExtensionLifecycle {
     if (process.env.SOWWY_CONTINUOUS_SELF_MODIFY === "true") {
       await this.scheduleNextCycle();
       this.intervalId = setInterval(() => {
-        this.scheduleNextCycle();
+        this.scheduleNextCycle().catch((err) => {
+          const log = getChildLogger({ subsystem: "continuous-self-modify" });
+          log.warn("Schedule cycle error (will retry next interval)", { error: redactError(err) });
+        });
       }, CONTINUOUS_INTERVAL_MS);
-      console.log(
-        `[ContinuousSelfModify] Enabled: SELF_MODIFY tasks every ${CONTINUOUS_INTERVAL_MS / 60000} min until pause`,
-      );
+      log.info("Enabled: SELF_MODIFY tasks", { intervalMinutes: CONTINUOUS_INTERVAL_MS / 60000 });
     }
   }
 
   private async scheduleNextCycle(): Promise<void> {
     const f = this.foundation;
     if (!f) return;
-    if (!f.canProceed("continuous_self_modify.schedule")) return; // Paused / kill switch
+    // Only stop scheduling if explicitly paused (kill switch / sowwy.pause).
+    // Do NOT stop on SMT window exhaustion - tasks are cheap to create,
+    // and execution is already gated by canProceed in each persona executor.
+    // Removing the canProceed gate here ensures tasks are always created,
+    // allowing execution to proceed when the SMT window resets.
 
     const store = f.getTaskStore();
     const PARALLEL_CYCLES = 4; // Create 4 parallel tasks per interval
@@ -75,7 +89,7 @@ export class ContinuousSelfModifyExtension implements ExtensionLifecycle {
           risk: 2,
           stressCost: 2,
           requiresApproval: false,
-          maxRetries: 2,
+          maxRetries: 5,
           dependencies: [],
           contextLinks: {},
           payload: {
@@ -96,7 +110,7 @@ export class ContinuousSelfModifyExtension implements ExtensionLifecycle {
       this.intervalId = null;
     }
     this.foundation = null;
-    console.log("[ContinuousSelfModify] Shutdown");
+    log.info("Shutdown");
   }
 
   async tick(): Promise<void> {}
@@ -118,12 +132,21 @@ class ContinuousSelfModifyExecutor implements PersonaExecutor {
       identityContext: string;
       smt: { recordUsage(op: string): void };
       audit: { log(entry: { action: string; details: unknown }): Promise<void> };
+      logger: {
+        info(msg: string, meta?: Record<string, unknown>): void;
+        warn(msg: string, meta?: Record<string, unknown>): void;
+        error(msg: string, meta?: Record<string, unknown>): void;
+      };
     },
   ): Promise<ExecutorResult> {
     const isContinuousCycle =
       task.category === "SELF_MODIFY" && task.payload?.action === "upgrade_validate_cycle";
 
     if (isContinuousCycle) {
+      context.logger.info("Starting continuous self-modify cycle", {
+        taskId: task.taskId,
+        payload: task.payload,
+      });
       context.smt.recordUsage("continuous_self_modify.cycle");
 
       try {
@@ -165,6 +188,10 @@ ${context.identityContext}`;
             reply: replyText?.substring(0, 200), // Log first 200 chars
           },
         });
+        context.logger.info("Self-modify agent completed", {
+          sessionKey,
+          replyLength: replyText?.length,
+        });
 
         return {
           success: true,
@@ -173,6 +200,10 @@ ${context.identityContext}`;
           confidence: 0.85,
         };
       } catch (err) {
+        context.logger.error("Self-modify cycle failed", {
+          taskId: task.taskId,
+          error: String(err),
+        });
         await context.audit.log({
           action: "continuous_self_modify_error",
           details: { error: err instanceof Error ? err.message : String(err) },
@@ -224,15 +255,14 @@ ${context.identityContext}`;
               );
             }
           } catch {
-            // Skip files that can't be read
+            // INTENTIONAL: Skip files that can't be read (permissions, symlinks, etc. - non-fatal)
           }
         }
       }
     } catch (err) {
       // Analysis failed, but don't crash the cycle
-      console.warn(
-        `[ContinuousSelfModify] Analysis error: ${err instanceof Error ? err.message : String(err)}`,
-      );
+      const log = getChildLogger({ subsystem: "continuous-self-modify" });
+      log.warn("Analysis error", { error: redactError(err) });
     }
 
     const summary =

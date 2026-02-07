@@ -9,6 +9,7 @@
  * - Task store access
  */
 
+import type { Logger as TsLogger } from "tslog";
 import type { IdentityFragment, SearchResult } from "../identity/fragments.js";
 // Import types from foundation modules
 import type { Task, TaskCreateInput, TaskUpdateInput } from "../mission-control/schema.js";
@@ -112,6 +113,7 @@ export interface PersonaExecutor {
       identityContext: string;
       smt: { recordUsage(op: string): void };
       audit: { log(entry: ExtensionAuditLogEntry): Promise<void> };
+      logger: TsLogger<Record<string, unknown>>;
     },
   ): Promise<ExecutorResult>;
 }

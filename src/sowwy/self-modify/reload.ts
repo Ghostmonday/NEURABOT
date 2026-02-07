@@ -22,6 +22,9 @@ import {
   authorizeGatewaySigusr1Restart,
   scheduleGatewaySigusr1Restart,
 } from "../../infra/restart.js";
+import { getChildLogger } from "../../logging/logger.js";
+
+const log = getChildLogger({ subsystem: "self-modify-reload" });
 
 export interface SelfModifyReloadRequest {
   reason: string;
@@ -107,9 +110,7 @@ export async function requestSelfModifyReload(
     mergedConfig.maxDelay,
   );
 
-  console.log(
-    `[SelfModify] Reload scheduled (consecutive: ${consecutiveReloads}, delay: ${backoffDelay}ms)`,
-  );
+  log.info("Reload scheduled", { consecutiveReloads, delayMs: backoffDelay });
 
   // Write sentinel with rollback info
   await writeRestartSentinel({

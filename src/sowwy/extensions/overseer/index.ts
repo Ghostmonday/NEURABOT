@@ -13,6 +13,9 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { getChildLogger } from "../../../logging/logger.js";
+
+const log = getChildLogger({ subsystem: "overseer" });
 
 export interface PatternMetric {
   patternId: string;
@@ -75,7 +78,7 @@ function loadMetrics(config: OverseerConfig): void {
       metrics = JSON.parse(data);
     }
   } catch (err) {
-    console.warn(`[Overseer] Failed to load metrics: ${err}`);
+    log.warn("Failed to load metrics", { error: String(err) });
     metrics = { patterns: {}, lastRun: 0, totalRuns: 0 };
   }
 }
@@ -89,7 +92,7 @@ function saveMetrics(config: OverseerConfig): void {
     }
     writeFileSync(config.metricsPath, JSON.stringify(metrics, null, 2));
   } catch (err) {
-    console.error(`[Overseer] Failed to save metrics: ${err}`);
+    log.error("Failed to save metrics", { error: String(err) });
   }
 }
 
@@ -151,7 +154,7 @@ export function runOverseerCycle(): void {
   const config = getOverseerConfig();
   loadMetrics(config);
 
-  console.log(`[Overseer] Starting cycle ${metrics.totalRuns + 1}`);
+  log.info("Starting cycle", { cycleNumber: metrics.totalRuns + 1 });
 
   const now = Date.now();
   const staleThreshold = now - config.staleThresholdMs;
@@ -164,7 +167,7 @@ export function runOverseerCycle(): void {
       prunedCount++;
     }
   }
-  console.log(`[Overseer] Pruned ${prunedCount} stale patterns`);
+  log.info("Pruned stale patterns", { count: prunedCount });
 
   // 2. Report on high-value patterns
   let crystallizedCount = 0;
@@ -172,9 +175,11 @@ export function runOverseerCycle(): void {
     const successRate =
       pattern.successCount / Math.max(1, pattern.successCount + pattern.failureCount);
     if (successRate >= config.crystallizationThreshold && pattern.successCount >= 5) {
-      console.log(
-        `[Overseer] Pattern ${id}: ${(successRate * 100).toFixed(0)}% success (${pattern.successCount} wins)`,
-      );
+      log.info("Pattern crystallized", {
+        id,
+        successRate: `${(successRate * 100).toFixed(0)}%`,
+        wins: pattern.successCount,
+      });
       crystallizedCount++;
     }
   }
@@ -184,9 +189,10 @@ export function runOverseerCycle(): void {
   metrics.totalRuns++;
   saveMetrics(config);
 
-  console.log(
-    `[Overseer] Cycle complete. Patterns: ${Object.keys(metrics.patterns).length}, Crystallized candidates: ${crystallizedCount}`,
-  );
+  log.info("Cycle complete", {
+    patternCount: Object.keys(metrics.patterns).length,
+    crystallizedCount,
+  });
 }
 
 /**
@@ -194,14 +200,14 @@ export function runOverseerCycle(): void {
  */
 export function startOverseer(): void {
   if (timer) {
-    console.log("[Overseer] Already running");
+    log.info("Already running");
     return;
   }
 
   const config = getOverseerConfig();
   loadMetrics(config);
 
-  console.log(`[Overseer] Starting (interval: ${config.intervalMs}ms)`);
+  log.info("Starting", { intervalMs: config.intervalMs });
 
   // Run immediately on start
   runOverseerCycle();
@@ -217,7 +223,7 @@ export function stopOverseer(): void {
   if (timer) {
     clearInterval(timer);
     timer = null;
-    console.log("[Overseer] Stopped");
+    log.info("Stopped");
   }
 }
 

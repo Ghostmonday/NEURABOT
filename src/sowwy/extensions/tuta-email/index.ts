@@ -14,6 +14,7 @@ import type {
 } from "../integration.js";
 import { AGENT_LANE_NESTED } from "../../../agents/lanes.js";
 import { runAgentStep } from "../../../agents/tools/agent-step.js";
+import { getChildLogger } from "../../../logging/logger.js";
 import { ImportanceClassifier } from "./classifier.js";
 import { ImapAdapter } from "./imap-adapter.js";
 import { TelegramNotifier } from "./telegram-notify.js";
@@ -25,6 +26,8 @@ export class TutaEmailExtension implements ExtensionLifecycle {
   private notifier: TelegramNotifier | null = null;
   private pollInterval: ReturnType<typeof setInterval> | null = null;
 
+  private log = getChildLogger({ subsystem: "tuta-email" });
+
   async initialize(foundation: ExtensionFoundation): Promise<void> {
     this.foundation = foundation;
 
@@ -34,7 +37,7 @@ export class TutaEmailExtension implements ExtensionLifecycle {
     const imapPassword = process.env.TUTA_IMAP_PASSWORD;
 
     if (!imapHost || !imapUser || !imapPassword) {
-      console.warn("Tuta Email Extension: Missing IMAP credentials in environment variables.");
+      // Silently skip initialization if credentials are missing
       return;
     }
 
@@ -60,14 +63,14 @@ export class TutaEmailExtension implements ExtensionLifecycle {
     const pollIntervalMs = parseInt(process.env.TUTA_POLL_INTERVAL_MS || "60000", 10);
     this.pollInterval = setInterval(() => {
       this.pollForNewEmails().catch((error) => {
-        console.error("[TutaEmail] Poll error:", error);
+        this.log.error("Poll error", { error: String(error) });
       });
     }, pollIntervalMs);
 
     // Initial poll
     await this.pollForNewEmails();
 
-    console.log("Tuta Email Extension: Initialized successfully.");
+    // Extension initialized successfully
   }
 
   async shutdown(): Promise<void> {
@@ -100,7 +103,7 @@ export class TutaEmailExtension implements ExtensionLifecycle {
         }
       }
     } catch (error) {
-      console.error("[TutaEmail] Error polling emails:", error);
+      this.log.error("Error polling emails", { error: String(error) });
     }
   }
 

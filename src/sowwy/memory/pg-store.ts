@@ -11,7 +11,10 @@
  */
 
 import { Pool } from "pg";
+import { getChildLogger } from "../../logging/logger.js";
 import { redactError } from "../security/redact.js";
+
+const log = getChildLogger({ subsystem: "postgres-memory-store" });
 
 // ============================================================================
 // Types
@@ -102,7 +105,7 @@ export class PostgresMemoryStore {
 
     // Initialize schema
     this.initializeSchema().catch((err) => {
-      console.error("[PostgresMemoryStore] Schema initialization failed:", redactError(err));
+      log.error("Schema initialization failed", { error: redactError(err) });
     });
   }
 
@@ -119,7 +122,7 @@ export class PostgresMemoryStore {
       `)
         .catch(() => {
           // Extension may not be available, continue without it
-          console.warn("[PostgresMemoryStore] pgvector extension not available");
+          log.warn("pgvector extension not available");
         });
 
       // Memory entries table
@@ -291,7 +294,7 @@ export class PostgresMemoryStore {
       return result.rows.map((row) => this.rowToMemoryEntry(row));
     } catch (err) {
       // Fallback if vector search not available
-      console.warn("[PostgresMemoryStore] Vector search failed:", err);
+      log.warn("Vector search failed", { error: String(err) });
       return this.getMemoryByCategory(category ?? "preference", limit);
     } finally {
       client.release();

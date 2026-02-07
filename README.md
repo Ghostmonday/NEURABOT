@@ -18,13 +18,14 @@
 
 This README is the **Ratified Constitution** of NEURABOT: a single Source of Truth synthesizing every architectural decision, safety protocol, and strategic objective. The following self-reinforcing loop defines how NEURABOT operates:
 
-| Role               | Section                                                                                               | Responsibility                                                                                                     |
-| ------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **The Goal**       | [§12 Where to Go from Here](#where-to-go-from-here)                                                   | Strategic roadmap (e.g., "Build iOS App", Tuta Mail, Calendar)                                                     |
-| **The Brain**      | [§6 SOWWY / Mission Control](#sowwy--mission-control)                                                 | Breaks goals into tasks, personas, priority, approval                                                              |
-| **The Hands**      | [§5 Data Flow](#data-flow-from-message-to-response)                                                   | Agent Runner executes code and tools                                                                               |
-| **The Safety Net** | [§9 Self-Modification](#self-modification-system), [§4 Process & Runtime](#process--runtime-topology) | Self-Modify checklist, Watchdog; system doesn't kill itself while learning                                         |
-| **The Throughput** | [§0.3 Computational Throughput Triumph](#03-computational-throughput-triumph)                         | Parallel lanes, concurrent agent sessions, SMT-scalable limits—architecture built for hundreds of prompts per hour |
+| Role                 | Section                                                                                               | Responsibility                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **The Goal**         | [§12 Where to Go from Here](#where-to-go-from-here)                                                   | Strategic roadmap (e.g., "Build iOS App", Tuta Mail, Calendar)                                                     |
+| **The Brain**        | [§6 SOWWY / Mission Control](#sowwy--mission-control)                                                 | Breaks goals into tasks, personas, priority, approval                                                              |
+| **The Hands**        | [§5 Data Flow](#data-flow-from-message-to-response)                                                   | Agent Runner executes code and tools                                                                               |
+| **The Safety Net**   | [§9 Self-Modification](#self-modification-system), [§4 Process & Runtime](#process--runtime-topology) | Self-Modify checklist, Watchdog; system doesn't kill itself while learning                                         |
+| **The Throughput**   | [§0.3 Computational Throughput Triumph](#03-computational-throughput-triumph)                         | Parallel lanes, concurrent agent sessions, SMT-scalable limits—architecture built for hundreds of prompts per hour |
+| **The Quality Gate** | [§0.4 Skill Fitness Functions](#04-skill-fitness-functions-mandatory-firmware)                        | MANDATORY firmware: all modules must pass fitness assessment before deployment and undergo periodic re-assessment  |
 
 **State Synchronization:**
 
@@ -72,6 +73,62 @@ NEURABOT’s architecture is built for **high-throughput, parallel computation**
 - **Executor multiplexing**: Multiple executors per persona (e.g. Continuous Self-Modify, Roadmap Observer, Twilio SMS) can coexist, so diverse work streams run in parallel without blocking one another.
 
 Together, these layers form a **throughput stack**: Constitution (§0.1–§0.2) demands speed and parallelism; the scheduler, lanes, SMT, and executors implement it. The result is an architecture that **celebrates computational throughput**—maximizing the use of high-capacity backends and turning NEURABOT into a true parallel workforce.
+
+### §0.4 Skill Fitness Functions (MANDATORY FIRMWARE)
+
+**CRITICAL: This is not optional guidance. This is enforced protocol.**
+
+**ALL** skills, features, extensions, and modules MUST:
+
+1. Define a fitness function before being marked complete
+2. Pass fitness assessment before deployment
+3. Undergo periodic re-assessment even after marked "stable"
+4. Re-enter optimization if fitness degrades
+
+**Fitness = Correctness × Reliability × Efficiency**
+
+| Dimension       | Definition                                                                                                    | Example                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **Correctness** | The specific output that proves the skill worked. Must be externally verifiable — what would the human check? | Email: recipient's inbox contains the message (IMAP check) |
+| **Reliability** | Consecutive successes without failure. Minimum streak: 3.                                                     | Calendar create: 5/5 events created with correct times     |
+| **Efficiency**  | Prompts consumed per successful execution. Lower is better.                                                   | Roadmap parse: < 0.5 prompts per parse                     |
+
+**Mandatory Re-Assessment Protocol:**
+
+1. **ALL** modules, including those marked "stable", MUST run fitness assessment at configured intervals (default: weekly)
+2. If assessment fails, immediately reset stability status and re-enter optimization
+3. Log all assessment results to audit store with module name, timestamp, and pass/fail status
+4. The scheduler MUST create re-assessment tasks automatically — do not wait for human request
+
+**Convergence Protocol:**
+
+1. Run the skill against its fitness function
+2. Record correctness (pass/fail), reliability (streak count), efficiency (prompts used)
+3. If all three metrics pass threshold for **3 consecutive runs**, mark the skill as **stable**
+4. Once stable, **stop self-optimizing** that skill — move to the next unstable skill
+5. If a stable skill later fails re-assessment, reset its streak and re-enter optimization immediately
+
+**Anti-Patterns** (FORBIDDEN as correctness metrics):
+
+- "No errors in logs" — absence of evidence is not evidence
+- "Function returned true" — internal state, not user outcome
+- "Task marked DONE" — scheduler status, not actual result
+
+**Enforcement Points:**
+
+- **Scheduler**: MUST NOT mark tasks DONE until fitness function passes
+- **Self-Modify (§0.2)**: MUST include fitness re-assessment in its cycle
+- **Continuous Self-Modify**: MUST prioritize fitness-failing modules over stable ones
+- **Roadmap Observer**: MUST create fitness assessment tasks for all modules
+- **Audit Store**: MUST log all fitness assessments (pass/fail, metrics, timestamps)
+- **Dashboard**: MUST display fitness status per module (stable/unstable/failing)
+
+**Implementation Requirements:**
+
+- Fitness assessments are NOT optional — they are part of the module lifecycle
+- A module without a fitness function is considered INCOMPLETE and MUST NOT be used in production
+- Stable modules that fail re-assessment MUST be immediately flagged and optimized
+- The system MUST prevent "false positives" by requiring 3 consecutive passes before marking stable
 
 ---
 

@@ -12,6 +12,8 @@
  * - Keep only actionable insights
  */
 
+import { createHash } from "node:crypto";
+import type { AuditStore } from "../mission-control/store.js";
 import type { LanceDBMemoryStore } from "./lancedb-store.js";
 import type {
   IdentityCategory,
@@ -19,6 +21,7 @@ import type {
   PreferenceEntry,
   MemoryEntry,
 } from "./pg-store.js";
+import { getChildLogger } from "../../logging/logger.js";
 
 // ============================================================================
 // Types
@@ -38,9 +41,12 @@ export interface ConsolidationOptions {
 // ============================================================================
 
 export class MemoryConsolidationService {
+  private readonly log = getChildLogger({ subsystem: "memory-consolidation" });
+
   constructor(
     private pgStore: PostgresMemoryStore,
     private lanceStore: LanceDBMemoryStore,
+    private auditStore?: AuditStore,
   ) {}
 
   /**
@@ -49,14 +55,17 @@ export class MemoryConsolidationService {
   async consolidatePreferences(
     category: IdentityCategory,
     options: ConsolidationOptions = {},
-  ): Promise<void> {
+  ): Promise<{ before: number; after: number; merged: number; verified: boolean }> {
     const minConfidence = options.minConfidence ?? 0.7;
     const minFrequency = options.minFrequency ?? 2;
 
     const preferences = await this.pgStore.getPreferences(category, 1000);
+    const beforeCount = preferences.length;
+    const beforeChecksum = this.computeChecksum(preferences.map((p) => p.id).sort());
 
     // Group by similarity
     const groups = this.groupSimilarPreferences(preferences);
+    let mergedCount = 0;
 
     for (const group of groups) {
       if (group.length < minFrequency) {
@@ -74,8 +83,45 @@ export class MemoryConsolidationService {
           strength: merged.strength,
           evidence: merged.evidence,
         });
+        mergedCount++;
       }
     }
+
+    // Verify consolidation
+    const afterPreferences = await this.pgStore.getPreferences(category, 1000);
+    const afterCount = afterPreferences.length;
+    const afterChecksum = this.computeChecksum(afterPreferences.map((p) => p.id).sort());
+    const verified = afterCount <= beforeCount && afterChecksum !== beforeChecksum;
+
+    if (afterCount > beforeCount) {
+      console.warn(
+        `[Consolidation] Preference count increased unexpectedly: ${beforeCount} -> ${afterCount} (category: ${category})`,
+      );
+    }
+
+    // Log to audit store if available
+    if (this.auditStore) {
+      await this.auditStore
+        .append({
+          taskId: "system",
+          action: "memory.consolidatePreferences",
+          details: {
+            category,
+            beforeCount,
+            afterCount,
+            mergedCount,
+            verified,
+            beforeChecksum,
+            afterChecksum,
+          },
+          performedBy: "system",
+        })
+        .catch((err) => {
+          console.warn(`[Consolidation] Failed to log to audit store:`, err);
+        });
+    }
+
+    return { before: beforeCount, after: afterCount, merged: mergedCount, verified };
   }
 
   /**
@@ -84,11 +130,13 @@ export class MemoryConsolidationService {
   async consolidateMemories(
     category: IdentityCategory,
     options: ConsolidationOptions = {},
-  ): Promise<void> {
+  ): Promise<{ before: number; after: number; merged: number; verified: boolean }> {
     const minConfidence = options.minConfidence ?? 0.7;
     const maxAgeDays = options.maxAgeDays ?? 90;
 
     const memories = await this.pgStore.getMemoryByCategory(category, 1000);
+    const beforeCount = memories.length;
+    const beforeChecksum = this.computeChecksum(memories.map((m) => `${m.id}:${m.content}`).sort());
 
     // Filter by confidence and age
     const now = new Date();
@@ -100,6 +148,8 @@ export class MemoryConsolidationService {
 
     // Group similar memories
     const groups = this.groupSimilarMemories(validMemories);
+    let mergedCount = 0;
+    const expectedReduction = groups.filter((g) => g.length >= 2).length;
 
     for (const group of groups) {
       if (group.length < 2) {
@@ -117,7 +167,54 @@ export class MemoryConsolidationService {
         source: "consolidation",
         verified: false,
       });
+      mergedCount++;
     }
+
+    // Verify consolidation
+    const afterMemories = await this.pgStore.getMemoryByCategory(category, 1000);
+    const afterCount = afterMemories.length;
+    const afterChecksum = this.computeChecksum(
+      afterMemories.map((m) => `${m.id}:${m.content}`).sort(),
+    );
+    const verified =
+      afterCount <= beforeCount &&
+      afterChecksum !== beforeChecksum &&
+      afterCount <= beforeCount - expectedReduction + mergedCount;
+
+    if (afterCount > beforeCount - expectedReduction + mergedCount) {
+      this.log.warn("Memory reduction less than expected", {
+        beforeCount,
+        afterCount,
+        expectedReduction,
+        mergedCount,
+        category,
+      });
+    }
+
+    // Log to audit store if available
+    if (this.auditStore) {
+      await this.auditStore
+        .append({
+          taskId: "system",
+          action: "memory.consolidateMemories",
+          details: {
+            category,
+            beforeCount,
+            afterCount,
+            mergedCount,
+            expectedReduction,
+            verified,
+            beforeChecksum,
+            afterChecksum,
+          },
+          performedBy: "system",
+        })
+        .catch((err) => {
+          console.warn(`[Consolidation] Failed to log to audit store:`, err);
+        });
+    }
+
+    return { before: beforeCount, after: afterCount, merged: mergedCount, verified };
   }
 
   /**
@@ -276,6 +373,24 @@ export class MemoryConsolidationService {
   /**
    * Run full consolidation for all categories
    */
+  /**
+   * Compute a simple checksum for verification
+   */
+  private computeChecksum(items: string[]): string {
+    const hash = createHash("sha256");
+    hash.update(items.join("|"));
+    return hash.digest("hex").slice(0, 16);
+  }
+
+  /**
+   * Compute a simple checksum for verification
+   */
+  private computeChecksum(items: string[]): string {
+    const hash = createHash("sha256");
+    hash.update(items.join("|"));
+    return hash.digest("hex").slice(0, 16);
+  }
+
   async consolidateAll(options: ConsolidationOptions = {}): Promise<void> {
     const categories: IdentityCategory[] = [
       "goal",

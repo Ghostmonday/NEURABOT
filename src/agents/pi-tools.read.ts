@@ -225,7 +225,10 @@ export function assertRequiredParams(
 
     if (!satisfied) {
       const label = group.label ?? group.keys.join(" or ");
-      throw new Error(`Missing required parameter: ${label}`);
+      const hint = group.keys.includes("path")
+        ? " Provide the absolute file path as the `path` parameter."
+        : "";
+      throw new Error(`Missing required parameter: ${label}.${hint}`);
     }
   }
 }
