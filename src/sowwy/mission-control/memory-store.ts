@@ -16,6 +16,7 @@
  * - This is ONLY for testing/development
  */
 
+import { createHash } from "node:crypto";
 import {
   PersonaOwner,
   Task,
@@ -218,14 +219,19 @@ export class InMemoryTaskStore implements TaskStore {
 
 export class InMemoryAuditStore implements AuditStore {
   private entries: AuditLogEntry[] = [];
+  private lastHash = "GENESIS";
 
-  async append(entry: Omit<AuditLogEntry, "id" | "createdAt">): Promise<AuditLogEntry> {
+  async append(entry: Omit<AuditLogEntry, "id" | "createdAt" | "hash">): Promise<AuditLogEntry> {
+    const createdAt = new Date().toISOString();
+    const hash = this.computeHash(entry, createdAt, this.lastHash);
     const fullEntry: AuditLogEntry = {
       ...entry,
       id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
+      createdAt,
+      hash,
     };
     this.entries.push(fullEntry);
+    this.lastHash = hash;
     return fullEntry;
   }
 
@@ -235,6 +241,22 @@ export class InMemoryAuditStore implements AuditStore {
 
   async getRecent(limit: number): Promise<AuditLogEntry[]> {
     return this.entries.slice(-limit);
+  }
+
+  private computeHash(
+    entry: Omit<AuditLogEntry, "id" | "createdAt" | "hash">,
+    createdAt: string,
+    previousHash: string,
+  ): string {
+    const payload = JSON.stringify({
+      taskId: entry.taskId,
+      action: entry.action,
+      details: entry.details,
+      performedBy: entry.performedBy,
+      createdAt,
+      previousHash,
+    });
+    return createHash("sha256").update(payload).digest("hex");
   }
 }
 

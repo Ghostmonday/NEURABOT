@@ -17,6 +17,7 @@
  * - Audit logs never deleted
  */
 
+import { createHash } from "node:crypto";
 import { Pool, type PoolClient } from "pg";
 import type {
   AuditLogEntry,
@@ -94,6 +95,7 @@ interface AuditRow {
   details: Record<string, unknown> | string;
   performed_by: string;
   created_at: string;
+  hash: string | null;
 }
 
 /** PG query result row shape for decision_log table */
@@ -206,8 +208,11 @@ export class PostgresTaskStore implements TaskStore {
           action VARCHAR(100) NOT NULL,
           details JSONB NOT NULL DEFAULT '{}',
           performed_by VARCHAR(255) NOT NULL,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          hash VARCHAR(64)
         );
+
+        ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS hash VARCHAR(64);
 
         CREATE INDEX IF NOT EXISTS idx_audit_task_id ON audit_log(task_id);
         CREATE INDEX IF NOT EXISTS idx_audit_created_at ON audit_log(created_at DESC);
@@ -746,16 +751,26 @@ class PostgresAuditStore implements AuditStore {
   }
 
   async append(
-    entry: Omit<AuditLogEntry, "id" | "createdAt">,
+    entry: Omit<AuditLogEntry, "id" | "createdAt" | "hash">,
     client?: PoolClient,
   ): Promise<AuditLogEntry> {
     const query = `
-      INSERT INTO audit_log (task_id, action, details, performed_by)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO audit_log (task_id, action, details, performed_by, created_at, hash)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
 
-    const values = [entry.taskId, entry.action, JSON.stringify(entry.details), entry.performedBy];
+    const createdAt = new Date().toISOString();
+    const previousHash = await this.getLatestHash(client);
+    const hash = this.computeHash(entry, createdAt, previousHash ?? "GENESIS");
+    const values = [
+      entry.taskId,
+      entry.action,
+      JSON.stringify(entry.details),
+      entry.performedBy,
+      createdAt,
+      hash,
+    ];
 
     if (client) {
       // Use existing transaction
@@ -794,7 +809,30 @@ class PostgresAuditStore implements AuditStore {
       details: typeof row.details === "string" ? JSON.parse(row.details) : row.details,
       performedBy: row.performed_by,
       createdAt: new Date(row.created_at).toISOString(),
+      hash: row.hash ?? null,
     };
+  }
+
+  private async getLatestHash(client?: PoolClient): Promise<string | null> {
+    const query = "SELECT hash FROM audit_log ORDER BY created_at DESC, id DESC LIMIT 1";
+    const result = client ? await client.query(query) : await this.pool.query(query);
+    return result.rows[0]?.hash ?? null;
+  }
+
+  private computeHash(
+    entry: Omit<AuditLogEntry, "id" | "createdAt" | "hash">,
+    createdAt: string,
+    previousHash: string,
+  ): string {
+    const payload = JSON.stringify({
+      taskId: entry.taskId,
+      action: entry.action,
+      details: entry.details,
+      performedBy: entry.performedBy,
+      createdAt,
+      previousHash,
+    });
+    return createHash("sha256").update(payload).digest("hex");
   }
 }
 

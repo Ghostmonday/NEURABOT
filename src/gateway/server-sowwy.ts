@@ -5,11 +5,13 @@
  * registers Sowwy RPC methods with the gateway. Optionally starts the task scheduler.
  */
 
+import { join } from "node:path";
 import type {
   GatewayRequestHandler,
   GatewayRequestHandlerOptions,
 } from "./server-methods/types.js";
 import { loadConfig } from "../config/config.js";
+import { resolveStateDir } from "../config/paths.js";
 import { getChildLogger } from "../logging/logger.js";
 import { createEmbeddingProvider } from "../memory/embeddings.js";
 import { ExtensionFoundationImpl } from "../sowwy/extensions/foundation.js";
@@ -19,19 +21,15 @@ import {
   createInMemoryStores,
   createLanceDBIdentityStore,
   createPostgresStores,
-  PersonaOwner,
   registerSowwyRPCMethods,
   SMTThrottler,
   TaskScheduler,
   type GatewayContext,
   type IdentityStore,
   type SowwyStores,
-  type Task,
-  type TaskExecutionResult,
 } from "../sowwy/index.js";
 import { validateSowwyEnv } from "../sowwy/security/env-validator.js";
-import { redactError } from "../sowwy/security/redact.js";
-import { redactString } from "../sowwy/security/redact.js";
+import { redactError, redactString } from "../sowwy/security/redact.js";
 import { startWatchdog } from "../watchdog/heartbeat.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 
@@ -217,11 +215,13 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
     writeAccessAllowed: false,
   });
 
+  const stateDir = resolveStateDir(process.env);
   const smt = new SMTThrottler({
     windowMs: env.smt.windowMs,
     maxPrompts: env.smt.maxPrompts,
     targetUtilization: env.smt.targetUtilization,
     reservePercent: env.smt.reservePercent,
+    lockFilePath: join(stateDir, ".sowwy-pause.lock"),
   });
 
   // Kill switch is intentionally NOT auto-applied at startup.
@@ -255,9 +255,6 @@ export async function bootstrapSowwy(): Promise<SowwyBootstrapResult> {
   // Initialize metrics collector with history path
   try {
     const { getGlobalCollector } = await import("../sowwy/monitoring/collector.js");
-    const { resolveStateDir } = await import("../config/paths.js");
-    const { join } = await import("node:path");
-    const stateDir = resolveStateDir(process.env);
     const metricsHistoryPath = join(stateDir, "workspace", "data", "metrics-history.jsonl");
     const collector = getGlobalCollector();
     if ("setMetricsHistoryPath" in collector) {

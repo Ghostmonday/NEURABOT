@@ -66,6 +66,7 @@ export interface AuditLogEntry {
   details: Record<string, unknown>;
   performedBy: string;
   createdAt: string;
+  hash: string | null;
 }
 
 // ============================================================================
@@ -73,7 +74,7 @@ export interface AuditLogEntry {
 // ============================================================================
 
 export interface AuditStore {
-  append(entry: Omit<AuditLogEntry, "id" | "createdAt">): Promise<AuditLogEntry>;
+  append(entry: Omit<AuditLogEntry, "id" | "createdAt" | "hash">): Promise<AuditLogEntry>;
   getByTaskId(taskId: string): Promise<AuditLogEntry[]>;
   getRecent(limit: number): Promise<AuditLogEntry[]>;
 }

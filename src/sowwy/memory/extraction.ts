@@ -10,6 +10,10 @@
 
 import type { LanceDBMemoryStore } from "./lancedb-store.js";
 import type { IdentityCategory, PostgresMemoryStore } from "./pg-store.js";
+import { getChildLogger } from "../../logging/logger.js";
+import { createRedactedLogger } from "../security/redact.js";
+
+const log = createRedactedLogger(getChildLogger({ subsystem: "memory-extraction" }));
 
 // ============================================================================
 // Types
@@ -62,42 +66,47 @@ export class MemoryExtractionPipeline {
     decisions: ExtractedDecision[];
     memories: ExtractedMemory[];
   }> {
-    // Extract explicit preferences
-    const preferences = this.extractPreferences(messages, source);
+    try {
+      // Extract explicit preferences
+      const preferences = this.extractPreferences(messages, source);
 
-    // Extract decisions
-    const decisions = this.extractDecisions(messages);
+      // Extract decisions
+      const decisions = this.extractDecisions(messages);
 
-    // Extract general memory fragments
-    const memories = this.extractMemories(messages, source);
+      // Extract general memory fragments
+      const memories = this.extractMemories(messages, source);
 
-    // Store in PostgreSQL
-    for (const pref of preferences) {
-      await this.pgStore.upsertPreference(pref);
+      // Store in PostgreSQL
+      for (const pref of preferences) {
+        await this.pgStore.upsertPreference(pref);
+      }
+
+      for (const decision of decisions) {
+        await this.pgStore.createDecision({
+          decision: decision.decision,
+          context: decision.context ?? undefined,
+          confidence: decision.confidence ?? undefined,
+        });
+      }
+
+      // Store memory entries with embeddings
+      for (const memory of memories) {
+        const memoryId = await this.pgStore.upsertMemoryEntry({
+          category: memory.category,
+          content: memory.content,
+          confidence: memory.confidence,
+          source: memory.source,
+        });
+
+        // Generate and store embedding
+        await this.lanceStore.addEmbedding(memoryId, memory.category, memory.content);
+      }
+
+      return { preferences, decisions, memories };
+    } catch (error) {
+      log.error("Memory extraction failed", error);
+      throw error;
     }
-
-    for (const decision of decisions) {
-      await this.pgStore.createDecision({
-        decision: decision.decision,
-        context: decision.context ?? undefined,
-        confidence: decision.confidence ?? undefined,
-      });
-    }
-
-    // Store memory entries with embeddings
-    for (const memory of memories) {
-      const memoryId = await this.pgStore.upsertMemoryEntry({
-        category: memory.category,
-        content: memory.content,
-        confidence: memory.confidence,
-        source: memory.source,
-      });
-
-      // Generate and store embedding
-      await this.lanceStore.addEmbedding(memoryId, memory.category, memory.content);
-    }
-
-    return { preferences, decisions, memories };
   }
 
   /**

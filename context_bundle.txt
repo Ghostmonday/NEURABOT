@@ -1,0 +1,484 @@
+
+### FILE: src/sowwy/security/redact.ts (Lines 1-198)
+/**
+ * Sowwy Security - Secret Redaction
+ *
+ * Prevents API keys, tokens, and credentials from appearing in logs, errors, or debug output.
+ *
+ * ⚠️ CRITICAL: This must be applied to ALL logging, error messages, and debug output.
+ *
+ * Patterns:
+ * - MiniMax API keys: sk-cp-*
+ * - Hostinger tokens: various formats
+ * - PostgreSQL passwords: in connection strings
+ * - Generic API keys: apiKey, token, password fields
+ */
+
+// ============================================================================
+// Secret Patterns (regex)
+// ============================================================================
+
+const SECRET_PATTERNS = [
+  // MiniMax API keys
+  /sk-cp-[A-Za-z0-9_-]{40,}/g,
+
+  // Generic API keys (sk-, pk-, etc.)
+  /\b(sk|pk|ak|tk)-[A-Za-z0-9_-]{20,}/gi,
+
+  // Hostinger tokens (various formats)
+  /\bhostinger[_-]?token[=:]\s*[A-Za-z0-9_-]{20,}/gi,
+
+  // PostgreSQL connection strings
+  /postgres:\/\/[^:]+:[^@]+@/gi,
+  /password[=:]\s*['"]?[^'"\s]{8,}['"]?/gi,
+
+  // Environment variable patterns
+  /MINIMAX_API_KEY[=:]\s*[^\s]+/gi,
+  /HOSTINGER_API_TOKEN[=:]\s*[^\s]+/gi,
+  /POSTGRES_PASSWORD[=:]\s*[^\s]+/gi,
+  /API_KEY[=:]\s*[^\s]+/gi,
+  /SECRET[=:]\s*[^\s]+/gi,
+
+  // JSON fields
+  /"apiKey"\s*:\s*"[^"]{10,}"/gi,
+  /"token"\s*:\s*"[^"]{10,}"/gi,
+  /"password"\s*:\s*"[^"]{8,}"/gi,
+  /"secret"\s*:\s*"[^"]{8,}"/gi,
+  /"authToken"\s*:\s*"[^"]{10,}"/gi,
+
+  // Bearer tokens
+  /Bearer\s+[A-Za-z0-9_-]{20,}/gi,
+
+  // SSH keys (partial)
+  /-----BEGIN\s+(?:RSA|EC|OPENSSH)\s+PRIVATE\s+KEY-----[\s\S]{50,}-----END/gi,
+];
+
+// ============================================================================
+// Redaction Functions
+// ============================================================================
+
+/**
+ * Redact secrets from a string
+ */
+export function redactString(text: string): string {
+  if (!text || typeof text !== "string") {
+    return text;
+  }
+
+  let redacted = text;
+
+  for (const pattern of SECRET_PATTERNS) {
+    redacted = redacted.replace(pattern, (match) => {
+      // Keep first 4 chars and last 4 chars for debugging, redact middle
+      if (match.length > 12) {
+        const prefix = match.substring(0, 4);
+        const suffix = match.substring(match.length - 4);
+        return `${prefix}...[REDACTED]...${suffix}`;
+      }
+      return "[REDACTED]";
+    });
+  }
+
+  return redacted;
+}
+
+/**
+ * Redact secrets from an object (recursive)
+ */
+export function redactObject(obj: unknown): unknown {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (typeof obj === "string") {
+    return redactString(obj);
+  }
+
+  if (typeof obj !== "object") {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => redactObject(item));
+  }
+
+  const redacted: Record<string, unknown> = {};
+  const sensitiveKeys = [
+    "apiKey",
+    "api_key",
+    "token",
+    "password",
+    "secret",
+    "authToken",
+    "auth_token",
+    "accessToken",
+    "access_token",
+    "refreshToken",
+    "refresh_token",
+    "privateKey",
+    "private_key",
+    "minimax_api_key",
+    "hostinger_api_token",
+    "postgres_password",
+  ];
+
+  for (const [key, value] of Object.entries(obj)) {
+    const lowerKey = key.toLowerCase();
+
+    // If key suggests sensitive data, redact regardless of value
+    if (sensitiveKeys.some((sk) => lowerKey.includes(sk))) {
+      if (typeof value === "string" && value.length > 8) {
+        redacted[key] = "[REDACTED]";
+      } else {
+        redacted[key] = redactObject(value);
+      }
+    } else {
+      redacted[key] = redactObject(value);
+    }
+  }
+
+  return redacted;
+}
+
+/**
+ * Redact secrets from error objects
+ */
+export function redactError(error: unknown): unknown {
+  if (error instanceof Error) {
+    const redacted = new Error(redactString(error.message));
+    redacted.name = error.name;
+    redacted.stack = error.stack ? redactString(error.stack) : undefined;
+    if (error.cause) {
+      (redacted as Error & { cause?: unknown }).cause = redactError(error.cause);
+    }
+    return redacted;
+  }
+
+  if (typeof error === "string") {
+    return redactString(error);
+  }
+
+  return redactObject(error);
+}
+
+/**
+ * Safe stringify with redaction
+ */
+export function safeStringify(obj: unknown, space?: number): string {
+  try {
+    const redacted = redactObject(obj);
+    return JSON.stringify(redacted, null, space);
+  } catch {
+    return "[REDACTED: stringify failed]";
+  }
+}
+
+/**
+ * Create a redacted logger wrapper
+ */
+export function createRedactedLogger(baseLogger: {
+  info: (msg: string, ...args: unknown[]) => void;
+  error: (msg: string, ...args: unknown[]) => void;
+  warn: (msg: string, ...args: unknown[]) => void;
+  debug: (msg: string, ...args: unknown[]) => void;
+}) {
+  return {
+    info: (msg: string, ...args: unknown[]) => {
+      baseLogger.info(redactString(msg), ...args.map(redactObject));
+    },
+    error: (msg: string, ...args: unknown[]) => {
+      baseLogger.error(redactString(msg), ...args.map(redactError));
+    },
+    warn: (msg: string, ...args: unknown[]) => {
+      baseLogger.warn(redactString(msg), ...args.map(redactObject));
+    },
+    debug: (msg: string, ...args: unknown[]) => {
+      baseLogger.debug(redactString(msg), ...args.map(redactObject));
+    },
+  };
+}
+
+
+### FILE: src/sowwy/smt/throttler.ts (Lines 101,180)
+  canProceed(operation: string, category?: string): boolean {
+    // Safety systems never throttled
+    if (UNTHROTTLED_OPERATIONS.has(operation)) {
+      return true;
+    }
+
+    // Check pause state
+    if (this.state.isPaused) {
+      return false;
+    }
+
+    // Check window reset
+    this.checkWindowReset();
+
+    const limit = this.getEffectiveLimit(category);
+    return this.state.usedInWindow < limit;
+  }
+
+  /**
+   * Record an operation as used
+   */
+  record(operation: string): void {
+    if (UNTHROTTLED_OPERATIONS.has(operation)) {
+      return;
+    }
+
+    this.checkWindowReset();
+    this.state.usedInWindow++;
+  }
+
+  /**
+   * Alias for record()
+   */
+  recordUsage(operation: string): void {
+    this.record(operation);
+  }
+
+  /**
+   * Get current utilization percentage
+   */
+  getUtilization(): number {
+    const limit = this.config.maxPrompts * this.config.targetUtilization;
+    return this.state.usedInWindow / limit;
+  }
+
+  /**
+   * Get remaining operations in current window
+   */
+  getRemaining(): number {
+    const limit = this.config.maxPrompts * this.config.targetUtilization;
+    return Math.max(0, limit - this.state.usedInWindow);
+  }
+
+  /**
+   * Enable burst mode for crisis situations
+   */
+  enableBurstMode(): void {
+    this.state.burstMode = true;
+  }
+
+  /**
+   * Disable burst mode
+   */
+  disableBurstMode(): void {
+    this.state.burstMode = false;
+  }
+
+  /**
+   * Global pause (kill switch active)
+   */
+  pause(): void {
+    this.state.isPaused = true;
+  }
+
+  /**
+   * Resume from pause
+   */
+  resume(): void {
+    this.state.isPaused = false;
+  }
+
+
+### FILE: src/sowwy/extensions/continuous-self-modify/index.ts (Lines 54,112)
+    if (process.env.SOWWY_CONTINUOUS_SELF_MODIFY === "true") {
+      await this.scheduleNextCycle();
+      this.intervalId = setInterval(() => {
+        this.scheduleNextCycle().catch((err) => {
+          const log = getChildLogger({ subsystem: "continuous-self-modify" });
+          log.warn("Schedule cycle error (will retry next interval)", { error: redactError(err) });
+        });
+      }, CONTINUOUS_INTERVAL_MS);
+      log.info("Enabled: SELF_MODIFY tasks", { intervalMinutes: CONTINUOUS_INTERVAL_MS / 60000 });
+    }
+  }
+
+  private async scheduleNextCycle(): Promise<void> {
+    const f = this.foundation;
+    if (!f) return;
+    // Only stop scheduling if explicitly paused (kill switch / sowwy.pause).
+    // Do NOT stop on SMT window exhaustion - tasks are cheap to create,
+    // and execution is already gated by canProceed in each persona executor.
+    // Removing the canProceed gate here ensures tasks are always created,
+    // allowing execution to proceed when the SMT window resets.
+
+    const store = f.getTaskStore();
+    const PARALLEL_CYCLES = 4; // Create 4 parallel tasks per interval
+
+    // High-throughput: create multiple SELF_MODIFY tasks in parallel across personas
+    try {
+      await Promise.all(
+        Array.from({ length: PARALLEL_CYCLES }, (_, i) => {
+          const assignment = PERSONA_ASSIGNMENTS[i % PERSONA_ASSIGNMENTS.length];
+          return store.create({
+            title: `Upgrade & validate cycle #${i + 1} (continuous until stop)`,
+            description: `README §0.2: Parallel self-modify cycle. Focus: ${assignment.focus}`,
+            category: "SELF_MODIFY",
+            personaOwner: assignment.persona,
+            urgency: 4,
+            importance: 4,
+            risk: 2,
+            stressCost: 2,
+            requiresApproval: false,
+            maxRetries: 5,
+            dependencies: [],
+            contextLinks: {},
+            payload: {
+              action: "upgrade_validate_cycle",
+              source: "continuous-self-modify",
+              cycleIndex: i,
+              focus: assignment.focus,
+            },
+            createdBy: "continuous-self-modify",
+          });
+        }),
+      );
+    } catch (error) {
+      log.error("Self-modify cycle task creation failed", {
+        error: error instanceof Error ? error.message : String(error),
+        parallelCycles: PARALLEL_CYCLES,
+      });
+    }
+  }
+
+
+### FILE: src/sowwy/identity/lancedb-store.ts (Lines 130,150)
+  }
+
+  /**
+   * Write a single fragment (extraction pipeline only)
+   */
+  async write(fragment: Omit<IdentityFragment, "id" | "createdAt">): Promise<IdentityFragment> {
+    if (!this.writeAccessAllowed) {
+      throw new Error(
+        "Identity store write access denied. Only the Identity Extraction Pipeline may write fragments.",
+      );
+    }
+
+    await this.ensureInitialized();
+
+    // Generate embedding
+    const embedding = await this.embeddingProvider.embed(
+      `${fragment.category}: ${fragment.content}`,
+    );
+
+    const now = Date.now();
+    const id = randomUUID();
+
+### FILE: src/sowwy/identity/fragments.ts (Lines 1-70)
+/**
+ * Sowwy Identity Model - Fragment Schema Foundation
+ *
+ * ⚠️ IDENTITY INTEGRITY CRITICAL:
+ * - 8 categories are LOCKED - do not add more
+ * - Fewer buckets = higher signal = better retrieval
+ * - More categories = fragmentation = worse context
+ *
+ * ⚠️ WRITE ACCESS RULE (NON-NEGOTIABLE):
+ * Only the Identity Extraction Pipeline may write identity fragments.
+ * Personas, skills, agents, and tools are READ-ONLY.
+ *
+ * WHY THIS MATTERS:
+ * - Self-hallucinated identity: If personas could write, they would
+ *   gradually create an identity that makes their job easier, not accurate.
+ * - Slow corruption: A little bit of drift each day adds up to
+ *   a completely different "you" in a year.
+ * - Feedback loops: Personas optimizing for success might prefer
+ *   fragments that make their tasks easier.
+ *
+ * ENFORCEMENT:
+ * - Runtime check: throw if write attempted from wrong module
+ * - No exceptions, no "just this once", no emergencies that justify it
+ *
+ * ⚠️ CATEGORY DEFINITIONS (don't loosen these):
+ * - goal: What you want to achieve (outcomes)
+ * - constraint: Hard limits, non-negotiables (boundaries)
+ * - preference: Soft preferences, style choices (comfort)
+ * - belief: Values, stances, worldview (principles)
+ * - risk: Known risks, fears, concerns (vulnerabilities)
+ * - capability: Skills, strengths, resources (abilities)
+ * - relationship: People, organizations, dynamics (connections)
+ * - historical_fact: Past events, experiences (lessons)
+ */
+
+// ============================================================================
+// LOCKED Categories (do not add/merge - fewer buckets = higher signal)
+// ============================================================================
+
+/**
+ * ⚠️ DON'T ADD CATEGORIES.
+ * The temptation will be to add "hobbies" or "projects" or "likes".
+ * Don't. Put them in existing categories:
+ * - hobbies → preference
+ * - projects → goal or capability
+ * - likes → preference
+ * - dislikes → constraint or risk
+ */
+export const IdentityCategory = {
+  goal: "goal", // What you want to achieve
+  constraint: "constraint", // Hard limits, non-negotiables
+  preference: "preference", // Soft preferences, style choices
+  belief: "belief", // Values, stances, worldview
+  risk: "risk", // Known risks, fears, concerns
+  capability: "capability", // Skills, strengths, resources
+  relationship: "relationship", // People, organizations, dynamics
+  historical_fact: "historical_fact", // Past events, experiences
+} as const;
+
+export type IdentityCategory = (typeof IdentityCategory)[keyof typeof IdentityCategory];
+
+// ============================================================================
+// Fragment Source Enum
+// ============================================================================
+
+export const FragmentSource = {
+  chat: "chat",
+  email_analysis: "email_analysis",
+  correction: "correction",
+} as const;
+
+
+### FILE: src/sowwy/memory/consolidation.ts (Lines 620,660)
+
+    // Average confidence
+    const avgConfidence = group.reduce((sum, m) => sum + m.confidence, 0) / group.length;
+
+    return {
+      category: group[0].category,
+      content: longest.content,
+      confidence: avgConfidence,
+    };
+  }
+
+  /**
+   * Compute a simple checksum for verification
+   */
+  private computeChecksum(items: string[]): string {
+    const hash = createHash("sha256");
+    hash.update(items.join("|"));
+    return hash.digest("hex").slice(0, 16);
+  }
+
+  /**
+   * Run full consolidation for all categories
+   */
+  async consolidateAll(options: ConsolidationOptions = {}): Promise<void> {
+    const categories: IdentityCategory[] = [
+      "goal",
+      "constraint",
+      "preference",
+      "belief",
+      "risk",
+      "capability",
+      "relationship",
+      "historical_fact",
+    ];
+
+    // Run categories in parallel for better throughput
+    const results = await Promise.allSettled(
+      categories.map(async (category) => {
+        await this.consolidatePreferences(category, options);
+        await this.consolidateMemories(category, options);
+      }),
