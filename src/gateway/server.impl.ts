@@ -37,6 +37,7 @@ import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js
 // TODO: Call checkSelfModifyRollback() early in startup sequence, before channel
 // initialization. If rollback occurred, log warning and continue startup. Add startup
 // health check that runs after all services are initialized.
+import { redactError } from "../sowwy/security/redact.js";
 import { checkSelfModifyRollback } from "../sowwy/self-modify/rollback.js";
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
@@ -210,7 +211,9 @@ export async function startGatewayServer(
           .join("\n")}`,
       );
     } catch (err) {
-      log.warn(`gateway: failed to persist plugin auto-enable changes: ${String(err)}`);
+      log.warn("gateway: failed to persist plugin auto-enable changes", {
+        error: redactError(err),
+      });
     }
   }
 
@@ -222,11 +225,10 @@ export async function startGatewayServer(
   setGatewaySigusr1RestartPolicy({ allowExternal: cfgAtStart.commands?.restart === true });
 
   // Check for self-modify rollback before initializing services.
-  // TODO: Add startup rollback check: if (rollbackResult.rolledBack) log.warn(...).
   // Place after config load but before channel startup (current location is correct).
   const rollbackResult = await checkSelfModifyRollback();
   if (rollbackResult.rolledBack) {
-    log.info(`[Gateway] Rolled back self-modification: ${rollbackResult.reason}`);
+    log.warn(`[Gateway] Rolled back self-modification: ${rollbackResult.reason}`);
   }
 
   initSubagentRegistry();
@@ -506,8 +508,51 @@ export async function startGatewayServer(
     log,
     isNixMode,
   });
-  if (sowwyBootstrap.scheduler) {
+  if (
+    sowwyBootstrap.scheduler &&
+    sowwyBootstrap.identityStore &&
+    sowwyBootstrap.smt &&
+    sowwyBootstrap.stores
+  ) {
     sowwyBootstrap.scheduler.setBroadcaster(broadcast);
+
+    // Run health check and prompt user for autonomous operations
+    const { runHealthCheck, promptStartupApproval, createInitialRoadmapTask } =
+      await import("../sowwy/startup/health-prompt.js");
+
+    const healthCheck = await runHealthCheck({
+      taskStore: sowwyBootstrap.stores.tasks,
+      identityStore: sowwyBootstrap.identityStore,
+      smt: sowwyBootstrap.smt,
+    });
+
+    // Read startup options from environment
+    const autoApprove = process.env.SOWWY_AUTO_APPROVE === "true";
+    const skipPrompt = process.env.SOWWY_SKIP_PROMPT === "true";
+
+    const approved = await promptStartupApproval(healthCheck, { autoApprove, skipPrompt });
+
+    if (approved) {
+      // Create initial Roadmap Observer task if not exists
+      try {
+        const existingTasks = await sowwyBootstrap.stores.tasks.list({
+          category: "MISSION_CONTROL",
+          limit: 1,
+        });
+
+        if (existingTasks.length === 0) {
+          await createInitialRoadmapTask(sowwyBootstrap.stores.tasks, "system");
+        } else {
+          console.log("[SOWWY] Roadmap Observer task already exists. Skipping creation.");
+        }
+      } catch (err) {
+        console.error(
+          `[SOWWY] Warning: Failed to check/create Roadmap Observer task: ${String(err)}`,
+        );
+      }
+    }
+
+    // Start scheduler (runs regardless of approval; it will process existing tasks)
     void sowwyBootstrap.scheduler.start();
     log.info("sowwy: task scheduler started");
   }
@@ -597,9 +642,54 @@ export async function startGatewayServer(
     httpServers,
   });
 
-  // TODO: Add startup health verification. After gateway starts, run health checks to
-  // ensure all services are operational. If health checks fail, trigger automatic
-  // rollback if self-modify restart was recent (<5 minutes).
+  // Startup health verification: After gateway starts, run health checks to
+  // ensure all services are operational. If health checks fail and we just rolled back,
+  // the rollback already happened. If health checks fail and we didn't roll back but
+  // a self-modify restart was detected, we may need to rollback.
+  if (
+    sowwyBootstrap.scheduler &&
+    sowwyBootstrap.stores &&
+    sowwyBootstrap.identityStore &&
+    sowwyBootstrap.smt
+  ) {
+    // Wait a bit for services to stabilize
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Run health checks
+    let healthChecksPassed = true;
+    try {
+      // Check PostgreSQL
+      await sowwyBootstrap.stores.tasks.count();
+      // Check LanceDB
+      await sowwyBootstrap.identityStore.count();
+      // Check SMT
+      sowwyBootstrap.smt.getUtilization();
+      // Check Scheduler
+      const schedulerState = sowwyBootstrap.scheduler.getState();
+      if (!schedulerState?.running) {
+        healthChecksPassed = false;
+      }
+    } catch (error) {
+      healthChecksPassed = false;
+      log.error(
+        `[Gateway] Health check failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    // If health checks failed and we didn't roll back, check if we should
+    if (!healthChecksPassed && !rollbackResult.rolledBack) {
+      // Check if there's a recent restart sentinel (self-modify restart)
+      const rollbackResult2 = await checkSelfModifyRollback();
+      if (rollbackResult2.rolledBack) {
+        log.warn(`[Gateway] Health checks failed, triggered rollback: ${rollbackResult2.reason}`);
+      } else {
+        log.warn(
+          "[Gateway] Health checks failed but no rollback was triggered (may not be self-modify restart)",
+        );
+      }
+    }
+  }
+
   return {
     close: async (opts) => {
       if (diagnosticsEnabled) {

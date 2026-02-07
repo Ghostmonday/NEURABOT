@@ -21,7 +21,7 @@ export class TwilioSMSExtension implements ExtensionLifecycle {
     const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
     if (!accountSid || !authToken || !phoneNumber) {
-      console.warn("Twilio SMS Extension: Missing credentials in environment variables.");
+      // Silently skip initialization if credentials are missing
       return;
     }
 
@@ -31,7 +31,7 @@ export class TwilioSMSExtension implements ExtensionLifecycle {
     foundation.registerPersonaExecutor("Dev", this.createExecutor());
     foundation.registerPersonaExecutor("Sowwy", this.createExecutor()); // Sowwy persona can also send SMS
 
-    console.log("Twilio SMS Extension: Initialized successfully.");
+    // Extension initialized successfully
   }
 
   async shutdown(): Promise<void> {

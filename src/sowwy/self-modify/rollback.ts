@@ -27,6 +27,8 @@
 
 import { execSync } from "node:child_process";
 import { consumeRestartSentinel } from "../../infra/restart-sentinel.js";
+import { getChildLogger } from "../../logging/logger.js";
+import { redactError } from "../security/redact.js";
 
 export type RollbackStrategy = "file-scoped" | "full-checkout" | "git-reset";
 
@@ -47,6 +49,8 @@ const DEFAULT_CONFIG: RollbackConfig = {
   strategy: "file-scoped",
   dryRun: false,
 };
+
+const log = getChildLogger({ subsystem: "self-modify-rollback" });
 
 // Environment variable overrides
 function getEnvConfig(): Partial<RollbackConfig> {
@@ -117,14 +121,14 @@ export async function checkSelfModifyRollback(
   const healthy = await waitForHealthy(mergedConfig.healthCheckTimeoutMs);
 
   if (healthy) {
-    console.log("[SelfModify] Restart successful, health checks passed");
+    log.info("Restart successful, health checks passed");
     return { rolledBack: false };
   }
 
-  console.log(`[SelfModify] Health check failed, rolling back to ${before.rollbackCommit}`);
+  log.info("Health check failed, rolling back", { rollbackCommit: before.rollbackCommit });
 
   if (mergedConfig.dryRun) {
-    console.log("[SelfModify] [DRY RUN] Would execute rollback:");
+    log.info("[DRY RUN] Would execute rollback");
     return { rolledBack: true, reason: "Dry run - would rollback" };
   }
 
@@ -151,7 +155,8 @@ export async function checkSelfModifyRollback(
     }
     return { rolledBack: true, reason: "Health check failed" };
   } catch (err) {
-    console.error("[SelfModify] Rollback failed:", err);
+    const log = getChildLogger({ subsystem: "self-modify-rollback" });
+    log.error("Rollback failed", { error: redactError(err) });
     return { rolledBack: false, reason: "Rollback failed" };
   }
 }
@@ -178,7 +183,7 @@ async function waitForHealthy(timeoutMs: number): Promise<boolean> {
         return true;
       }
     } catch {
-      // Server not up yet
+      // INTENTIONAL: Server not up yet during startup - this is expected during health check polling
     }
     await new Promise((r) => setTimeout(r, delay));
     delay = Math.min(delay * 2, 5000); // Cap at 5s

@@ -10,7 +10,10 @@
  * - Can be overridden via OPENCLAW_SELF_MODIFY_DIFF_THRESHOLD (e.g., "0.9")
  */
 
+import { getChildLogger } from "../../logging/logger.js";
 import { validateSelfModifyPath, getDiffThreshold, isPoweruserModeEnabled } from "./boundaries.js";
+
+const log = getChildLogger({ subsystem: "self-modify-checklist" });
 
 export interface ChecklistResult {
   passed: boolean;
@@ -144,7 +147,7 @@ async function checkTypeScriptSyntax(
       content,
     );
   if (hasModuleConstructs) {
-    console.warn(`[checklist] Skipping syntax check for ${filePath} (contains module constructs)`);
+    log.warn("Skipping syntax check", { filePath, reason: "contains module constructs" });
     return { valid: true, error: undefined };
   }
 
@@ -153,7 +156,7 @@ async function checkTypeScriptSyntax(
     try {
       ts = await import("typescript");
     } catch {
-      console.warn(`[checklist] TypeScript not available, skipping syntax check for ${filePath}`);
+      log.warn("TypeScript not available, skipping syntax check", { filePath });
       return { valid: true, error: undefined };
     }
 
@@ -203,7 +206,7 @@ async function checkTypeScriptSyntax(
 
     return { valid: true };
   } catch (err) {
-    console.warn(`[checklist] Syntax check failed for ${filePath}:`, err);
+    log.warn("Syntax check failed", { filePath, error: String(err) });
     return { valid: true, error: undefined };
   }
 }

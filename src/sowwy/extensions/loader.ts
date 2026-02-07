@@ -1,5 +1,13 @@
 import type { ExtensionFoundation, ExtensionLifecycle } from "./integration.js";
+import { getChildLogger } from "../../logging/logger.js";
+import { ContinuousSelfModifyExtension } from "./continuous-self-modify/index.js";
 import { startOverseer, stopOverseer } from "./overseer/index.js";
+import { PersonaChiefOfStaffExtension } from "./persona-cos/index.js";
+import { PersonaDevExtension } from "./persona-dev/index.js";
+import { PersonaLegalOpsExtension } from "./persona-legal/index.js";
+import { PersonaRnDExtension } from "./persona-rnd/index.js";
+import { RoadmapObserverExtension } from "./roadmap-observer/index.js";
+import { TutaEmailExtension } from "./tuta-email/index.js";
 import { TwilioSMSExtension } from "./twilio-sms.js";
 
 /**
@@ -12,6 +20,7 @@ import { TwilioSMSExtension } from "./twilio-sms.js";
  * - Crystallizes high-value patterns (>80% success) to extensions/foundry-crystallized/
  */
 export class ExtensionLoader {
+  private readonly log = getChildLogger({ subsystem: "extension-loader" });
   private extensions: ExtensionLifecycle[] = [];
 
   constructor(private foundation: ExtensionFoundation) {}
@@ -19,13 +28,27 @@ export class ExtensionLoader {
   async load(): Promise<void> {
     // Register extensions here
     this.extensions.push(new TwilioSMSExtension());
+    this.extensions.push(new RoadmapObserverExtension());
+    this.extensions.push(new ContinuousSelfModifyExtension());
+
+    // Persona executors
+    this.extensions.push(new PersonaDevExtension());
+    this.extensions.push(new PersonaChiefOfStaffExtension());
+    this.extensions.push(new PersonaLegalOpsExtension());
+    this.extensions.push(new PersonaRnDExtension());
+
+    // Email integration
+    this.extensions.push(new TutaEmailExtension());
 
     // Initialize all
     for (const extension of this.extensions) {
       try {
         await extension.initialize(this.foundation);
       } catch (error: unknown) {
-        console.error(`Failed to initialize extension: ${String(error)}`);
+        this.log.error("Extension failed to initialize", {
+          extension: extension.constructor.name,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
@@ -48,4 +71,4 @@ export class ExtensionLoader {
   }
 }
 
-export { recordPattern, getPatternSuccessRate, getOverseerStatus } from "./overseer/index.js";
+export { getOverseerStatus, getPatternSuccessRate, recordPattern } from "./overseer/index.js";

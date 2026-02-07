@@ -13,6 +13,7 @@
 import * as lancedb from "@lancedb/lancedb";
 import { randomUUID } from "node:crypto";
 import type { IdentityCategory } from "./pg-store.js";
+import { getChildLogger } from "../../logging/logger.js";
 
 // ============================================================================
 // Types
@@ -42,6 +43,7 @@ export interface LanceDBMemoryConfig {
 // ============================================================================
 
 export class LanceDBMemoryStore {
+  private readonly log = getChildLogger({ subsystem: "memory-lancedb" });
   private db: lancedb.Connection | null = null;
   private table: lancedb.Table | null = null;
   private initPromise: Promise<void> | null = null;
@@ -137,23 +139,46 @@ export class LanceDBMemoryStore {
   ): Promise<void> {
     await this.ensureInitialized();
 
-    const embeddings = await Promise.all(
-      entries.map(async (entry) => {
-        const embedding = entry.embedding ?? (await this.embeddingProvider.embed(entry.content));
-
-        return {
-          id: randomUUID(),
-          memory_id: entry.memoryId,
-          category: entry.category,
-          content: entry.content,
-          embedding,
-          created_at: Date.now(),
-        };
-      }),
-    );
+    let embeddings: Array<{
+      id: string;
+      memory_id: string;
+      category: IdentityCategory;
+      content: string;
+      embedding: number[];
+      created_at: number;
+    }>;
+    try {
+      embeddings = await Promise.all(
+        entries.map(async (entry) => {
+          const embedding = entry.embedding ?? (await this.embeddingProvider.embed(entry.content));
+          return {
+            id: randomUUID(),
+            memory_id: entry.memoryId,
+            category: entry.category,
+            content: entry.content,
+            embedding,
+            created_at: Date.now(),
+          };
+        }),
+      );
+    } catch (error) {
+      this.log.error("Batch embedding generation failed", {
+        entryCount: entries.length,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
 
     if (embeddings.length > 0) {
-      await this.table!.add(embeddings);
+      try {
+        await this.table!.add(embeddings);
+      } catch (error) {
+        this.log.error("Batch add to table failed", {
+          entryCount: embeddings.length,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
     }
   }
 

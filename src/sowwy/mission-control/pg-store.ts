@@ -25,6 +25,7 @@ import type {
   DecisionStore,
   TaskStore,
 } from "./store.js";
+import { getChildLogger } from "../../logging/logger.js";
 import { redactError } from "../security/redact.js";
 import {
   isValidTransition,
@@ -131,6 +132,8 @@ export class PostgresTaskStore implements TaskStore {
     };
   }
 
+  private readonly log = getChildLogger({ subsystem: "postgres-task-store" });
+
   constructor(config: PostgresConfig) {
     this.pool = new Pool({
       host: config.host,
@@ -148,7 +151,7 @@ export class PostgresTaskStore implements TaskStore {
 
     // Initialize schema on construction
     this.initializeSchema().catch((err) => {
-      console.error("[PostgresTaskStore] Schema initialization failed:", redactError(err));
+      this.log.error("Schema initialization failed", { error: redactError(err) });
     });
   }
 
@@ -224,7 +227,7 @@ export class PostgresTaskStore implements TaskStore {
         CREATE INDEX IF NOT EXISTS idx_decision_created_at ON decision_log(created_at DESC);
       `);
 
-      console.log("[PostgresTaskStore] Schema initialized"); // No secrets in this log
+      this.log.info("Schema initialized");
     } finally {
       client.release();
     }

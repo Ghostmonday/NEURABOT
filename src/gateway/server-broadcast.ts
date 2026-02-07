@@ -73,14 +73,14 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
         try {
           c.socket.close(1008, "slow consumer");
         } catch {
-          /* ignore */
+          // INTENTIONAL: Dead client cleanup - connection already closed, ignore errors
         }
         continue;
       }
       try {
         c.socket.send(frame);
       } catch {
-        /* ignore */
+        // INTENTIONAL: Dead client cleanup - connection already closed, ignore errors
       }
     }
   };

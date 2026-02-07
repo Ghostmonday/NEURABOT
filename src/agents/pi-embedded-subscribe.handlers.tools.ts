@@ -56,7 +56,7 @@ export async function handleToolExecutionStart(
     const filePath = typeof record.path === "string" ? record.path.trim() : "";
     if (!filePath) {
       const argsPreview = typeof args === "string" ? args.slice(0, 200) : undefined;
-      ctx.log.warn(
+      ctx.log.error(
         `read tool called without path: toolCallId=${toolCallId} argsType=${typeof args}${argsPreview ? ` argsPreview=${argsPreview}` : ""}`,
       );
     }

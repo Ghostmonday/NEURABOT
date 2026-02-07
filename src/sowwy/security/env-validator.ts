@@ -37,6 +37,7 @@ const SchedulerConfigSchema = z.object({
   pollIntervalMs: z.number().int().positive(),
   maxRetries: z.number().int().nonnegative(),
   stuckTaskThresholdMs: z.number().int().positive(),
+  maxConcurrentPerPersona: z.number().int().min(1).max(25),
 });
 
 // ============================================================================
@@ -143,15 +144,18 @@ export function validateSowwyEnv(): ValidatedEnv {
     );
   }
 
-  // Scheduler Config
+  // Scheduler Config (fast mode: shorter poll, more concurrent tasks per persona)
+  const fastMode = process.env.SOWWY_FAST_MODE === "true";
   const schedulerPoll = process.env.SOWWY_SCHEDULER_POLL_MS;
   const schedulerRetries = process.env.SOWWY_SCHEDULER_MAX_RETRIES;
   const schedulerStuck = process.env.SOWWY_SCHEDULER_STUCK_THRESHOLD_MS;
+  const maxConcurrent = process.env.SOWWY_MAX_CONCURRENT_PER_PERSONA;
 
   const schedulerResult = SchedulerConfigSchema.safeParse({
-    pollIntervalMs: schedulerPoll ? parseInt(schedulerPoll, 10) : 5000,
+    pollIntervalMs: schedulerPoll ? parseInt(schedulerPoll, 10) : fastMode ? 1000 : 5000,
     maxRetries: schedulerRetries ? parseInt(schedulerRetries, 10) : 3,
-    stuckTaskThresholdMs: schedulerStuck ? parseInt(schedulerStuck, 10) : 3600000,
+    stuckTaskThresholdMs: schedulerStuck ? parseInt(schedulerStuck, 10) : 7200000, // 2 hours (was 1 hour) - SELF_MODIFY tasks can legitimately take longer
+    maxConcurrentPerPersona: maxConcurrent ? parseInt(maxConcurrent, 10) : fastMode ? 2 : 1,
   });
 
   if (!schedulerResult.success) {

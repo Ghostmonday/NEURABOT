@@ -1,6 +1,7 @@
 import type { HeartbeatRunResult } from "../../infra/heartbeat-wake.js";
 import type { CronJob } from "../types.js";
 import type { CronEvent, CronServiceState } from "./state.js";
+import { redactError } from "../../sowwy/security/redact.js";
 import { computeJobNextRunAtMs, nextWakeAtMs, resolveJobPayloadTextForMain } from "./jobs.js";
 import { locked } from "./locked.js";
 import { ensureLoaded, persist } from "./store.js";
@@ -24,7 +25,8 @@ export function armTimer(state: CronServiceState) {
   const clampedDelay = Math.min(delay, MAX_TIMEOUT_MS);
   state.timer = setTimeout(() => {
     void onTimer(state).catch((err) => {
-      state.deps.log.error({ err: String(err) }, "cron: timer tick failed");
+      // LOG-AND-CONTINUE: Timer tick failures should not crash the cron service
+      state.deps.log.error({ err: redactError(err) }, "cron: timer tick failed");
     });
   }, clampedDelay);
   state.timer.unref?.();
@@ -256,7 +258,8 @@ export function stopTimer(state: CronServiceState) {
 export function emit(state: CronServiceState, evt: CronEvent) {
   try {
     state.deps.onEvent?.(evt);
-  } catch {
-    /* ignore */
+  } catch (err) {
+    // LOG-AND-CONTINUE: Event listener failures should not crash the cron service
+    state.deps.log.warn({ err: String(err) }, "cron: event listener failed");
   }
 }

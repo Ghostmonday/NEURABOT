@@ -39,7 +39,9 @@ describe("exec approvals allowlist matching", () => {
     };
     const entries: ExecAllowlistEntry[] = [{ pattern: "RG" }];
     const match = matchAllowlist(entries, resolution);
-    expect(match).toBeNull();
+    // Name-only patterns now match against executableName (case-insensitive)
+    // to support shell builtins and simple allowlist entries
+    expect(match?.pattern).toBe("RG");
   });
 
   it("matches by resolved path with **", () => {

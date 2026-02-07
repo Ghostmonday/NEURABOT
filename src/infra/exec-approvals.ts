@@ -203,6 +203,7 @@ export function readExecApprovalsSnapshot(): ExecApprovalsSnapshot {
   try {
     parsed = JSON.parse(raw) as ExecApprovalsFile;
   } catch {
+    // INTENTIONAL: Invalid JSON falls back to default config (non-fatal)
     parsed = null;
   }
   const file =
@@ -231,6 +232,7 @@ export function loadExecApprovals(): ExecApprovalsFile {
     }
     return normalizeExecApprovals(parsed);
   } catch {
+    // INTENTIONAL: File read/parse errors fall back to default config (non-fatal)
     return normalizeExecApprovals({ version: 1, agents: {} });
   }
 }
@@ -242,7 +244,7 @@ export function saveExecApprovals(file: ExecApprovalsFile) {
   try {
     fs.chmodSync(filePath, 0o600);
   } catch {
-    // best-effort on platforms without chmod
+    // INTENTIONAL: chmod is best-effort on platforms without chmod support (Windows, etc.)
   }
 }
 
@@ -471,6 +473,7 @@ function tryRealpath(value: string): string | null {
   try {
     return fs.realpathSync(value);
   } catch {
+    // INTENTIONAL: realpath failures (symlinks, permissions) return null as fallback (non-fatal)
     return null;
   }
 }
@@ -551,10 +554,11 @@ export function matchAllowlist(
   entries: ExecAllowlistEntry[],
   resolution: CommandResolution | null,
 ): ExecAllowlistEntry | null {
-  if (!entries.length || !resolution?.resolvedPath) {
+  if (!entries.length || !resolution) {
     return null;
   }
   const resolvedPath = resolution.resolvedPath;
+  const executableName = resolution.executableName?.toLowerCase();
   for (const entry of entries) {
     const pattern = entry.pattern?.trim();
     if (!pattern) {
@@ -562,9 +566,14 @@ export function matchAllowlist(
     }
     const hasPath = pattern.includes("/") || pattern.includes("\\") || pattern.includes("~");
     if (!hasPath) {
+      // Match simple name patterns against the executable name (covers shell builtins
+      // like cd, echo, export which have no resolvedPath, and also regular commands).
+      if (executableName && pattern.toLowerCase() === executableName) {
+        return entry;
+      }
       continue;
     }
-    if (matchesPattern(pattern, resolvedPath)) {
+    if (resolvedPath && matchesPattern(pattern, resolvedPath)) {
       return entry;
     }
   }

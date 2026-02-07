@@ -81,6 +81,8 @@ export class PersonaRouter {
       RESEARCH: "RnD",
       RND: "RnD",
       SMS: "ChiefOfStaff",
+      MISSION_CONTROL: "ChiefOfStaff",
+      SELF_MODIFY: "Dev",
     };
     return mapping[category];
   }
