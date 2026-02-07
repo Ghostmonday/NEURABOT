@@ -1,0 +1,38 @@
+{
+  "recommendations": [
+    // TypeScript & JavaScript
+    "oxc.oxfmt",
+    "oxc.oxlint",
+
+    // Testing
+    "vitest.explorer",
+
+    // YAML
+    "redhat.vscode-yaml",
+
+    // Shell Scripts
+    "timonwong.shellcheck",
+
+    // Swift (for iOS/macOS apps)
+    "sswg.swift-lang",
+
+    // Python (for skills)
+    "ms-python.python",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+
+    // Git
+    "eamodio.gitlens",
+
+    // Markdown
+    "yzhang.markdown-all-in-one",
+
+    // Docker (for test containers)
+    "ms-azuretools.vscode-docker",
+
+    // General
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint"
+  ],
+  "unwantedRecommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+}

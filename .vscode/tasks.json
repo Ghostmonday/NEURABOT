@@ -1,0 +1,201 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "pnpm install",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "pnpm build",
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Check (lint + format)",
+      "type": "shell",
+      "command": "pnpm check",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "pnpm lint",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Lint Fix",
+      "type": "shell",
+      "command": "pnpm lint:fix",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Format",
+      "type": "shell",
+      "command": "pnpm format:fix",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "pnpm test",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Test: Watch",
+      "type": "shell",
+      "command": "pnpm test:watch",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Test: Coverage",
+      "type": "shell",
+      "command": "pnpm test:coverage",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev: Start CLI",
+      "type": "shell",
+      "command": "pnpm dev",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Dev: Gateway",
+      "type": "shell",
+      "command": "pnpm gateway:dev",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Dev: Gateway Watch",
+      "type": "shell",
+      "command": "pnpm gateway:watch",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Dev: UI",
+      "type": "shell",
+      "command": "pnpm ui:dev",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Dev: TUI",
+      "type": "shell",
+      "command": "pnpm tui:dev",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Build: UI",
+      "type": "shell",
+      "command": "pnpm ui:build",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Pre-commit: Install Hooks",
+      "type": "shell",
+      "command": "prek install",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}
