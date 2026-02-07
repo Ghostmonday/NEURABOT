@@ -1,0 +1,29 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"default\"]",
+  "declared_features": "[\"default\", \"image\"]",
+  "target": 518740220062475283,
+  "profile": 8731458305071235362,
+  "path": 12568021682002745622,
+  "deps": [
+    [2141549406637498597, "image", false, 12922069056945322434],
+    [9351633258240155357, "build_script_build", false, 16481378724194749430],
+    [13423243174795060362, "napi_derive", false, 16092935110100598892],
+    [13548984313718623784, "serde", false, 12265070865698674964],
+    [13795362694956882968, "serde_json", false, 15401421973186007591],
+    [15658505062885698977, "chrono", false, 14975330750757197115],
+    [16099943211762415786, "napi", false, 16260667135746019625],
+    [17109794424245468765, "regex", false, 3108392874075663870]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/core-native-9af7676a17fc19b8/dep-lib-core_native",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

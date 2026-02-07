@@ -1,0 +1,27 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"auto\", \"default\", \"wincon\"]",
+  "declared_features": "[\"auto\", \"default\", \"test\", \"wincon\"]",
+  "target": 11278316191512382530,
+  "profile": 11679461194111479299,
+  "path": 6780196210505761902,
+  "deps": [
+    [384403243491392785, "colorchoice", false, 4386767975159219604],
+    [5652275617566266604, "anstyle_query", false, 16973121420446405064],
+    [7483871650937086505, "anstyle", false, 18445128148495554724],
+    [7727459912076845739, "is_terminal_polyfill", false, 7253406398250652811],
+    [11410867133969439143, "anstyle_parse", false, 11287646778151376697],
+    [17716308468579268865, "utf8parse", false, 13568789439655021509]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/anstream-b91beb059840ff4d/dep-lib-anstream",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

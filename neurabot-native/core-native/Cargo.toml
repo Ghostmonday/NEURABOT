@@ -1,0 +1,33 @@
+[package]
+name = "core-native"
+version = "0.1.0"
+edition = "2021"
+description = "NEURABOT core native modules - napi-rs bindings for performance-critical operations"
+authors = ["NEURABOT"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+
+[dependencies]
+# napi-rs v2 for Node.js bindings
+napi = { version = "2.12", default-features = false }
+napi-derive = "2.12"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = "0.4"
+
+# Image processing (optional)
+image = { version = "0.24", optional = true }
+
+# Regex for pattern matching
+regex = "1"
+
+[target.'cfg(not(windows))'.dependencies]
+image = { version = "0.24" }
+
+[build-dependencies]
+napi-build = "2"

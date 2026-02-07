@@ -1,0 +1,19 @@
+[package]
+name = "neurabot-watchdog"
+version = "0.1.0"
+edition = "2021"
+description = "NEURABOT standalone watchdog process monitor"
+authors = ["NEURABOT"]
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+notify = "6"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

@@ -1,0 +1,23 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"default\", \"log\", \"os-ext\", \"os-poll\"]",
+  "declared_features": "[\"default\", \"log\", \"net\", \"os-ext\", \"os-poll\"]",
+  "target": 15795524848372194723,
+  "profile": 15657897354478470176,
+  "path": 5188097563349863655,
+  "deps": [
+    [203594543813181569, "libc", false, 24039142666555073],
+    [10630857666389190470, "log", false, 16607492916216707277]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/mio-b2f9d34ce704514c/dep-lib-mio",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

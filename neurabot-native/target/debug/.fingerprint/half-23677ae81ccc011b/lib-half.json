@@ -1,0 +1,23 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"alloc\", \"default\", \"std\"]",
+  "declared_features": "[\"alloc\", \"arbitrary\", \"bytemuck\", \"default\", \"nightly\", \"num-traits\", \"rand_distr\", \"rkyv\", \"serde\", \"std\", \"use-intrinsics\", \"zerocopy\"]",
+  "target": 5584728948347947946,
+  "profile": 2241668132362809309,
+  "path": 9919847696996483047,
+  "deps": [
+    [4878717189156408352, "zerocopy", false, 12263549745128532383],
+    [7667230146095136825, "cfg_if", false, 8302768330377455149]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/half-23677ae81ccc011b/dep-lib-half",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

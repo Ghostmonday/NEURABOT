@@ -1,0 +1,24 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"default\", \"std\"]",
+  "declared_features": "[\"debugger_visualizer\", \"default\", \"expose_internals\", \"serde\", \"std\"]",
+  "target": 7686100221094031937,
+  "profile": 2241668132362809309,
+  "path": 3292593822991335508,
+  "deps": [
+    [1074175012458081222, "form_urlencoded", false, 1070516495014853124],
+    [6159443412421938570, "idna", false, 17696951840342803045],
+    [6803352382179706244, "percent_encoding", false, 2184202813072950019]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/url-c5d35341689595f6/dep-lib-url",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

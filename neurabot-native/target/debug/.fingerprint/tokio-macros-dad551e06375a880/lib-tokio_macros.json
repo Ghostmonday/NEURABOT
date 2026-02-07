@@ -1,0 +1,24 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[]",
+  "declared_features": "[]",
+  "target": 5059940852446330081,
+  "profile": 7508124752878485869,
+  "path": 11577641152160930597,
+  "deps": [
+    [4289358735036141001, "proc_macro2", false, 17784761930611002400],
+    [6100504282945712449, "quote", false, 10155099365717192330],
+    [6490058671768129134, "syn", false, 15858904958510437910]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/tokio-macros-dad551e06375a880/dep-lib-tokio_macros",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

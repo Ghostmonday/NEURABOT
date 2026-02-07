@@ -1,0 +1,20 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[]",
+  "declared_features": "[\"dyn-symbols\", \"experimental\", \"libloading\", \"napi1\", \"napi2\", \"napi3\", \"napi4\", \"napi5\", \"napi6\", \"napi7\", \"napi8\", \"napi9\"]",
+  "target": 7475771664120104103,
+  "profile": 2241668132362809309,
+  "path": 7221065498043015935,
+  "deps": [],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/napi-sys-81f88dece9fcb755/dep-lib-napi_sys",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}

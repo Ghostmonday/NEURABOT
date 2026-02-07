@@ -1,0 +1,30 @@
+{
+  "rustc": 5470738401306409665,
+  "features": "[\"http1\", \"ring\", \"tls12\", \"webpki-roots\", \"webpki-tokio\"]",
+  "declared_features": "[\"aws-lc-rs\", \"default\", \"fips\", \"http1\", \"http2\", \"log\", \"logging\", \"native-tokio\", \"ring\", \"rustls-native-certs\", \"rustls-platform-verifier\", \"tls12\", \"webpki-roots\", \"webpki-tokio\"]",
+  "target": 12220062926890100908,
+  "profile": 2241668132362809309,
+  "path": 4524087923193239457,
+  "deps": [
+    [784494742817713399, "tower_service", false, 12175825569400895698],
+    [1991942485830005045, "tokio_rustls", false, 7227658998287708713],
+    [2620434475832828286, "http", false, 390514770770355100],
+    [3236792770635956517, "rustls", false, 18434886626172643022],
+    [4160778395972110362, "hyper", false, 10816618124460447857],
+    [5071328984507806225, "webpki_roots", false, 2994839471791066787],
+    [11976082518617474977, "hyper_util", false, 15595635996949198361],
+    [12891030758458664808, "tokio", false, 1999780362724531111],
+    [17894305664988315121, "pki_types", false, 3328917520328923338]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/hyper-rustls-37fd46f6e23424b7/dep-lib-hyper_rustls",
+        "checksum": false
+      }
+    }
+  ],
+  "rustflags": [],
+  "config": 2069994364910194474,
+  "compile_kind": 0
+}
