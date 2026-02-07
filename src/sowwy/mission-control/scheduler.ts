@@ -1,3 +1,4 @@
+// Throughput mode cycle 6
 /**
  * Sowwy Mission Control - Scheduler Foundation
  *
@@ -416,9 +417,11 @@ export class TaskScheduler {
         lastRetryAt: new Date().toISOString(),
       });
 
+      const errorMsg = error instanceof Error ? error.message : String(error);
       this.log.info(
         `[Scheduler] Task ${redactString(task.taskId)} retry ${newRetryCount}/${task.maxRetries} after ${backoffMs}ms`,
       );
+      this.log.warn(`[Scheduler] Task ${redactString(task.taskId)} failure reason: ${errorMsg}`);
     }
   }
 
