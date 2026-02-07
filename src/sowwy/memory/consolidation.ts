@@ -94,9 +94,13 @@ export class MemoryConsolidationService {
     const verified = afterCount <= beforeCount && afterChecksum !== beforeChecksum;
 
     if (afterCount > beforeCount) {
-      console.warn(
-        `[Consolidation] Preference count increased unexpectedly: ${beforeCount} -> ${afterCount} (category: ${category})`,
-      );
+      this.log.warn("Preference count increased unexpectedly during consolidation", {
+        beforeCount,
+        afterCount,
+        category,
+        beforeChecksum,
+        afterChecksum,
+      });
     }
 
     // Log to audit store if available
@@ -117,7 +121,11 @@ export class MemoryConsolidationService {
           performedBy: "system",
         })
         .catch((err) => {
-          console.warn(`[Consolidation] Failed to log to audit store:`, err);
+          this.log.error("Failed to log consolidation to audit store", {
+            error: err instanceof Error ? err.message : String(err),
+            category,
+            action: "memory.consolidatePreferences",
+          });
         });
     }
 
@@ -210,7 +218,11 @@ export class MemoryConsolidationService {
           performedBy: "system",
         })
         .catch((err) => {
-          console.warn(`[Consolidation] Failed to log to audit store:`, err);
+          this.log.error("Failed to log consolidation to audit store", {
+            error: err instanceof Error ? err.message : String(err),
+            category,
+            action: "memory.consolidateMemories",
+          });
         });
     }
 
@@ -371,9 +383,6 @@ export class MemoryConsolidationService {
   }
 
   /**
-   * Run full consolidation for all categories
-   */
-  /**
    * Compute a simple checksum for verification
    */
   private computeChecksum(items: string[]): string {
@@ -383,13 +392,8 @@ export class MemoryConsolidationService {
   }
 
   /**
-   * Compute a simple checksum for verification
+   * Run full consolidation for all categories
    */
-  private computeChecksum(items: string[]): string {
-    const hash = createHash("sha256");
-    hash.update(items.join("|"));
-    return hash.digest("hex").slice(0, 16);
-  }
 
   async consolidateAll(options: ConsolidationOptions = {}): Promise<void> {
     const categories: IdentityCategory[] = [
