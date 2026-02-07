@@ -1,4 +1,5 @@
 import type { ExtensionFoundation, ExtensionLifecycle } from "./integration.js";
+import { getChildLogger } from "../../logging/logger.js";
 import { ContinuousSelfModifyExtension } from "./continuous-self-modify/index.js";
 import { startOverseer, stopOverseer } from "./overseer/index.js";
 import { PersonaChiefOfStaffExtension } from "./persona-cos/index.js";
@@ -19,6 +20,7 @@ import { TwilioSMSExtension } from "./twilio-sms.js";
  * - Crystallizes high-value patterns (>80% success) to extensions/foundry-crystallized/
  */
 export class ExtensionLoader {
+  private readonly log = getChildLogger({ subsystem: "extension-loader" });
   private extensions: ExtensionLifecycle[] = [];
 
   constructor(private foundation: ExtensionFoundation) {}
@@ -43,7 +45,10 @@ export class ExtensionLoader {
       try {
         await extension.initialize(this.foundation);
       } catch (error: unknown) {
-        // Silently skip failed extensions
+        this.log.error("Extension failed to initialize", {
+          extension: extension.constructor.name,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 

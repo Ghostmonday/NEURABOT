@@ -185,8 +185,11 @@ export class PostgresMemoryStore {
         USING ivfflat (embedding vector_cosine_ops)
         WITH (lists = 100);
       `)
-        .catch(() => {
+        .catch((err) => {
           // Vector index creation may fail if extension not available
+          log.warn("Vector index creation failed", {
+            error: err instanceof Error ? err.message : String(err),
+          });
         });
     } finally {
       client.release();

@@ -6,6 +6,7 @@
  */
 
 import type { AuditStore } from "./store.js";
+import { getChildLogger } from "../../logging/logger.js";
 
 export interface EventBusEvent {
   topic: string;
@@ -17,6 +18,7 @@ export interface EventBusEvent {
 type EventHandler = (payload: unknown, fromPersona?: string) => void;
 
 export class EventBus {
+  private readonly log = getChildLogger({ subsystem: "event-bus" });
   private subscribers: Map<string, Set<EventHandler>> = new Map();
   private ringBuffer: EventBusEvent[] = [];
   private maxRingBufferSize: number;
@@ -51,7 +53,7 @@ export class EventBus {
         try {
           handler(payload, fromPersona);
         } catch (err) {
-          console.error(`[EventBus] Handler error for topic ${topic}:`, err);
+          this.log.error(`Handler error for topic ${topic}`, { error: err, topic });
         }
       }
     }
@@ -70,7 +72,7 @@ export class EventBus {
           performedBy: fromPersona ?? "system",
         })
         .catch((err) => {
-          console.warn(`[EventBus] Failed to log to audit store:`, err);
+          this.log.warn("Failed to log to audit store", { error: err });
         });
     }
   }
@@ -91,7 +93,7 @@ export class EventBus {
         try {
           handler(event.payload, event.fromPersona);
         } catch (err) {
-          console.error(`[EventBus] Handler error delivering buffered event:`, err);
+          this.log.error("Handler error delivering buffered event", { error: err, topic });
         }
       }
     }

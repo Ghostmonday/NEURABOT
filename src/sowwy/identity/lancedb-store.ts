@@ -26,6 +26,7 @@ import type {
   SearchResult,
 } from "./fragments.js";
 import type { IdentityStore } from "./store.js";
+import { getChildLogger } from "../../logging/logger.js";
 
 // ============================================================================
 // LanceDB Table Schema
@@ -68,6 +69,7 @@ export interface LanceDBIdentityStoreConfig {
 // ============================================================================
 
 export class LanceDBIdentityStore implements IdentityStore {
+  private readonly log = getChildLogger({ subsystem: "identity-lancedb" });
   private db: lancedb.Connection | null = null;
   private table: lancedb.Table | null = null;
   private initPromise: Promise<void> | null = null;
@@ -194,9 +196,18 @@ export class LanceDBIdentityStore implements IdentityStore {
     const results: IdentityFragment[] = [];
 
     // Generate embeddings in parallel
-    const embeddings = await Promise.all(
-      fragments.map((f) => this.embeddingProvider.embed(`${f.category}: ${f.content}`)),
-    );
+    let embeddings: number[][];
+    try {
+      embeddings = await Promise.all(
+        fragments.map((f) => this.embeddingProvider.embed(`${f.category}: ${f.content}`)),
+      );
+    } catch (error) {
+      this.log.error("Fragment embedding generation failed", {
+        error: error instanceof Error ? error.message : String(error),
+        fragmentCount: fragments.length,
+      });
+      throw error;
+    }
 
     for (let i = 0; i < fragments.length; i++) {
       const fragment = fragments[i];

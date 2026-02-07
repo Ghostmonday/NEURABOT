@@ -99,7 +99,7 @@ export async function initializeSowwyGateway(
     userId: "sowwy",
   };
 
-  console.log("[SowwyGateway] Initialized successfully");
+  log.info("SowwyGateway initialized successfully");
 
   return context;
 }

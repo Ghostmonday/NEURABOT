@@ -76,32 +76,39 @@ export class ContinuousSelfModifyExtension implements ExtensionLifecycle {
     const PARALLEL_CYCLES = 4; // Create 4 parallel tasks per interval
 
     // High-throughput: create multiple SELF_MODIFY tasks in parallel across personas
-    await Promise.all(
-      Array.from({ length: PARALLEL_CYCLES }, (_, i) => {
-        const assignment = PERSONA_ASSIGNMENTS[i % PERSONA_ASSIGNMENTS.length];
-        return store.create({
-          title: `Upgrade & validate cycle #${i + 1} (continuous until stop)`,
-          description: `README §0.2: Parallel self-modify cycle. Focus: ${assignment.focus}`,
-          category: "SELF_MODIFY",
-          personaOwner: assignment.persona,
-          urgency: 4,
-          importance: 4,
-          risk: 2,
-          stressCost: 2,
-          requiresApproval: false,
-          maxRetries: 5,
-          dependencies: [],
-          contextLinks: {},
-          payload: {
-            action: "upgrade_validate_cycle",
-            source: "continuous-self-modify",
-            cycleIndex: i,
-            focus: assignment.focus,
-          },
-          createdBy: "continuous-self-modify",
-        });
-      }),
-    );
+    try {
+      await Promise.all(
+        Array.from({ length: PARALLEL_CYCLES }, (_, i) => {
+          const assignment = PERSONA_ASSIGNMENTS[i % PERSONA_ASSIGNMENTS.length];
+          return store.create({
+            title: `Upgrade & validate cycle #${i + 1} (continuous until stop)`,
+            description: `README §0.2: Parallel self-modify cycle. Focus: ${assignment.focus}`,
+            category: "SELF_MODIFY",
+            personaOwner: assignment.persona,
+            urgency: 4,
+            importance: 4,
+            risk: 2,
+            stressCost: 2,
+            requiresApproval: false,
+            maxRetries: 5,
+            dependencies: [],
+            contextLinks: {},
+            payload: {
+              action: "upgrade_validate_cycle",
+              source: "continuous-self-modify",
+              cycleIndex: i,
+              focus: assignment.focus,
+            },
+            createdBy: "continuous-self-modify",
+          });
+        }),
+      );
+    } catch (error) {
+      log.error("Self-modify cycle task creation failed", {
+        error: error instanceof Error ? error.message : String(error),
+        parallelCycles: PARALLEL_CYCLES,
+      });
+    }
   }
 
   async shutdown(): Promise<void> {

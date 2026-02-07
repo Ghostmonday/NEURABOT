@@ -11,6 +11,9 @@
 import type { IdentityStore } from "../identity/store.js";
 import type { TaskStore } from "../mission-control/store.js";
 import type { SMTThrottler } from "../smt/throttler.js";
+import { getChildLogger } from "../../logging/logger.js";
+
+const log = getChildLogger({ subsystem: "startup-health-prompt" });
 
 export type HealthCheckResult = {
   healthy: boolean;
@@ -104,76 +107,70 @@ export async function promptStartupApproval(
   options: StartupPromptOptions = {},
 ): Promise<boolean> {
   if (options.skipPrompt) {
-    console.log("[SOWWY] Startup prompt skipped (skipPrompt=true)");
+    log.info("Startup prompt skipped", { skipPrompt: true });
     return false;
   }
 
   if (options.autoApprove) {
-    console.log("[SOWWY] Auto-approving startup (autoApprove=true)");
+    log.info("Auto-approving startup", { autoApprove: true });
     if (!healthCheck.healthy) {
-      console.warn(
-        "[SOWWY] Warning: Auto-approve enabled but health check failed. Proceeding anyway.",
-      );
+      log.warn("Auto-approve enabled but health check failed. Proceeding anyway.");
     }
     return true;
   }
 
   // Display health status
-  console.log("\n╔═══════════════════════════════════════════════════════════════╗");
-  console.log("║          SOWWY Mission Control - Startup Health Check         ║");
-  console.log("╚═══════════════════════════════════════════════════════════════╝\n");
+  log.info("═══════════════════════════════════════════════════════════════");
+  log.info("      SOWWY Mission Control - Startup Health Check");
+  log.info("═══════════════════════════════════════════════════════════════");
 
   const statusSymbol = (check: boolean) => (check ? "✓" : "✗");
   const statusColor = (check: boolean) => (check ? "\x1b[32m" : "\x1b[31m"); // green : red
   const reset = "\x1b[0m";
 
-  console.log("System Components:");
-  console.log(
+  log.info("System Components:");
+  log.info(
     `  ${statusColor(healthCheck.checks.taskStore)}${statusSymbol(healthCheck.checks.taskStore)}${reset} Task Store`,
   );
-  console.log(
+  log.info(
     `  ${statusColor(healthCheck.checks.identityStore)}${statusSymbol(healthCheck.checks.identityStore)}${reset} Identity Store`,
   );
-  console.log(
+  log.info(
     `  ${statusColor(healthCheck.checks.smtThrottler)}${statusSymbol(healthCheck.checks.smtThrottler)}${reset} SMT Throttler`,
   );
-  console.log(
+  log.info(
     `  ${statusColor(healthCheck.checks.watchdog)}${statusSymbol(healthCheck.checks.watchdog)}${reset} Watchdog Monitor`,
   );
 
   if (healthCheck.warnings.length > 0) {
-    console.log("\n\x1b[33mWarnings:\x1b[0m");
+    log.info("\nWarnings:");
     for (const warning of healthCheck.warnings) {
-      console.log(`  ⚠ ${warning}`);
+      log.info(`  ⚠ ${warning}`);
     }
   }
 
   if (healthCheck.errors.length > 0) {
-    console.log("\n\x1b[31mErrors:\x1b[0m");
+    log.info("\nErrors:");
     for (const error of healthCheck.errors) {
-      console.log(`  ✗ ${error}`);
+      log.info(`  ✗ ${error}`);
     }
   }
 
-  console.log(
-    `\n${healthCheck.healthy ? "\x1b[32m✓ System health: OPTIMAL\x1b[0m" : "\x1b[31m✗ System health: DEGRADED\x1b[0m"}`,
-  );
+  log.info(`\n${healthCheck.healthy ? "✓ System health: OPTIMAL" : "✗ System health: DEGRADED"}`);
 
   if (!healthCheck.healthy) {
-    console.log(
-      "\n\x1b[33mRecommendation: Fix errors before enabling autonomous operations.\x1b[0m",
-    );
-    console.log("You can still proceed, but some features may not work correctly.\n");
+    log.info("\nRecommendation: Fix errors before enabling autonomous operations.");
+    log.info("You can still proceed, but some features may not work correctly.\n");
   }
 
   // Prompt for approval
-  console.log("\nThe Roadmap Observer (README §12) can autonomously create and manage tasks");
-  console.log("to drive completion of Track 1 (iOS), Track 2 (Tuta Mail), and Track 3 (Calendar).");
-  console.log("\nThis respects all safety constraints from the Ratified Constitution (README §0):");
-  console.log("  • Approval gates for high-risk actions");
-  console.log("  • SMT throttling (100 prompts per 5 hours)");
-  console.log("  • Watchdog monitoring and crash recovery");
-  console.log("  • Self-modification boundaries and checklist\n");
+  log.info("\nThe Roadmap Observer (README §12) can autonomously create and manage tasks");
+  log.info("to drive completion of Track 1 (iOS), Track 2 (Tuta Mail), and Track 3 (Calendar).");
+  log.info("\nThis respects all safety constraints from the Ratified Constitution (README §0):");
+  log.info("  • Approval gates for high-risk actions");
+  log.info("  • SMT throttling (100 prompts per 5 hours)");
+  log.info("  • Watchdog monitoring and crash recovery");
+  log.info("  • Self-modification boundaries and checklist\n");
 
   // Use readline for interactive prompt
   const readline = await import("node:readline");
@@ -191,12 +188,10 @@ export async function promptStartupApproval(
         const approved = normalized === "yes" || normalized === "y";
 
         if (approved) {
-          console.log(
-            "\n\x1b[32m✓ Autonomous operations approved. Starting SOWWY scheduler...\x1b[0m\n",
-          );
+          log.info("\n✓ Autonomous operations approved. Starting SOWWY scheduler...\n");
         } else {
-          console.log("\n\x1b[33m⊘ Autonomous operations declined. SOWWY will remain idle.\x1b[0m");
-          console.log("  To activate later, run: \x1b[36mopenclaw roadmap:activate\x1b[0m\n");
+          log.info("\n⊘ Autonomous operations declined. SOWWY will remain idle.");
+          log.info("  To activate later, run: openclaw roadmap:activate\n");
         }
 
         resolve(approved);
@@ -212,7 +207,7 @@ export async function createInitialRoadmapTask(
   taskStore: TaskStore,
   userId: string,
 ): Promise<void> {
-  console.log("[SOWWY] Creating initial Roadmap Observer task...");
+  log.info("Creating initial Roadmap Observer task...");
 
   try {
     const task = await taskStore.create({
@@ -236,16 +231,12 @@ export async function createInitialRoadmapTask(
       createdBy: userId,
     });
 
-    console.log(
-      `\x1b[32m✓ Roadmap Observer task created (ID: ${task.taskId.slice(0, 8)}...)\x1b[0m`,
-    );
-    console.log("  SOWWY scheduler will process this task on next poll cycle.\n");
+    log.info(`✓ Roadmap Observer task created (ID: ${task.taskId.slice(0, 8)}...)`);
+    log.info("  SOWWY scheduler will process this task on next poll cycle.\n");
   } catch (err) {
-    console.error(
-      `\x1b[31m✗ Failed to create Roadmap Observer task: ${err instanceof Error ? err.message : String(err)}\x1b[0m`,
+    log.error(
+      `Failed to create Roadmap Observer task: ${err instanceof Error ? err.message : String(err)}`,
     );
-    console.error(
-      "  You can create it manually later with: \x1b[36mopenclaw roadmap:activate\x1b[0m\n",
-    );
+    log.error("  You can create it manually later with: openclaw roadmap:activate\n");
   }
 }

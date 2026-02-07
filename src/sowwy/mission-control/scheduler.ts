@@ -261,48 +261,58 @@ export class TaskScheduler {
     const maxPerPersona = Math.max(1, this.config.maxConcurrentPerPersona);
 
     // Parallel task fetch across all personas (high-throughput optimization)
-    await Promise.all(
-      personas.map(async (persona) => {
-        const active = this.activeCountByPersona.get(persona) ?? 0;
-        const slotsAvailable = maxPerPersona - active;
-        if (slotsAvailable <= 0) {
-          return;
-        }
-
-        // Fetch multiple ready tasks at once (up to available slots)
-        for (let i = 0; i < slotsAvailable; i++) {
-          const task = await this.taskStore.getNextReady({ personaOwner: persona });
-          if (!task) {
-            break;
+    try {
+      await Promise.all(
+        personas.map(async (persona) => {
+          const active = this.activeCountByPersona.get(persona) ?? 0;
+          const slotsAvailable = maxPerPersona - active;
+          if (slotsAvailable <= 0) {
+            return;
           }
 
-          // Guard: Skip if task is already in-flight (prevents duplicate execution)
-          if (this.inFlightTaskIds.has(task.taskId)) {
-            continue;
+          // Fetch multiple ready tasks at once (up to available slots)
+          for (let i = 0; i < slotsAvailable; i++) {
+            const task = await this.taskStore.getNextReady({ personaOwner: persona });
+            if (!task) {
+              break;
+            }
+
+            // Guard: Skip if task is already in-flight (prevents duplicate execution)
+            if (this.inFlightTaskIds.has(task.taskId)) {
+              continue;
+            }
+
+            // Check approval gate
+            if (task.requiresApproval && !task.approved) {
+              await this.notifyHuman(task);
+              continue;
+            }
+
+            // Mark task as in-flight and increment active count
+            this.inFlightTaskIds.add(task.taskId);
+            this.activeCountByPersona.set(
+              persona,
+              (this.activeCountByPersona.get(persona) ?? 0) + 1,
+            );
+            this.log.info(
+              `[Scheduler] [${persona}] Starting lane for task: ${redactString(task.taskId)}`,
+            );
+
+            this.runExecutionLane(task).finally(() => {
+              // Remove from in-flight set and decrement active count
+              this.inFlightTaskIds.delete(task.taskId);
+              const n = this.activeCountByPersona.get(persona) ?? 1;
+              this.activeCountByPersona.set(persona, Math.max(0, n - 1));
+            });
           }
-
-          // Check approval gate
-          if (task.requiresApproval && !task.approved) {
-            await this.notifyHuman(task);
-            continue;
-          }
-
-          // Mark task as in-flight and increment active count
-          this.inFlightTaskIds.add(task.taskId);
-          this.activeCountByPersona.set(persona, (this.activeCountByPersona.get(persona) ?? 0) + 1);
-          this.log.info(
-            `[Scheduler] [${persona}] Starting lane for task: ${redactString(task.taskId)}`,
-          );
-
-          this.runExecutionLane(task).finally(() => {
-            // Remove from in-flight set and decrement active count
-            this.inFlightTaskIds.delete(task.taskId);
-            const n = this.activeCountByPersona.get(persona) ?? 1;
-            this.activeCountByPersona.set(persona, Math.max(0, n - 1));
-          });
-        }
-      }),
-    );
+        }),
+      );
+    } catch (error) {
+      this.log.error("Task batch fetch failed", {
+        error: error instanceof Error ? error.message : String(error),
+        personas,
+      });
+    }
 
     // Global backlog promotion if we have idle capacity
     const totalActive = Array.from(this.activeCountByPersona.values()).reduce((a, b) => a + b, 0);
@@ -505,8 +515,16 @@ export class TaskScheduler {
     };
 
     // Run immediately, then on interval
-    void checkStuckTasks();
-    setInterval(() => void checkStuckTasks(), intervalMs);
+    void checkStuckTasks().catch((err) =>
+      this.log.error("Stuck task check failed", { error: String(err) }),
+    );
+    setInterval(
+      () =>
+        void checkStuckTasks().catch((err) =>
+          this.log.error("Stuck task check failed", { error: String(err) }),
+        ),
+      intervalMs,
+    );
 
     this.log.info("[Scheduler] Stuck task detection started"); // No secrets in this log
   }
