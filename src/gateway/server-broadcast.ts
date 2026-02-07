@@ -73,11 +73,7 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
         try {
           c.socket.close(1008, "slow consumer");
         } catch {
-<<<<<<< HEAD
           // INTENTIONAL: Dead client cleanup - connection already closed, ignore errors
-=======
-          /* ignore */
->>>>>>> origin/main
         }
         continue;
       }
