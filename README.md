@@ -1,27 +1,84 @@
 <div align="center">
-  <img src="README-header.svg" alt="NEURABOT - Autonomous AI Orchestration Platform" width="100%"/>
+  <img src="README-header.svg" alt="CASH - Autonomous AI Orchestration Platform" width="100%"/>
 </div>
 
-# NEURABOT — Autonomous AI Orchestration Platform
+# CASH — Autonomous AI Orchestration Platform
 
-> **Fork of [OpenClaw](https://github.com/openclaw/openclaw)** with SOWWY (Super Output Workforce Intelligence Entity): identity learning, mission control, disaster recovery, and self-modification.
+> **Fork of [OpenClaw](https://github.com/openclaw/openclaw)** — an AI that doesn't just answer questions. It runs itself.
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.12.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![Rust Native](https://img.shields.io/badge/Rust-napi--rs-orange)](https://napi.rs/)
 
-**NEURABOT** extends OpenClaw with enterprise-grade capabilities for autonomous task execution, identity-aware routing, and controlled self-modification. This README provides a comprehensive schematic of how NEURABOT works and why it diverges from the original OpenClaw.
+## What Makes CASH Different
+
+Most AI tools wait for instructions. CASH operates as a **persistent autonomous workforce** — scheduling its own tasks, modifying its own code, monitoring its own health, and rolling back its own mistakes. It doesn't stop working when you close the tab.
+
+### The 12 Features That Matter
+
+#### 1. Self-Modification with Safety Boundaries
+
+CASH rewrites its own source code — and survives it. The self-modify system enforces glob-based allow/deny boundaries, diff ratio thresholds (max 50% of a file per edit), and a three-stage gate: validate, apply, reload. If the health check fails after a change, automatic rollback kicks in with three strategies: file-scoped `git checkout`, full commit rollback, or hard reset. A restart sentinel tracks every modification so nothing is lost between crashes.
+
+#### 2. Fitness Assessment System (Mandatory Firmware)
+
+Every module has a fitness function. No exceptions. The system tracks three dimensions — **correctness** (did the thing actually work?), **reliability** (3 consecutive passes = stable), and **efficiency** (prompts burned per success). Modules that pass convergence are marked stable and left alone. Modules that degrade are immediately reset and re-optimized. The scheduler creates re-assessment tasks automatically — failing modules get urgency 5, stable ones get periodic weekly checks. This isn't monitoring. This is an immune system.
+
+#### 3. Mission Control Scheduler
+
+A priority-scored task engine that runs continuously. Tasks are ranked by urgency, importance, risk, and stress cost. Four personas (Dev, ChiefOfStaff, LegalOps, RnD) execute in parallel lanes — multiple tasks per persona, adaptive concurrency that drops under memory pressure, stuck task detection at the 1-hour mark, and approval gates with auto-escalation for high-urgency items that humans don't respond to in time. The fitness gate blocks any task from being marked DONE until all three metrics pass.
+
+#### 4. Smart Throttler (SMT)
+
+A sliding-window rate limiter that prevents runaway execution without killing throughput. 500 prompts per 5-hour window by default, with category reserves (20% held for LEGAL and EMAIL), burst mode for emergencies, and a file-persisted kill switch. Safety operations — health checks, audit logging, identity extraction — are unthrottled. The system runs as fast as the model provider allows, never faster.
+
+#### 5. Vector Identity Store
+
+CASH remembers who you are — semantically. A LanceDB-backed vector store with cosine similarity search across 8 locked categories: goals, constraints, preferences, beliefs, risks, capabilities, relationships, and historical facts. Write access is restricted to the extraction pipeline only. Every write triggers a JSONL backup. Embeddings are cached per content hash. The identity store feeds context into every task execution, so every persona knows the operator's intent.
+
+#### 6. Extension Architecture
+
+Plug anything in. Extensions follow a lifecycle contract (initialize, tick, shutdown) and register persona executors with circuit breaker protection. The foundation API exposes task store, identity store, SMT, and audit — so extensions operate with full system awareness. Built-in extensions include the Roadmap Observer (autonomous README parsing), Continuous Self-Modify (recurring upgrade cycles), Tuta Email (IMAP polling with importance classification), and Twilio SMS (circuit-breaker-protected messaging).
+
+#### 7. Model Fallback with Provider Rotation
+
+Multi-provider failover that doesn't just retry — it learns. Auth profile cooldowns skip unavailable providers. Rate limit detection categorizes failures. Exponential backoff prevents thundering herds. Allowlist enforcement restricts model selection to approved options. When MiniMax is down, Claude picks up. When Claude rate-limits, the chain rotates. Zero manual intervention.
+
+#### 8. WebSocket Gateway with RPC Protocol
+
+A full JSON-RPC protocol over WebSocket with correlation IDs, event broadcasting with sequence numbers, slow consumer detection, and TLS fingerprint validation. Chat sessions stream deltas in real time. Client state is tracked per connection. Deduplication prevents double-execution of idempotent operations. The gateway is the nerve center — every persona, extension, and dashboard connects through it.
+
+#### 9. Resource Monitor with Adaptive Throttling
+
+Real-time tracking of RSS memory, heap usage, and disk space. At 800MB the system reduces concurrency to 50%. At 950MB it hard-stops new task creation. Build operations are limited to one at a time. Self-modify operations cap at two concurrent. The scheduler automatically pauses when resources are critical and resumes when they recover. The system protects itself from itself.
+
+#### 10. Roadmap Observer
+
+The system reads its own README. Specifically, it parses Section 12 (the strategic roadmap), detects track completion status via regex pattern matching on phase headers and checkbox syntax, creates sub-tasks for incomplete tracks, maps them to the right personas, and schedules follow-up monitoring tasks. It turns a markdown document into a living project plan that executes itself.
+
+#### 11. Rust Native Performance Layer
+
+CPU-bound operations are compiled to native code via `napi-rs`: priority scoring, secret detection (API keys, tokens, credentials), MIME type detection, media parsing, and the self-modify checklist validator. These hot paths run at native speed while the rest of the system stays in TypeScript for flexibility.
+
+#### 12. Continuous Self-Improvement Engine
+
+When `CASH_CONTINUOUS_SELF_MODIFY=true`, the system enters an open-ended evolution loop. Every 2 minutes it creates 8 parallel self-modify tasks across all 4 personas, each targeting a different improvement focus — code quality, error handling, documentation, dependency analysis. A fitness assessment task is created alongside every batch. The system literally improves itself until you tell it to stop.
+
+---
+
+**CASH** extends OpenClaw with enterprise-grade capabilities for autonomous task execution, identity-aware routing, and controlled self-modification. The rest of this README provides a comprehensive schematic of how CASH works and why it diverges from the original OpenClaw.
 
 ---
 
 ## Ratified Constitution (Source of Truth)
 
-This README is the **Ratified Constitution** of NEURABOT: a single Source of Truth synthesizing every architectural decision, safety protocol, and strategic objective. The following self-reinforcing loop defines how NEURABOT operates:
+This README is the **Ratified Constitution** of CASH: a single Source of Truth synthesizing every architectural decision, safety protocol, and strategic objective. The following self-reinforcing loop defines how CASH operates:
 
 | Role                 | Section                                                                                               | Responsibility                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | **The Goal**         | [§12 Where to Go from Here](#where-to-go-from-here)                                                   | Strategic roadmap (e.g., "Build iOS App", Tuta Mail, Calendar)                                                     |
-| **The Brain**        | [§6 SOWWY / Mission Control](#sowwy--mission-control)                                                 | Breaks goals into tasks, personas, priority, approval                                                              |
+| **The Brain**        | [§6 CASH / Mission Control](#cash--mission-control)                                                   | Breaks goals into tasks, personas, priority, approval                                                              |
 | **The Hands**        | [§5 Data Flow](#data-flow-from-message-to-response)                                                   | Agent Runner executes code and tools                                                                               |
 | **The Safety Net**   | [§9 Self-Modification](#self-modification-system), [§4 Process & Runtime](#process--runtime-topology) | Self-Modify checklist, Watchdog; system doesn't kill itself while learning                                         |
 | **The Throughput**   | [§0.3 Computational Throughput Triumph](#03-computational-throughput-triumph)                         | Parallel lanes, concurrent agent sessions, SMT-scalable limits—architecture built for hundreds of prompts per hour |
@@ -33,21 +90,21 @@ This README is the **Ratified Constitution** of NEURABOT: a single Source of Tru
 - **Status Board:** Google Sheet (or equivalent) aligned with Section 12 roadmap
 - **Visual Map:** NotebookLM Mind Map (or equivalent) aligned with Section 3 architecture
 
-Missions (e.g., Track 1 iOS App Factory) are executed under this Constitution: goals from §12, taskification by SOWWY §6, execution by the Agent Runner, with safety boundaries (§8–§9) and staging/sandbox constraints respected. **Do not** edit `ecosystem.config.cjs` or deploy to `active_tools` from staging until explicitly authorized.
+Missions (e.g., Track 1 iOS App Factory) are executed under this Constitution: goals from §12, taskification by CASH §6, execution by the Agent Runner, with safety boundaries (§8–§9) and staging/sandbox constraints respected. **Do not** edit `ecosystem.config.cjs` or deploy to `active_tools` from staging until explicitly authorized.
 
 ### §0.1 Operational Directives (Speed & Parallelism)
 
-When operating autonomously, NEURABOT SHALL:
+When operating autonomously, CASH SHALL:
 
-- **Work as fast as it can** within safety limits: use the shortest practical scheduler poll interval (`SOWWY_SCHEDULER_POLL_MS`), respect SMT throttling and approval gates, but avoid unnecessary delays.
-- **Deploy sub-agents in parallel**: create sub-tasks assigned to **different personas** (Dev, ChiefOfStaff, LegalOps, RnD) so the scheduler can run multiple tasks concurrently—one or more per persona, according to `SOWWY_MAX_CONCURRENT_PER_PERSONA`. The Roadmap Observer and other extensions SHOULD create track-level or phase-level sub-tasks that distribute work across personas rather than serializing everything under one persona.
+- **Work as fast as it can** within safety limits: use the shortest practical scheduler poll interval (`CASH_SCHEDULER_POLL_MS`), respect SMT throttling and approval gates, but avoid unnecessary delays.
+- **Deploy sub-agents in parallel**: create sub-tasks assigned to **different personas** (Dev, ChiefOfStaff, LegalOps, RnD) so the scheduler can run multiple tasks concurrently—one or more per persona, according to `CASH_MAX_CONCURRENT_PER_PERSONA`. The Roadmap Observer and other extensions SHOULD create track-level or phase-level sub-tasks that distribute work across personas rather than serializing everything under one persona.
 - **Prefer parallelism over serialization**: when breaking down a goal (e.g. §12 tracks), assign distinct tracks or phases to different personas where logically possible so that Dev, ChiefOfStaff, and RnD can advance work in parallel.
 
 These directives are subordinate to the Safety Net (§4, §8, §9): SMT limits, approval gates, and self-modify boundaries MUST still be respected.
 
 ### §0.2 Continuous Self-Modify & Workforce Goal
 
-NEURABOT SHALL operate in **continuous self-improvement mode** until explicitly told to stop:
+CASH SHALL operate in **continuous self-improvement mode** until explicitly told to stop:
 
 - **Self-modify without stopping**: Run upgrade and self-modify cycles (validate → apply → reload) continuously. Do not stop for convenience; only stop when the human operator says so.
 - **Validate, then move on**: Every upgrade MUST pass the self-modify checklist (allowlist, diff threshold, syntax, no secrets, no boundary edits). After validation, apply changes and continue. Run tests where applicable so all upgrades work.
@@ -57,22 +114,22 @@ NEURABOT SHALL operate in **continuous self-improvement mode** until explicitly 
 **When to STOP** (and only then):
 
 - The human says **"stop"** or **"pause self-modify"** (or equivalent via channel or CLI).
-- The human invokes **sowwy.pause** (RPC or dashboard) to pause the scheduler and SMT.
-- **SOWWY_KILL_SWITCH=true** is set in the environment (global kill switch).
+- The human invokes **cash.pause** (RPC or dashboard) to pause the scheduler and SMT.
+- **CASH_KILL_SWITCH=true** is set in the environment (global kill switch).
 
-After stop, the human may resume with **sowwy.resume** or by clearing the kill switch. Until then, NEURABOT SHALL NOT start new self-modify or autonomous upgrade cycles.
+After stop, the human may resume with **cash.resume** or by clearing the kill switch. Until then, CASH SHALL NOT start new self-modify or autonomous upgrade cycles.
 
 ### §0.3 Computational Throughput Triumph
 
-NEURABOT’s architecture is built for **high-throughput, parallel computation**—designed to fully use powerful backends like MiniMax M2.1 with hundreds of prompts per hour:
+CASH’s architecture is built for **high-throughput, parallel computation**—designed to fully use powerful backends like MiniMax M2.1 with hundreds of prompts per hour:
 
-- **Parallel execution lanes**: The scheduler runs multiple tasks **per persona** (configurable via `SOWWY_MAX_CONCURRENT_PER_PERSONA`, up to 10+ per persona). With four personas (Dev, ChiefOfStaff, LegalOps, RnD), dozens of execution lanes can run **simultaneously**.
+- **Parallel execution lanes**: The scheduler runs multiple tasks **per persona** (configurable via `CASH_MAX_CONCURRENT_PER_PERSONA`, up to 10+ per persona). With four personas (Dev, ChiefOfStaff, LegalOps, RnD), dozens of execution lanes can run **simultaneously**.
 - **Agent lane concurrency**: The command-queue layer allows many concurrent LLM sessions (main lane + subagent lane), so the gateway does not serialize API calls—multiple agent turns and tool runs proceed in parallel.
 - **SMT-aligned scaling**: The SMT throttler window and limits can be raised to match provider quotas (e.g. thousands of prompts per 5-hour window), so throughput is limited by the **model provider**, not by artificial caps.
 - **Parallel tick and multi-task fetch**: The scheduler can dispatch work across all personas in parallel and fetch multiple ready tasks per persona per tick, keeping every lane fed.
 - **Executor multiplexing**: Multiple executors per persona (e.g. Continuous Self-Modify, Roadmap Observer, Twilio SMS) can coexist, so diverse work streams run in parallel without blocking one another.
 
-Together, these layers form a **throughput stack**: Constitution (§0.1–§0.2) demands speed and parallelism; the scheduler, lanes, SMT, and executors implement it. The result is an architecture that **celebrates computational throughput**—maximizing the use of high-capacity backends and turning NEURABOT into a true parallel workforce.
+Together, these layers form a **throughput stack**: Constitution (§0.1–§0.2) demands speed and parallelism; the scheduler, lanes, SMT, and executors implement it. The result is an architecture that **celebrates computational throughput**—maximizing the use of high-capacity backends and turning CASH into a true parallel workforce.
 
 ### §0.4 Skill Fitness Functions (MANDATORY FIRMWARE)
 
@@ -140,11 +197,11 @@ Together, these layers form a **throughput stack**: Constitution (§0.1–§0.2)
 3. [High-Level Architecture](#high-level-architecture)
 4. [Process & Runtime Topology](#process--runtime-topology)
 5. [Data Flow: From Message to Response](#data-flow-from-message-to-response)
-6. [SOWWY / Mission Control](#sowwy--mission-control)
+6. [CASH / Mission Control](#cash--mission-control)
 7. [Identity & Memory](#identity--memory)
 8. [Security & Throttling](#security--throttling)
 9. [Self-Modification System](#self-modification-system)
-10. [Why NEURABOT vs OpenClaw](#why-neurabot-vs-openclaw)
+10. [Why CASH vs OpenClaw](#why-cash-vs-openclaw)
 11. [Key File Map](#key-file-map)
 12. [Where to Go from Here](#where-to-go-from-here)
 13. [Troubleshooting](#troubleshooting)
@@ -153,12 +210,12 @@ Together, these layers form a **throughput stack**: Constitution (§0.1–§0.2)
 
 ## Overview
 
-### What is NEURABOT?
+### What is CASH?
 
-NEURABOT is a **single gateway process** that:
+CASH is a **single gateway process** that:
 
 - **Multi-channel communication**: Handles Telegram, WhatsApp, Discord, WebChat, and 30+ other channels
-- **Autonomous task execution**: SOWWY mission control with persona-based routing and approval workflows
+- **Autonomous task execution**: CASH mission control with persona-based routing and approval workflows
 - **High-throughput parallelism**: Designed to maximize computational throughput—parallel execution lanes per persona, concurrent agent sessions, and SMT-scalable limits so backends like MiniMax M2.1 can run hundreds of prompts per hour (see [§0.3](#03-computational-throughput-triumph))
 - **Identity-aware**: Learns and applies user identity fragments for context-aware automation
 - **Self-modifying**: Controlled code editing with boundaries, validation, and safe reload
@@ -168,7 +225,7 @@ NEURABOT is a **single gateway process** that:
 
 | Feature                          | Description                                                                                                                                                                        |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **SOWWY Mission Control**        | Task OS with priority queues, retries, backoff, stuck detection, and audit trails                                                                                                  |
+| **CASH Mission Control**         | Task OS with priority queues, retries, backoff, stuck detection, and audit trails                                                                                                  |
 | **Identity Store**               | LanceDB-backed vector storage for structured identity fragments (goals, constraints, preferences, beliefs)                                                                         |
 | **Persona Routing**              | Dev, LegalOps, ChiefOfStaff, RnD personas with dedicated executors                                                                                                                 |
 | **Self-Modification**            | Safe code editing with allowlists, diff thresholds, syntax validation, and reload                                                                                                  |
@@ -181,9 +238,9 @@ NEURABOT is a **single gateway process** that:
 
 **Read this section FIRST** when:
 
-- Starting a new NEURABOT project or fork
+- Starting a new CASH project or fork
 - Explaining the system to stakeholders or new developers
-- Deciding whether NEURABOT fits your use case
+- Deciding whether CASH fits your use case
 - Writing documentation that references core capabilities
 
 **Implementation note:** This is conceptual only—no code changes needed here. Use this to understand the system's scope before diving into specific components.
@@ -198,14 +255,14 @@ NEURABOT is a **single gateway process** that:
 
 - Setting up a development environment for the first time
 - Onboarding new developers to the project
-- Testing NEURABOT on a new machine or server
+- Testing CASH on a new machine or server
 - Recovering from a corrupted environment
 
 **Skip this section** if:
 
-- You're already running NEURABOT and need to modify specific components
+- You're already running CASH and need to modify specific components
 - You're only reading to understand architecture (see [Architecture](#high-level-architecture))
-- You're implementing features (jump to relevant sections like [SOWWY](#sowwy--mission-control) or [Self-Modification](#self-modification-system))
+- You're implementing features (jump to relevant sections like [CASH](#cash--mission-control) or [Self-Modification](#self-modification-system))
 
 ### Prerequisites
 
@@ -228,8 +285,8 @@ Before proceeding, verify:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Ghostmonday/NEURABOT.git
-cd NEURABOT
+git clone https://github.com/Ghostmonday/CASH.git
+cd CASH
 
 # Install dependencies
 pnpm install
@@ -264,23 +321,23 @@ The wizard will:
    cp .env.example .env
    ```
 
-2. **Configure SOWWY** (edit `.env`):
+2. **Configure CASH** (edit `.env`):
 
    ```bash
    # PostgreSQL (optional - uses in-memory if not set)
-   SOWWY_POSTGRES_HOST=localhost
-   SOWWY_POSTGRES_PORT=5432
-   SOWWY_POSTGRES_USER=sowwy
-   SOWWY_POSTGRES_PASSWORD=your-secure-password
-   SOWWY_POSTGRES_DB=sowwy
+   CASH_POSTGRES_HOST=localhost
+   CASH_POSTGRES_PORT=5432
+   CASH_POSTGRES_USER=cash
+   CASH_POSTGRES_PASSWORD=your-secure-password
+   CASH_POSTGRES_DB=cash
 
    # LanceDB Identity Store
-   SOWWY_IDENTITY_PATH=./data/identity
+   CASH_IDENTITY_PATH=./data/identity
 
    # SMT Throttler (align with your model quota)
-   SOWWY_SMT_WINDOW_MS=18000000  # 5 hours
-   SOWWY_SMT_MAX_PROMPTS=100
-   SOWWY_SMT_TARGET_UTILIZATION=0.80
+   CASH_SMT_WINDOW_MS=18000000  # 5 hours
+   CASH_SMT_MAX_PROMPTS=100
+   CASH_SMT_TARGET_UTILIZATION=0.80
 
    # Model Provider (e.g., MiniMax)
    MINIMAX_API_KEY=sk-cp-your-key-here
@@ -289,15 +346,15 @@ The wizard will:
 3. **Start PostgreSQL** (optional, for persistent storage):
    ```bash
    docker run -d \
-     --name sowwy-postgres \
-     -e POSTGRES_USER=sowwy \
+     --name cash-postgres \
+     -e POSTGRES_USER=cash \
      -e POSTGRES_PASSWORD=your-secure-password \
-     -e POSTGRES_DB=sowwy \
+     -e POSTGRES_DB=cash \
      -p 127.0.0.1:5432:5432 \
      postgres:15-alpine
    ```
 
-### Running NEURABOT
+### Running CASH
 
 #### Development Mode
 
@@ -316,7 +373,7 @@ pnpm gateway:watch
 npx pm2 start ecosystem.config.cjs
 
 # View logs
-npx pm2 logs neurabot-gateway
+npx pm2 logs cash-gateway
 
 # Monitor dashboard
 npx pm2 monit
@@ -336,7 +393,7 @@ Open `http://127.0.0.1:18789` (or your configured port) in your browser to acces
 
 - **Configure channels**: Set up Telegram, WhatsApp, or other channels via `openclaw configure`
 - **Set up monitoring**: Add `HEALTHCHECKS_URL` to `ecosystem.config.cjs` for heartbeat pings
-- **Explore SOWWY**: See [SOWWY / Mission Control](#sowwy--mission-control) for task management
+- **Explore CASH**: See [CASH / Mission Control](#cash--mission-control) for task management
 - **Read the docs**: Check `docs/` for detailed guides on channels, tools, and extensions
 
 ---
@@ -357,10 +414,10 @@ Open `http://127.0.0.1:18789` (or your configured port) in your browser to acces
 
 1. Identify which box in the diagram your component belongs to
 2. Check if you need to modify `src/gateway/server*.ts` for integration
-3. Verify whether your component needs SOWWY (task scheduler) access
+3. Verify whether your component needs CASH (task scheduler) access
 4. Determine if watchdog monitoring is required for your component
 
-NEURABOT is a **single gateway process** that binds HTTP/WebSocket servers, loads channel plugins (Telegram, WhatsApp, WebChat, etc.), runs the SOWWY task scheduler, and connects to LLM providers and tools. Everything runs inside one Node process except optional PM2-managed siblings (e.g. a separate sentinel for crash-loop detection).
+CASH is a **single gateway process** that binds HTTP/WebSocket servers, loads channel plugins (Telegram, WhatsApp, WebChat, etc.), runs the CASH task scheduler, and connects to LLM providers and tools. Everything runs inside one Node process except optional PM2-managed siblings (e.g. a separate sentinel for crash-loop detection).
 
 ```mermaid
 flowchart TB
@@ -372,7 +429,7 @@ flowchart TB
     Healthchecks[Healthchecks.io]
   end
 
-  subgraph gateway [NEURABOT Gateway Process]
+  subgraph gateway [CASH Gateway Process]
     HTTP[HTTP Server]
     WS[WebSocket Server]
     Channels[Channel Plugins]
@@ -380,7 +437,7 @@ flowchart TB
     AgentRunner[Agent Runner]
     LLM[LLM Providers]
     Tools[Tools]
-    SowwyBootstrap[SOWWY Bootstrap]
+    CashBootstrap[CASH Bootstrap]
     TaskScheduler[Task Scheduler]
     IdentityStore[Identity Store]
     TaskStore[Task Store]
@@ -399,26 +456,26 @@ flowchart TB
   AutoReply --> AgentRunner
   AgentRunner --> LLM
   AgentRunner --> Tools
-  SowwyBootstrap --> TaskScheduler
-  SowwyBootstrap --> IdentityStore
-  SowwyBootstrap --> TaskStore
-  SowwyBootstrap --> SMT
-  SowwyBootstrap --> Watchdog
+  CashBootstrap --> TaskScheduler
+  CashBootstrap --> IdentityStore
+  CashBootstrap --> TaskStore
+  CashBootstrap --> SMT
+  CashBootstrap --> Watchdog
   TaskScheduler --> IdentityStore
   TaskScheduler --> TaskStore
   Watchdog --> Healthchecks
 ```
 
-**Summary:** One process (gateway) handles all channels, routing, agents, SOWWY, and heartbeat. Optional: PM2 + sentinel for crash-loop detection and rollback (see [Process & Runtime Topology](#process--runtime-topology)).
+**Summary:** One process (gateway) handles all channels, routing, agents, CASH, and heartbeat. Optional: PM2 + sentinel for crash-loop detection and rollback (see [Process & Runtime Topology](#process--runtime-topology)).
 
 ### Adding New Components: Integration Points
 
-When extending NEURABOT, here are the common integration patterns:
+When extending CASH, here are the common integration patterns:
 
 **New Channel Plugin** → Modify `src/gateway/server-channels.ts`, implement channel interface, wire to AutoReply
 **New Tool** → Add to `src/agents/tools/`, register in tool registry, expose to AgentRunner
-**New SOWWY Extension** → Create in `extensions/`, register in `src/sowwy/extensions/loader.ts`, wire to TaskScheduler
-**New Persona** → Define in `src/sowwy/mission-control/schema.ts`, register executor in scheduler bootstrap
+**New CASH Extension** → Create in `extensions/`, register in `src/cash/extensions/loader.ts`, wire to TaskScheduler
+**New Persona** → Define in `src/cash/mission-control/schema.ts`, register executor in scheduler bootstrap
 **New LLM Provider** → Implement provider interface, add to `src/agents/providers/`, configure in `.env`
 
 ---
@@ -446,7 +503,7 @@ When extending NEURABOT, here are the common integration patterns:
 
 Before configuring PM2:
 
-- [ ] NEURABOT runs successfully in development mode
+- [ ] CASH runs successfully in development mode
 - [ ] All required environment variables are set
 - [ ] You have decided on memory limits (default: 1GB, adjust in `ecosystem.config.cjs`)
 - [ ] You understand log rotation needs (PM2 handles this)
@@ -461,8 +518,8 @@ flowchart LR
   end
 
   subgraph apps [PM2 Apps]
-    Gateway[neurabot-gateway]
-    Sentinel[neurabot-sentinel optional]
+    Gateway[cash-gateway]
+    Sentinel[cash-sentinel optional]
   end
 
   subgraph gateway_internals [Inside Gateway]
@@ -482,11 +539,11 @@ flowchart LR
 ```
 
 - **Entry:** `dist/index.js gateway` (or `node dist/index.js gateway`).
-- **Config:** `ecosystem.config.cjs` defines `neurabot-gateway` (script, args, env, memory limit, logs). Optional second app for sentinel.
+- **Config:** `ecosystem.config.cjs` defines `cash-gateway` (script, args, env, memory limit, logs). Optional second app for sentinel.
 - **Watchdog:** Started inside gateway bootstrap (`startWatchdog()` in `src/watchdog/heartbeat.ts`). Sends HTTP GET to `HEALTHCHECKS_URL` on an interval (e.g. 15 min) and runs an internal health check (e.g. uptime/memory every 60 min). Does **not** start the gateway; it only runs inside it.
 - **Sentinel (optional):** Separate PM2 app that subscribes to PM2 process events, detects crash loops (e.g. N exits in 60s), and can trigger a rollback script (e.g. `git reset --hard stable-checkpoint`, rebuild, restart). Not required for normal operation.
 
-**Why this is better than "normal" OpenClaw:** OpenClaw typically runs as a single process (or under systemd/cron) with no structured heartbeat or crash-loop recovery. NEURABOT adds a clear PM2 topology, configurable memory limits, log rotation, and optional external monitoring (Healthchecks.io) plus optional automated rollback.
+**Why this is better than "normal" OpenClaw:** OpenClaw typically runs as a single process (or under systemd/cron) with no structured heartbeat or crash-loop recovery. CASH adds a clear PM2 topology, configurable memory limits, log rotation, and optional external monitoring (Healthchecks.io) plus optional automated rollback.
 
 ### Implementation Guide: Setting Up PM2
 
@@ -505,7 +562,7 @@ flowchart LR
 
    ```bash
    npx pm2 list
-   npx pm2 logs neurabot-gateway --lines 50
+   npx pm2 logs cash-gateway --lines 50
    ```
 
 4. **Enable startup on boot:**
@@ -573,12 +630,12 @@ sequenceDiagram
 **Component roles:**
 
 - **Channel plugins** (e.g. Telegram, WhatsApp, WebChat): Parse platform events, normalize to internal message format, call into gateway routing and auto-reply.
-- **Gateway core:** HTTP/WS servers, config loading, channel lifecycle, and wiring to auto-reply and SOWWY.
+- **Gateway core:** HTTP/WS servers, config loading, channel lifecycle, and wiring to auto-reply and CASH.
 - **Auto-reply pipeline:** Decides whether to run an agent (e.g. command vs. chat), typing indicators, and enqueues work.
 - **Followup queue:** Serializes or prioritizes runs per session/queue key so one turn finishes before the next starts.
 - **Agent runner:** Loads session, builds prompt, calls LLM with tools, handles streaming and tool execution, then sends the reply back through the channel.
 
-**Why this is better than "normal" OpenClaw:** Same general flow as OpenClaw; NEURABOT keeps that flow and adds SOWWY (task store, scheduler, identity) alongside it. So you get the same channel → agent experience **plus** mission control and identity-aware tasks.
+**Why this is better than "normal" OpenClaw:** Same general flow as OpenClaw; CASH keeps that flow and adds CASH (task store, scheduler, identity) alongside it. So you get the same channel → agent experience **plus** mission control and identity-aware tasks.
 
 ### Key Files for Each Stage
 
@@ -602,11 +659,11 @@ sequenceDiagram
 
 ---
 
-## SOWWY / Mission Control
+## CASH / Mission Control
 
 ### When to Implement This Section
 
-**Implement SOWWY** when:
+**Implement CASH** when:
 
 - Building autonomous task execution workflows
 - Adding background jobs that run independently of user messages
@@ -615,7 +672,7 @@ sequenceDiagram
 - Building multi-step workflows with retries and failure handling
 - Implementing scheduled or recurring tasks
 
-**Skip SOWWY** when:
+**Skip CASH** when:
 
 - Building simple request-response chat features
 - All operations are synchronous and user-initiated
@@ -624,15 +681,15 @@ sequenceDiagram
 
 ### Implementation Prerequisites
 
-Before implementing SOWWY components:
+Before implementing CASH components:
 
 - [ ] Decide on persistence: PostgreSQL (production) or in-memory (testing)
-- [ ] Review task categories in `src/sowwy/mission-control/schema.ts`
+- [ ] Review task categories in `src/cash/mission-control/schema.ts`
 - [ ] Understand persona model (which personas execute which task types)
 - [ ] Determine which operations need approval gates
 - [ ] Plan audit/decision logging requirements
 
-SOWWY adds a **task OS** and **persona routing** on top of the gateway. It does not replace the chat pipeline; it runs next to it.
+CASH adds a **task OS** and **persona routing** on top of the gateway. It does not replace the chat pipeline; it runs next to it.
 
 ```mermaid
 flowchart TB
@@ -688,20 +745,20 @@ flowchart TB
 
 **Flow in code:**
 
-1. **Bootstrap** (`src/gateway/server-sowwy.ts`): Creates stores (PostgreSQL or in-memory), identity store (LanceDB), SMT throttler, and `TaskScheduler`. Registers SOWWY RPC handlers (e.g. `tasks.list`, `tasks.create`, `tasks.approve`) and starts the scheduler loop inside the gateway process.
+1. **Bootstrap** (`src/gateway/server-cash.ts`): Creates stores (PostgreSQL or in-memory), identity store (LanceDB), SMT throttler, and `TaskScheduler`. Registers CASH RPC handlers (e.g. `tasks.list`, `tasks.create`, `tasks.approve`) and starts the scheduler loop inside the gateway process.
 2. **Task creation:** Via RPC `tasks.create` (or extensions). Tasks have category, personaOwner, priority, status (e.g. BACKLOG → READY → IN_PROGRESS → DONE), and optional approval.
-3. **Scheduler** (`src/sowwy/mission-control/scheduler.ts`): Every N seconds, for each persona, calls `taskStore.getNextReady({ personaOwner })`. If a task needs approval, it notifies (e.g. via broadcaster) and skips execution until approved. Otherwise it runs the registered persona executor (currently stubs that return success).
+3. **Scheduler** (`src/cash/mission-control/scheduler.ts`): Every N seconds, for each persona, calls `taskStore.getNextReady({ personaOwner })`. If a task needs approval, it notifies (e.g. via broadcaster) and skips execution until approved. Otherwise it runs the registered persona executor (currently stubs that return success).
 4. **Persona executors:** Registered with `scheduler.registerPersona(PersonaOwner.Dev, fn)`. The executor receives the task and identity context; in a full implementation it would invoke an agent or tool. Today they are stubs.
 5. **Stores:** Tasks and audit/decisions can live in PostgreSQL (production) or in-memory (no DB). Identity is separate (LanceDB) and used to inject context into the executor.
 
-**Why this is better than OpenClaw:** OpenClaw has no built-in task queue, personas, or approval workflow. NEURABOT adds a full task OS (priority, retries, backoff, stuck detection, audit) and a path to autonomous task execution (e.g. future Architect reading ROADMAP and enqueueing tasks).
+**Why this is better than OpenClaw:** OpenClaw has no built-in task queue, personas, or approval workflow. CASH adds a full task OS (priority, retries, backoff, stuck detection, audit) and a path to autonomous task execution (e.g. future Architect reading ROADMAP and enqueueing tasks).
 
 ### Implementation Guide: Adding a New Task Type
 
 **Validation checkpoints at each step:**
 
 1. **Define task category** (if new):
-   - Edit `src/sowwy/mission-control/schema.ts`
+   - Edit `src/cash/mission-control/schema.ts`
    - Add to `TaskCategory` enum
    - Document what this category represents
    - **Verify:** Run `pnpm build` to check TypeScript compilation
@@ -716,7 +773,7 @@ flowchart TB
 3. **Implement persona executor:**
 
    ```typescript
-   // In src/gateway/server-sowwy.ts or dedicated file
+   // In src/gateway/server-cash.ts or dedicated file
    scheduler.registerPersona(PersonaOwner.Dev, async (task, context) => {
      // 1. Validate task payload
      // 2. Execute task logic (call tools, agents, APIs)
@@ -741,17 +798,17 @@ flowchart TB
    - Expose `tasks.approve` RPC or UI button
    - Task won't execute until approved
 
-### Key Files for SOWWY Development
+### Key Files for CASH Development
 
-| Component        | File                                     | Purpose                               |
-| ---------------- | ---------------------------------------- | ------------------------------------- |
-| **Bootstrap**    | `src/gateway/server-sowwy.ts`            | Wires stores, scheduler, RPC handlers |
-| **Scheduler**    | `src/sowwy/mission-control/scheduler.ts` | Polling loop, persona execution       |
-| **Task Store**   | `src/sowwy/mission-control/store.ts`     | Task CRUD, status transitions         |
-| **Schema**       | `src/sowwy/mission-control/schema.ts`    | Task types, categories, personas      |
-| **Identity**     | `src/sowwy/identity/store.ts`            | Identity context for executors        |
-| **Extensions**   | `src/sowwy/extensions/loader.ts`         | Load SOWWY-aware extensions           |
-| **RPC Handlers** | `src/gateway/server-sowwy.ts`            | RPC methods (list, create, approve)   |
+| Component        | File                                    | Purpose                               |
+| ---------------- | --------------------------------------- | ------------------------------------- |
+| **Bootstrap**    | `src/gateway/server-cash.ts`            | Wires stores, scheduler, RPC handlers |
+| **Scheduler**    | `src/cash/mission-control/scheduler.ts` | Polling loop, persona execution       |
+| **Task Store**   | `src/cash/mission-control/store.ts`     | Task CRUD, status transitions         |
+| **Schema**       | `src/cash/mission-control/schema.ts`    | Task types, categories, personas      |
+| **Identity**     | `src/cash/identity/store.ts`            | Identity context for executors        |
+| **Extensions**   | `src/cash/extensions/loader.ts`         | Load CASH-aware extensions            |
+| **RPC Handlers** | `src/gateway/server-cash.ts`            | RPC methods (list, create, approve)   |
 
 ### Common Patterns
 
@@ -801,7 +858,7 @@ flowchart TB
 Before implementing identity/memory:
 
 - [ ] Choose embedding provider (OpenAI, local model, etc.)
-- [ ] Decide on LanceDB storage location (`SOWWY_IDENTITY_PATH`)
+- [ ] Decide on LanceDB storage location (`CASH_IDENTITY_PATH`)
 - [ ] Review 8-category schema (goal, constraint, preference, belief, risk, capability, relationship, historical_fact)
 - [ ] Plan extraction strategy (manual, agent-driven, or automatic from conversations)
 - [ ] Determine retrieval strategy (vector similarity, filters, hybrid)
@@ -838,10 +895,10 @@ flowchart LR
   Search --> Inject
 ```
 
-- **Identity store** (`src/sowwy/identity/`): Holds "identity fragments" in a fixed schema (e.g. goal, constraint, preference, belief, risk, capability, relationship, historical_fact). Implementations can use LanceDB (vector) for semantic search. Used by the task scheduler to pass context into persona executors.
-- **Memory:** OpenClaw already has memory/retrieval (e.g. for agent context). NEURABOT can add or use consolidation (e.g. daily rollups) and persistence (PostgreSQL + vector) so that both identity and memory survive restarts and are available to SOWWY and the agent runner.
+- **Identity store** (`src/cash/identity/`): Holds "identity fragments" in a fixed schema (e.g. goal, constraint, preference, belief, risk, capability, relationship, historical_fact). Implementations can use LanceDB (vector) for semantic search. Used by the task scheduler to pass context into persona executors.
+- **Memory:** OpenClaw already has memory/retrieval (e.g. for agent context). CASH can add or use consolidation (e.g. daily rollups) and persistence (PostgreSQL + vector) so that both identity and memory survive restarts and are available to CASH and the agent runner.
 
-**Why this is better than OpenClaw:** OpenClaw does not standardize identity fragments or a task-scoped identity context. NEURABOT adds a structured identity layer that can drive persona selection and safer, context-aware automation.
+**Why this is better than OpenClaw:** OpenClaw does not standardize identity fragments or a task-scoped identity context. CASH adds a structured identity layer that can drive persona selection and safer, context-aware automation.
 
 ### Implementation Guide: Identity Fragments
 
@@ -885,13 +942,13 @@ const context = identity.map((f) => `${f.category}: ${f.content}`).join("\n");
 
 ### Key Files for Identity Development
 
-| Component                    | File                                  | Purpose                                 |
-| ---------------------------- | ------------------------------------- | --------------------------------------- |
-| **Identity Store Interface** | `src/sowwy/identity/store.ts`         | Abstract interface for identity storage |
-| **LanceDB Implementation**   | `src/sowwy/identity/lancedb-store.ts` | Vector storage with embeddings          |
-| **Schema**                   | `src/sowwy/identity/schema.ts`        | 8-category type definitions             |
-| **Bootstrap**                | `src/gateway/server-sowwy.ts`         | Identity store initialization           |
-| **Persona Executors**        | (your code)                           | Use identity context in task execution  |
+| Component                    | File                                 | Purpose                                 |
+| ---------------------------- | ------------------------------------ | --------------------------------------- |
+| **Identity Store Interface** | `src/cash/identity/store.ts`         | Abstract interface for identity storage |
+| **LanceDB Implementation**   | `src/cash/identity/lancedb-store.ts` | Vector storage with embeddings          |
+| **Schema**                   | `src/cash/identity/schema.ts`        | 8-category type definitions             |
+| **Bootstrap**                | `src/gateway/server-cash.ts`         | Identity store initialization           |
+| **Persona Executors**        | (your code)                          | Use identity context in task execution  |
 
 ### Common Patterns
 
@@ -956,10 +1013,10 @@ Before implementing security features:
 
 - **SMT (Self-Modify Throttler):** Limits how often "expensive" operations (e.g. LLM prompts for self-modify) can run (e.g. window, max prompts, target utilization). Used so the scheduler and tools don't overload the system.
 - **Approval gates:** Certain actions (e.g. send email, browser navigate, financial, VPS create/stop) can require explicit approval. The scheduler and RPC expose `tasks.approve` and notify humans when a task is waiting.
-- **Env validation:** SOWWY validates required env vars at bootstrap and redacts secrets in error messages.
+- **Env validation:** CASH validates required env vars at bootstrap and redacts secrets in error messages.
 - **Redaction:** PII and secrets are redacted in logs and in error responses.
 
-**Why this is better than OpenClaw:** OpenClaw has security (e.g. allowlists, auth) but not a centralized throttler and approval workflow for high-risk actions. NEURABOT adds SMT and approval gates so autonomous tasks stay within guardrails.
+**Why this is better than OpenClaw:** OpenClaw has security (e.g. allowlists, auth) but not a centralized throttler and approval workflow for high-risk actions. CASH adds SMT and approval gates so autonomous tasks stay within guardrails.
 
 ### Implementation Guide: Approval Gates
 
@@ -1021,16 +1078,16 @@ async function handleApprove(taskId: string, approverId: string) {
 In `.env`:
 
 ```bash
-SOWWY_SMT_WINDOW_MS=18000000      # 5 hours in ms
-SOWWY_SMT_MAX_PROMPTS=500         # Max prompts per window (default: 500, can increase to 1000+)
-SOWWY_SMT_TARGET_UTILIZATION=0.80 # Start throttling at 80%
+CASH_SMT_WINDOW_MS=18000000      # 5 hours in ms
+CASH_SMT_MAX_PROMPTS=500         # Max prompts per window (default: 500, can increase to 1000+)
+CASH_SMT_TARGET_UTILIZATION=0.80 # Start throttling at 80%
 ```
 
 **Step 2: Check quota before expensive operations**
 
 ```typescript
 // In self-modify tool or scheduler executor
-import { smtThrottler } from '../sowwy/smt/throttler';
+import { smtThrottler } from '../cash/smt/throttler';
 
 async function performExpensiveOperation() {
   // Check if quota available
@@ -1060,13 +1117,13 @@ console.log(`SMT usage: ${metrics.consumed}/${metrics.limit} (${metrics.utilizat
 
 ### Key Files for Security
 
-| Component          | File                              | Purpose                               |
-| ------------------ | --------------------------------- | ------------------------------------- |
-| **SMT Throttler**  | `src/sowwy/smt/throttler.ts`      | Rate limiting for expensive ops       |
-| **Approval Logic** | `src/gateway/server-sowwy.ts`     | RPC handlers for approval workflow    |
-| **Env Validation** | `src/sowwy/config/validation.ts`  | Validate required env vars at startup |
-| **Redaction**      | `src/sowwy/security/redaction.ts` | PII/secret redaction in logs          |
-| **Tool Wrappers**  | `src/agents/tools/*-tool.ts`      | Implement approval checks per tool    |
+| Component          | File                             | Purpose                               |
+| ------------------ | -------------------------------- | ------------------------------------- |
+| **SMT Throttler**  | `src/cash/smt/throttler.ts`      | Rate limiting for expensive ops       |
+| **Approval Logic** | `src/gateway/server-cash.ts`     | RPC handlers for approval workflow    |
+| **Env Validation** | `src/cash/config/validation.ts`  | Validate required env vars at startup |
+| **Redaction**      | `src/cash/security/redaction.ts` | PII/secret redaction in logs          |
+| **Tool Wrappers**  | `src/agents/tools/*-tool.ts`     | Implement approval checks per tool    |
 
 ### Common Security Patterns
 
@@ -1121,7 +1178,7 @@ console.log(`SMT usage: ${metrics.consumed}/${metrics.limit} (${metrics.utilizat
 
 **⚠️ Warning:** Self-modification is powerful but risky. Implement boundaries first, test extensively, and always review agent changes.
 
-**Continuous self-modify (README §0.2):** To run upgrade/validate cycles until you say stop, set `SOWWY_CONTINUOUS_SELF_MODIFY=true`. The system will create recurring `SELF_MODIFY` tasks every 15 minutes. To stop: call **sowwy.pause** (RPC/dashboard), set **SOWWY_KILL_SWITCH=true**, or tell the bot to stop via your channel.
+**Continuous self-modify (README §0.2):** To run upgrade/validate cycles until you say stop, set `CASH_CONTINUOUS_SELF_MODIFY=true`. The system will create recurring `SELF_MODIFY` tasks every 15 minutes. To stop: call **cash.pause** (RPC/dashboard), set **CASH_KILL_SWITCH=true**, or tell the bot to stop via your channel.
 
 ### Implementation Prerequisites
 
@@ -1176,18 +1233,18 @@ flowchart TB
   Exit --> PM2
 ```
 
-- **Boundaries** (`src/sowwy/self-modify/boundaries.ts`): Which paths are allowed, max diff size (e.g. 50% or 90% in poweruser mode).
-- **Checklist** (`src/sowwy/self-modify/checklist.ts`): Validates a set of edits (allowlist, diff ratio, TS parse, no secrets, no editing the boundary/self-modify code itself).
-- **Reload** (`src/sowwy/self-modify/reload.ts`): Asks the process to exit after a delay so PM2 (or the process manager) restarts it with new code.
+- **Boundaries** (`src/cash/self-modify/boundaries.ts`): Which paths are allowed, max diff size (e.g. 50% or 90% in poweruser mode).
+- **Checklist** (`src/cash/self-modify/checklist.ts`): Validates a set of edits (allowlist, diff ratio, TS parse, no secrets, no editing the boundary/self-modify code itself).
+- **Reload** (`src/cash/self-modify/reload.ts`): Asks the process to exit after a delay so PM2 (or the process manager) restarts it with new code.
 - **Tool** (`src/agents/tools/self-modify-tool.ts`): Exposes `validate` (checklist) and `reload` to the agent.
 
-**Why this is better than OpenClaw:** OpenClaw does not ship a full self-modify pipeline with boundaries, checklist, and reload. NEURABOT adds a controlled path for the agent to change code and restart safely.
+**Why this is better than OpenClaw:** OpenClaw does not ship a full self-modify pipeline with boundaries, checklist, and reload. CASH adds a controlled path for the agent to change code and restart safely.
 
 ### Implementation Guide: Boundaries
 
 **Step 1: Define file allowlist**
 
-Edit `src/sowwy/self-modify/boundaries.ts`:
+Edit `src/cash/self-modify/boundaries.ts`:
 
 ```typescript
 export const ALLOWED_PATHS = [
@@ -1196,7 +1253,7 @@ export const ALLOWED_PATHS = [
   "extensions/*/src/**/*.ts", // Extension code
   "docs/**/*.md", // Documentation
   // NEVER allow:
-  // - src/sowwy/self-modify/**  (boundaries, checklist, reload)
+  // - src/cash/self-modify/**  (boundaries, checklist, reload)
   // - src/gateway/server*.ts     (core gateway logic)
   // - ecosystem.config.cjs       (PM2 config)
   // - .env                       (secrets)
@@ -1213,7 +1270,7 @@ export const DIFF_THRESHOLD = {
 The checklist runs automatically in `self_modify` tool:
 
 ```typescript
-// src/sowwy/self-modify/checklist.ts
+// src/cash/self-modify/checklist.ts
 export async function runSelfEditChecklist(edits: Edit[]) {
   const results = [];
 
@@ -1262,7 +1319,7 @@ export async function runSelfEditChecklist(edits: Edit[]) {
 **Step 3: Implement reload mechanism**
 
 ```typescript
-// src/sowwy/self-modify/reload.ts
+// src/cash/self-modify/reload.ts
 export async function requestSelfModifyReload(delayMs = 5000) {
   console.log(`[Self-Modify] Reload requested. Exiting in ${delayMs}ms...`);
 
@@ -1317,11 +1374,11 @@ export const selfModifyTool = {
 
 | Component      | File                                   | Purpose                    |
 | -------------- | -------------------------------------- | -------------------------- |
-| **Boundaries** | `src/sowwy/self-modify/boundaries.ts`  | Allowlist, diff thresholds |
-| **Checklist**  | `src/sowwy/self-modify/checklist.ts`   | Validation logic           |
-| **Reload**     | `src/sowwy/self-modify/reload.ts`      | Safe process restart       |
+| **Boundaries** | `src/cash/self-modify/boundaries.ts`   | Allowlist, diff thresholds |
+| **Checklist**  | `src/cash/self-modify/checklist.ts`    | Validation logic           |
+| **Reload**     | `src/cash/self-modify/reload.ts`       | Safe process restart       |
 | **Tool**       | `src/agents/tools/self-modify-tool.ts` | Expose to agents           |
-| **Rollback**   | `src/sowwy/self-modify/rollback.ts`    | Revert bad changes         |
+| **Rollback**   | `src/cash/self-modify/rollback.ts`     | Revert bad changes         |
 
 ### Common Patterns
 
@@ -1414,46 +1471,46 @@ The self-modification implementation includes **incremental validation steps thr
 
 ---
 
-## Why NEURABOT vs OpenClaw
+## Why CASH vs OpenClaw
 
 ### When to Reference This Section
 
 **Read this section** when:
 
-- Deciding whether to use OpenClaw or NEURABOT
+- Deciding whether to use OpenClaw or CASH
 - Explaining project rationale to stakeholders
-- Planning migration from OpenClaw to NEURABOT
-- Understanding which features are NEURABOT-specific
+- Planning migration from OpenClaw to CASH
+- Understanding which features are CASH-specific
 - Writing proposals or architecture documents
 
 **Decision criteria:**
 
 - **Choose OpenClaw** if: You need a proven multi-channel AI assistant with no task orchestration requirements
-- **Choose NEURABOT** if: You need autonomous task execution, identity-aware behavior, self-modification, or production-ready process management
+- **Choose CASH** if: You need autonomous task execution, identity-aware behavior, self-modification, or production-ready process management
 
-| Area              | OpenClaw (original)                   | NEURABOT (this fork)                                                                                       |
-| ----------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **Process model** | Single process or ad-hoc systemd/cron | PM2 ecosystem: gateway + optional sentinel, memory limits, log rotation                                    |
-| **Monitoring**    | None or custom                        | Watchdog heartbeat (internal + optional Healthchecks.io), optional crash-loop sentinel                     |
-| **Recovery**      | Manual restart, no rollback           | Optional auto-rollback to `stable-checkpoint` on crash loop                                                |
-| **Task system**   | None                                  | Full task OS: queue, personas, priority, retries, backoff, stuck detection, audit                          |
-| **Identity**      | Not structured                        | Identity store (e.g. LanceDB) with 8-category schema, injected into task execution                         |
-| **Approval**      | Per-tool / channel                    | Centralized approval gates and `tasks.approve` RPC                                                         |
-| **Throttling**    | Per-provider / ad-hoc                 | SMT throttler for self-modify and scheduler-driven prompts                                                 |
-| **Self-modify**   | Not built-in                          | Boundaries, checklist, reload, and `self_modify` tool                                                      |
-| **Extensions**    | Plugins                               | Same + SOWWY extensions (e.g. Twilio, Hostinger) and extension foundation (scheduler, stores, identity)    |
-| **Codebase**      | One codebase                          | Same codebase with added `sowwy/`, `watchdog/`, optional `recovery/`, and gateway bootstrap wired to SOWWY |
+| Area              | OpenClaw (original)                   | CASH (this fork)                                                                                         |
+| ----------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Process model** | Single process or ad-hoc systemd/cron | PM2 ecosystem: gateway + optional sentinel, memory limits, log rotation                                  |
+| **Monitoring**    | None or custom                        | Watchdog heartbeat (internal + optional Healthchecks.io), optional crash-loop sentinel                   |
+| **Recovery**      | Manual restart, no rollback           | Optional auto-rollback to `stable-checkpoint` on crash loop                                              |
+| **Task system**   | None                                  | Full task OS: queue, personas, priority, retries, backoff, stuck detection, audit                        |
+| **Identity**      | Not structured                        | Identity store (e.g. LanceDB) with 8-category schema, injected into task execution                       |
+| **Approval**      | Per-tool / channel                    | Centralized approval gates and `tasks.approve` RPC                                                       |
+| **Throttling**    | Per-provider / ad-hoc                 | SMT throttler for self-modify and scheduler-driven prompts                                               |
+| **Self-modify**   | Not built-in                          | Boundaries, checklist, reload, and `self_modify` tool                                                    |
+| **Extensions**    | Plugins                               | Same + CASH extensions (e.g. Twilio, Hostinger) and extension foundation (scheduler, stores, identity)   |
+| **Codebase**      | One codebase                          | Same codebase with added `cash/`, `watchdog/`, optional `recovery/`, and gateway bootstrap wired to CASH |
 
-**In one sentence:** OpenClaw is a powerful multi-channel AI assistant; NEURABOT is that same assistant **plus** a task OS, identity layer, controlled self-modification, and a production-ready process and recovery model.
+**In one sentence:** OpenClaw is a powerful multi-channel AI assistant; CASH is that same assistant **plus** a task OS, identity layer, controlled self-modification, and a production-ready process and recovery model.
 
-### Migration Path: OpenClaw → NEURABOT
+### Migration Path: OpenClaw → CASH
 
 **If you're currently using OpenClaw:**
 
 1. **Phase 1: Drop-in replacement** (1-2 days)
-   - Clone NEURABOT repo
+   - Clone CASH repo
    - Copy your `.env` and channel configs
-   - Run with SOWWY disabled (in-memory mode)
+   - Run with CASH disabled (in-memory mode)
    - Verify all existing functionality works
    - **Result:** Same behavior as OpenClaw, new codebase
 
@@ -1463,7 +1520,7 @@ The self-modification implementation includes **incremental validation steps thr
    - Test restart and recovery
    - **Result:** Production-ready process management
 
-3. **Phase 3: Enable SOWWY basics** (2-3 days)
+3. **Phase 3: Enable CASH basics** (2-3 days)
    - Set up PostgreSQL for task storage
    - Configure LanceDB for identity
    - Create first persona executors (stubs)
@@ -1475,9 +1532,9 @@ The self-modification implementation includes **incremental validation steps thr
    - Enable SMT throttler for rate limiting
    - Configure self-modification boundaries
    - Build persona-specific executors
-   - **Result:** Full NEURABOT capabilities
+   - **Result:** Full CASH capabilities
 
-### When Each NEURABOT Feature Becomes Critical
+### When Each CASH Feature Becomes Critical
 
 **Immediately useful:**
 
@@ -1514,29 +1571,29 @@ The self-modification implementation includes **incremental validation steps thr
 **Quick navigation tips:**
 
 - **Gateway/routing issues?** → Start with `src/gateway/server*.ts`
-- **SOWWY/tasks issues?** → Check `src/sowwy/mission-control/`
+- **CASH/tasks issues?** → Check `src/cash/mission-control/`
 - **Channel problems?** → Look in `src/gateway/server-channels.ts` and `extensions/*/`
 - **Agent/LLM issues?** → Start with `src/auto-reply/reply/agent-runner.ts`
 - **Tool problems?** → Check `src/agents/tools/`
 
-| Path                                     | Purpose                                                                   |
-| ---------------------------------------- | ------------------------------------------------------------------------- |
-| `src/index.ts`                           | CLI entry; `gateway` subcommand starts the gateway                        |
-| `src/gateway/server-sowwy.ts`            | SOWWY bootstrap: stores, identity, SMT, scheduler, RPC handlers, watchdog |
-| `src/gateway/server*.ts`                 | HTTP/WS servers, routing, health, startup                                 |
-| `src/gateway/server-channels.ts`         | Channel plugin loading and lifecycle                                      |
-| `src/sowwy/mission-control/scheduler.ts` | Task scheduler loop and persona execution                                 |
-| `src/sowwy/mission-control/store.ts`     | Task store interface (implementations: memory, pg)                        |
-| `src/sowwy/mission-control/schema.ts`    | Task schema, status, persona, category                                    |
-| `src/sowwy/identity/store.ts`            | Identity store interface                                                  |
-| `src/sowwy/identity/lancedb-store.ts`    | LanceDB-backed identity store                                             |
-| `src/sowwy/smt/throttler.ts`             | SMT rate limiting                                                         |
-| `src/sowwy/self-modify/*.ts`             | Boundaries, checklist, reload, rollback                                   |
-| `src/sowwy/extensions/loader.ts`         | Loads SOWWY extensions (e.g. Twilio)                                      |
-| `src/watchdog/heartbeat.ts`              | Watchdog startup, heartbeat timer, healthchecks ping                      |
-| `src/auto-reply/reply/agent-runner.ts`   | Main agent run loop (session, LLM, tools, reply)                          |
-| `src/agents/tools/self-modify-tool.ts`   | `self_modify` tool (validate + reload)                                    |
-| `ecosystem.config.cjs`                   | PM2 app definitions (gateway, optional sentinel)                          |
+| Path                                    | Purpose                                                                  |
+| --------------------------------------- | ------------------------------------------------------------------------ |
+| `src/index.ts`                          | CLI entry; `gateway` subcommand starts the gateway                       |
+| `src/gateway/server-cash.ts`            | CASH bootstrap: stores, identity, SMT, scheduler, RPC handlers, watchdog |
+| `src/gateway/server*.ts`                | HTTP/WS servers, routing, health, startup                                |
+| `src/gateway/server-channels.ts`        | Channel plugin loading and lifecycle                                     |
+| `src/cash/mission-control/scheduler.ts` | Task scheduler loop and persona execution                                |
+| `src/cash/mission-control/store.ts`     | Task store interface (implementations: memory, pg)                       |
+| `src/cash/mission-control/schema.ts`    | Task schema, status, persona, category                                   |
+| `src/cash/identity/store.ts`            | Identity store interface                                                 |
+| `src/cash/identity/lancedb-store.ts`    | LanceDB-backed identity store                                            |
+| `src/cash/smt/throttler.ts`             | SMT rate limiting                                                        |
+| `src/cash/self-modify/*.ts`             | Boundaries, checklist, reload, rollback                                  |
+| `src/cash/extensions/loader.ts`         | Loads CASH extensions (e.g. Twilio)                                      |
+| `src/watchdog/heartbeat.ts`             | Watchdog startup, heartbeat timer, healthchecks ping                     |
+| `src/auto-reply/reply/agent-runner.ts`  | Main agent run loop (session, LLM, tools, reply)                         |
+| `src/agents/tools/self-modify-tool.ts`  | `self_modify` tool (validate + reload)                                   |
+| `ecosystem.config.cjs`                  | PM2 app definitions (gateway, optional sentinel)                         |
 
 ### Implementation Context for Each Area
 
@@ -1546,12 +1603,12 @@ The self-modification implementation includes **incremental validation steps thr
 - Secondary: `extensions/*/src/index.ts` (channel implementation)
 - Test: Create test messages in channel's test suite
 
-**Adding/modifying SOWWY features:**
+**Adding/modifying CASH features:**
 
-- Schema: `src/sowwy/mission-control/schema.ts` (add task categories, personas)
-- Store: `src/sowwy/mission-control/store.ts` (persistence logic)
-- Scheduler: `src/sowwy/mission-control/scheduler.ts` (execution logic)
-- Bootstrap: `src/gateway/server-sowwy.ts` (register executors, RPC handlers)
+- Schema: `src/cash/mission-control/schema.ts` (add task categories, personas)
+- Store: `src/cash/mission-control/store.ts` (persistence logic)
+- Scheduler: `src/cash/mission-control/scheduler.ts` (execution logic)
+- Bootstrap: `src/gateway/server-cash.ts` (register executors, RPC handlers)
 
 **Adding/modifying tools:**
 
@@ -1562,16 +1619,16 @@ The self-modification implementation includes **incremental validation steps thr
 
 **Adding/modifying identity/memory:**
 
-- Schema: `src/sowwy/identity/schema.ts` (categories, types)
-- Store: `src/sowwy/identity/store.ts` (interface)
-- Implementation: `src/sowwy/identity/lancedb-store.ts` (vector storage)
+- Schema: `src/cash/identity/schema.ts` (categories, types)
+- Store: `src/cash/identity/store.ts` (interface)
+- Implementation: `src/cash/identity/lancedb-store.ts` (vector storage)
 - Usage: Inject into persona executors or agent prompts
 
 **Modifying self-modification:**
 
-- Boundaries: `src/sowwy/self-modify/boundaries.ts` (allowlist, thresholds)
-- Checklist: `src/sowwy/self-modify/checklist.ts` (validation rules)
-- Reload: `src/sowwy/self-modify/reload.ts` (restart logic)
+- Boundaries: `src/cash/self-modify/boundaries.ts` (allowlist, thresholds)
+- Checklist: `src/cash/self-modify/checklist.ts` (validation rules)
+- Reload: `src/cash/self-modify/reload.ts` (restart logic)
 - Tool: `src/agents/tools/self-modify-tool.ts` (agent interface)
 
 ---
@@ -1582,7 +1639,7 @@ The self-modification implementation includes **incremental validation steps thr
 
 **Use this section** when:
 
-- Planning next development phases after core NEURABOT is running
+- Planning next development phases after core CASH is running
 - Prioritizing feature roadmap (iOS, email, calendar)
 - Architecting integrations with external services
 - Building towards autonomous workflows
@@ -1590,7 +1647,7 @@ The self-modification implementation includes **incremental validation steps thr
 
 **Implementation order recommendation:**
 
-1. **First:** Get core NEURABOT running (gateway, channels, SOWWY)
+1. **First:** Get core CASH running (gateway, channels, CASH)
 2. **Then:** Choose ONE track based on priority:
    - iOS development (if mobile app is critical)
    - Tuta Mail + Telegram (if email automation is priority)
@@ -1605,7 +1662,7 @@ This section outlines concrete next-step directions in three areas: giving the s
 
 **Implement this track** when:
 
-- You need a native mobile app for NEURABOT
+- You need a native mobile app for CASH
 - iOS is a primary channel for users
 - You have access to a Mac (local or remote via Desk.in)
 - App Store distribution is required
@@ -1723,7 +1780,7 @@ Give the system **Tuta Mail** (Tutanota) access to **read** the archive, **respo
 
 - **Implementation**
   - Either extend an existing **email extension** (e.g. adapt the Proton extension's pattern) to a **Tuta** backend (IMAP/SMTP bridge or API), or add a new `extensions/tuta-email` that:
-    - Uses the same SOWWY task categories (e.g. EMAIL) and approval flow.
+    - Uses the same CASH task categories (e.g. EMAIL) and approval flow.
     - Exposes commands like `tuta.poll`, `tuta.send` (draft + approve), `tuta.archive`.
   - Store drafts and sent items in a way that avoids duplicate sends (e.g. idempotency keys or "last action" per thread).
 
@@ -1746,7 +1803,7 @@ Give the system **Tuta Mail** (Tutanota) access to **read** the archive, **respo
   - From emails that the system reads, **extract** date/time and event-like content (e.g. "Meeting Tuesday 3pm," "Call with John next week"). This can be done with simple patterns or an LLM call that returns structured data (title, start, end, attendees if present).
 
 - **Calendar**
-  - Feed extracted events into a **calendar** (e.g. Google Calendar API, CalDAV, or Apple Calendar). Document which calendar backend you use and how the system is allowed to create/update events (e.g. a dedicated "NEURABOT" calendar with write access).
+  - Feed extracted events into a **calendar** (e.g. Google Calendar API, CalDAV, or Apple Calendar). Document which calendar backend you use and how the system is allowed to create/update events (e.g. a dedicated "CASH" calendar with write access).
 
 - **Reminders**
   - Optionally turn some of these into **reminders** (in-app, or via the same Telegram channel: "Reminder: Meeting with X in 1 hour") so the user gets a nudge in the same live channel they use for important email alerts.
@@ -1780,7 +1837,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - **Choice**
   - Pick one primary calendar (e.g. Google Calendar, CalDAV, or Apple) and document:
     - How the system authenticates (OAuth, app password, or API key).
-    - Which calendar(s) it can read and write (e.g. a dedicated "NEURABOT" calendar to avoid cluttering the main one).
+    - Which calendar(s) it can read and write (e.g. a dedicated "CASH" calendar to avoid cluttering the main one).
 
 - **Operations**
   - Define what the agent can do: **create** event, **update** (reschedule/cancel), **list** (e.g. "what's on today?"). Expose these as **tools** or **extension commands** (e.g. `calendar.create`, `calendar.list`, `calendar.update`) with clear parameters (title, start, end, description).
@@ -1817,7 +1874,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 
 **Phase 1: Foundation (if not done)**
 
-- Core NEURABOT running (gateway, channels, SOWWY)
+- Core CASH running (gateway, channels, CASH)
 - At least one chat channel working (Telegram recommended)
 - Basic identity and task management
 
@@ -1848,7 +1905,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 
 **Use this section** when:
 
-- NEURABOT isn't starting or crashing
+- CASH isn't starting or crashing
 - Features aren't working as expected
 - Debugging production issues
 - Performance problems
@@ -1891,7 +1948,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 
    ```bash
    # Verify .env exists and has required variables
-   cat .env | grep -E 'MINIMAX_API_KEY|SOWWY_'
+   cat .env | grep -E 'MINIMAX_API_KEY|CASH_'
    ```
 
 4. **Check ports:**
@@ -1906,11 +1963,11 @@ Use the system to **organize calendar and reminders** and to **add important app
 
    ```bash
    # PM2 logs
-   npx pm2 logs neurabot-gateway --lines 100
+   npx pm2 logs cash-gateway --lines 100
 
    # Or direct logs
-   tail -f logs/neurabot-error.log
-   tail -f logs/neurabot-out.log
+   tail -f logs/cash-error.log
+   tail -f logs/cash-out.log
    ```
 
 **Common fixes:**
@@ -1920,7 +1977,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - **Build failed:** Run `pnpm build` and check for TypeScript errors
 - **Permission denied:** Check file permissions on `logs/` and `data/` directories
 
-#### SOWWY Tasks Not Executing
+#### CASH Tasks Not Executing
 
 **Symptoms:**
 
@@ -1934,14 +1991,14 @@ Use the system to **organize calendar and reminders** and to **add important app
 
    ```bash
    # Test connection
-   psql -h localhost -U sowwy -d sowwy -c "SELECT 1;"
+   psql -h localhost -U cash -d cash -c "SELECT 1;"
    ```
 
 2. **Check scheduler:**
 
    ```bash
    # Look for scheduler logs
-   npx pm2 logs neurabot-gateway | grep -i scheduler
+   npx pm2 logs cash-gateway | grep -i scheduler
    ```
 
 3. **Check approval:**
@@ -1954,13 +2011,13 @@ Use the system to **organize calendar and reminders** and to **add important app
 4. **Check logs:**
    ```bash
    # Look for scheduler errors
-   grep -i "scheduler\|task\|persona" logs/neurabot-error.log
+   grep -i "scheduler\|task\|persona" logs/cash-error.log
    ```
 
 **Common fixes:**
 
 - **PostgreSQL not running:** Start PostgreSQL or switch to in-memory (remove PG env vars)
-- **Scheduler disabled:** Check `SOWWY_SCHEDULER_POLL_MS` is set (default: 5000)
+- **Scheduler disabled:** Check `CASH_SCHEDULER_POLL_MS` is set (default: 5000)
 - **Approval required:** Approve task via `tasks.approve` RPC or dashboard
 - **No executor registered:** Verify persona executor is registered in bootstrap
 - **SMT quota exhausted:** Check `smtThrottler.getMetrics()` and wait for window reset
@@ -1979,14 +2036,14 @@ Use the system to **organize calendar and reminders** and to **add important app
 
    ```bash
    npx pm2 list
-   npx pm2 info neurabot-gateway
+   npx pm2 info cash-gateway
    ```
 
 2. **Check restart count:**
 
    ```bash
    # High restart count indicates crash loop
-   npx pm2 show neurabot-gateway | grep restarts
+   npx pm2 show cash-gateway | grep restarts
    ```
 
 3. **Check memory:**
@@ -2014,7 +2071,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 1. **Check LanceDB path:**
 
    ```bash
-   ls -la $SOWWY_IDENTITY_PATH  # Should exist and be writable
+   ls -la $CASH_IDENTITY_PATH  # Should exist and be writable
    ```
 
 2. **Check disk space:**
@@ -2025,12 +2082,12 @@ Use the system to **organize calendar and reminders** and to **add important app
 
 3. **Check logs:**
    ```bash
-   grep -i "identity\|lancedb" logs/neurabot-error.log
+   grep -i "identity\|lancedb" logs/cash-error.log
    ```
 
 **Common fixes:**
 
-- **LanceDB path missing:** Ensure `SOWWY_IDENTITY_PATH` directory exists and is writable
+- **LanceDB path missing:** Ensure `CASH_IDENTITY_PATH` directory exists and is writable
 - **Vector search failing:** Verify LanceDB is properly initialized (check for `data/identity/` directory and files)
 - **Disk full:** Free up space or move identity store to larger volume
 - **Corrupted store:** Delete and reinitialize (⚠️ loses identity data)
@@ -2069,14 +2126,14 @@ Use the system to **organize calendar and reminders** and to **add important app
 
    ```bash
    # Look for followup queue metrics in logs
-   grep -i "queue" logs/neurabot-out.log
+   grep -i "queue" logs/cash-out.log
    ```
 
 2. **Check LLM latency:**
 
    ```bash
    # Look for LLM request times
-   grep -i "llm\|provider" logs/neurabot-out.log
+   grep -i "llm\|provider" logs/cash-out.log
    ```
 
 3. **Profile memory:**
@@ -2094,7 +2151,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 ### Getting Help
 
 - **Documentation:** Check `docs/` for detailed guides on channels, tools, and extensions
-- **Issues:** Report bugs and feature requests on [GitHub Issues](https://github.com/Ghostmonday/NEURABOT/issues)
+- **Issues:** Report bugs and feature requests on [GitHub Issues](https://github.com/Ghostmonday/CASH/issues)
 - **Logs:** Enable verbose logging by setting `LOG_LEVEL=debug` in your environment
 
 ### Debug Checklist for Common Scenarios
@@ -2116,7 +2173,7 @@ Use the system to **organize calendar and reminders** and to **add important app
 - [ ] Check if database schema changed (may need migration)
 - [ ] Review changelog for breaking changes
 
-**"Task not executing" (SOWWY issue):**
+**"Task not executing" (CASH issue):**
 
 - [ ] Task is in READY status (not BACKLOG or IN_PROGRESS)
 - [ ] Task doesn't require approval (or has been approved)
@@ -2142,4 +2199,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-NEURABOT is a fork of [OpenClaw](https://github.com/openclaw/openclaw), an open-source multi-channel AI assistant platform. We extend it with SOWWY mission control, identity learning, and production-ready process management.
+CASH is a fork of [OpenClaw](https://github.com/openclaw/openclaw), an open-source multi-channel AI assistant platform. We extend it with CASH mission control, identity learning, and production-ready process management.
