@@ -84,7 +84,7 @@ export class ContinuousSelfModifyExtension implements ExtensionLifecycle {
     const pendingCounts = await Promise.all(
       pendingStatuses.map((status) => store.count({ status, category: TaskCategory.SELF_MODIFY })),
     );
-    const pending = pendingCounts.reduce((sum, count) => sum + count, 0);
+    const pending = pendingCounts.reduce((sum: number, count: number) => sum + count, 0);
     if (pending >= MAX_PENDING) {
       log.debug("Skipping cycle: too many pending SELF_MODIFY tasks", {
         pending,

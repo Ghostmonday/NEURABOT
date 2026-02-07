@@ -25,8 +25,8 @@ import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../sig
 import { sendMessageSignal } from "../../signal/send.js";
 import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
 
-export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
+export type { NormalizedOutboundPayload } from "./payloads.js";
 
 type SendMatrixMessage = (
   to: string,
@@ -253,8 +253,8 @@ export async function deliverOutboundPayloads(params: {
             channel: failoverChannels[0] as Exclude<OutboundChannel, "none">,
             to,
             accountId,
-            replyToId,
-            threadId,
+            replyToId: params.replyToId,
+            threadId: params.threadId,
             deps: params.deps,
             gifPlayback: params.gifPlayback,
           }).catch(() => null);
@@ -295,8 +295,8 @@ export async function deliverOutboundPayloads(params: {
                 channel: failoverChannels[0] as Exclude<OutboundChannel, "none">,
                 to,
                 accountId,
-                replyToId,
-                threadId,
+                replyToId: params.replyToId,
+                threadId: params.threadId,
                 deps: params.deps,
                 gifPlayback: params.gifPlayback,
               }).catch(() => null);
@@ -410,8 +410,8 @@ export async function deliverOutboundPayloads(params: {
                 channel: failoverChannels[0] as Exclude<OutboundChannel, "none">,
                 to,
                 accountId,
-                replyToId,
-                threadId,
+                replyToId: params.replyToId,
+                threadId: params.threadId,
                 deps: params.deps,
                 gifPlayback: params.gifPlayback,
               }).catch(() => null);

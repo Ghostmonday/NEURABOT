@@ -7,10 +7,12 @@
  */
 
 // Lazy-load IMAP module to handle missing package gracefully
-let ImapModule: typeof import("imap") | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let ImapModule: any = null;
 async function getImap() {
   if (!ImapModule) {
     try {
+      // @ts-expect-error - imap module may not be installed
       ImapModule = await import("imap");
     } catch {
       throw new Error("IMAP package not installed. Install with: npm install imap @types/imap");
