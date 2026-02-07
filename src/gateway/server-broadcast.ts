@@ -80,11 +80,7 @@ export function createGatewayBroadcaster(params: { clients: Set<GatewayWsClient>
       try {
         c.socket.send(frame);
       } catch {
-<<<<<<< HEAD
         // INTENTIONAL: Dead client cleanup - connection already closed, ignore errors
-=======
-        /* ignore */
->>>>>>> origin/main
       }
     }
   };
